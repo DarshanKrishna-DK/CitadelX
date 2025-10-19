@@ -1,0 +1,181 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1
+    // smart_contracts/moderator_nft/contract.py:5
+    // class ModeratorNFT(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@13
+    pushbytess 0x8135f083 0xa17c1cf3 0x4c8f28ae 0xe5cc7f7a 0x31d41617 0x8589f8de 0x2c05d88a 0x52550e3b // method "mint_moderator_nft(string,string,string,string,uint64)uint64", method "transfer_nft(uint64,address,address,uint64)string", method "update_metadata(uint64,string)string", method "burn_nft(uint64)string", method "get_nft_info(uint64)string", method "opt_in_asset(uint64)string", method "set_pricing(uint64,uint64,uint64,uint64)string", method "record_usage(uint64,uint64)string"
+    txna ApplicationArgs 0
+    match main_mint_moderator_nft_route@3 main_transfer_nft_route@4 main_update_metadata_route@5 main_burn_nft_route@6 main_get_nft_info_route@7 main_opt_in_asset_route@8 main_set_pricing_route@9 main_record_usage_route@10
+
+main_after_if_else@17:
+    // smart_contracts/moderator_nft/contract.py:5
+    // class ModeratorNFT(ARC4Contract):
+    pushint 0 // 0
+    return
+
+main_record_usage_route@10:
+    // smart_contracts/moderator_nft/contract.py:190
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c75001b5573616765207265636f72646564207375636365737366756c6c79
+    log
+    intc_0 // 1
+    return
+
+main_set_pricing_route@9:
+    // smart_contracts/moderator_nft/contract.py:162
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c75002250726963696e672073657420666f72206173736574207375636365737366756c6c79
+    log
+    intc_0 // 1
+    return
+
+main_opt_in_asset_route@8:
+    // smart_contracts/moderator_nft/contract.py:142
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c75001e4f7074656420696e20746f206173736574207375636365737366756c6c79
+    log
+    intc_0 // 1
+    return
+
+main_get_nft_info_route@7:
+    // smart_contracts/moderator_nft/contract.py:123
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c75001f4e465420496e666f20726574726965766564207375636365737366756c6c79
+    log
+    intc_0 // 1
+    return
+
+main_burn_nft_route@6:
+    // smart_contracts/moderator_nft/contract.py:102
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c7500174e4654206275726e6564207375636365737366756c6c79
+    log
+    intc_0 // 1
+    return
+
+main_update_metadata_route@5:
+    // smart_contracts/moderator_nft/contract.py:79
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c75002a4d65746164617461207570646174656420666f72206173736574204944207375636365737366756c6c79
+    log
+    intc_0 // 1
+    return
+
+main_transfer_nft_route@4:
+    // smart_contracts/moderator_nft/contract.py:52
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    pushbytes 0x151f7c75001c4e4654207472616e73666572726564207375636365737366756c6c79
+    log
+    intc_0 // 1
+    return
+
+main_mint_moderator_nft_route@3:
+    // smart_contracts/moderator_nft/contract.py:13
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/moderator_nft/contract.py:5
+    // class ModeratorNFT(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    extract 2 0
+    txna ApplicationArgs 4
+    extract 2 0
+    txna ApplicationArgs 5
+    btoi
+    // smart_contracts/moderator_nft/contract.py:13
+    // @abimethod()
+    callsub mint_moderator_nft
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@13:
+    // smart_contracts/moderator_nft/contract.py:5
+    // class ModeratorNFT(ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@17
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// smart_contracts.moderator_nft.contract.ModeratorNFT.mint_moderator_nft(moderator_name: bytes, moderator_description: bytes, dao_id: bytes, metadata_url: bytes, total_supply: uint64) -> uint64:
+mint_moderator_nft:
+    // smart_contracts/moderator_nft/contract.py:13-21
+    // @abimethod()
+    // def mint_moderator_nft(
+    //     self,
+    //     moderator_name: String,
+    //     moderator_description: String,
+    //     dao_id: String,
+    //     metadata_url: String,
+    //     total_supply: UInt64,
+    // ) -> UInt64:
+    proto 5 1
+    // smart_contracts/moderator_nft/contract.py:35-36
+    // # Validate inputs
+    // assert total_supply > 0, "Total supply must be greater than 0"
+    frame_dig -1
+    assert // Total supply must be greater than 0
+    // smart_contracts/moderator_nft/contract.py:47-48
+    // # For now, return a mock asset ID
+    // asset_id = UInt64(100000) + Global.latest_timestamp
+    pushint 100000 // 100000
+    global LatestTimestamp
+    +
+    // smart_contracts/moderator_nft/contract.py:50
+    // return asset_id
+    retsub

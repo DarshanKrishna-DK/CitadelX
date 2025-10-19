@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 1.6.3
+_src_path: gh:algorandfoundation/algokit-python-template
+author_email: darshankrishna2k2@gmail.com
+author_name: DarshanKrishna-DK
+contract_name: hello_world
+deployment_language: python
+preset_name: starter
+project_name: CitadelX-contracts
+

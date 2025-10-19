@@ -1,0 +1,359 @@
+{
+    "name": "ModeratorNFT",
+    "structs": {},
+    "methods": [
+        {
+            "name": "mint_moderator_nft",
+            "args": [
+                {
+                    "type": "string",
+                    "name": "moderator_name",
+                    "desc": "Name of the AI moderator"
+                },
+                {
+                    "type": "string",
+                    "name": "moderator_description",
+                    "desc": "Description of the moderator"
+                },
+                {
+                    "type": "string",
+                    "name": "dao_id",
+                    "desc": "ID of the DAO that created it"
+                },
+                {
+                    "type": "string",
+                    "name": "metadata_url",
+                    "desc": "URL to IPFS metadata (JSON with full details)"
+                },
+                {
+                    "type": "uint64",
+                    "name": "total_supply",
+                    "desc": "Total supply (typically 1 for NFT)"
+                }
+            ],
+            "returns": {
+                "type": "uint64",
+                "desc": "Asset ID of the minted NFT"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Mint a new AI Moderator NFT as an Algorand Standard Asset (ASA)",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "transfer_nft",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "asset_id",
+                    "desc": "The asset ID of the NFT"
+                },
+                {
+                    "type": "address",
+                    "name": "from_address",
+                    "desc": "Current owner"
+                },
+                {
+                    "type": "address",
+                    "name": "to_address",
+                    "desc": "New owner"
+                },
+                {
+                    "type": "uint64",
+                    "name": "amount",
+                    "desc": "Amount to transfer (typically 1 for NFT)"
+                }
+            ],
+            "returns": {
+                "type": "string",
+                "desc": "Success message"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Transfer NFT ownership (for outright purchases)",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "update_metadata",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "asset_id",
+                    "desc": "The asset ID of the NFT"
+                },
+                {
+                    "type": "string",
+                    "name": "new_metadata_url",
+                    "desc": "New metadata URL pointing to updated IPFS file"
+                }
+            ],
+            "returns": {
+                "type": "string",
+                "desc": "Success message"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Update NFT metadata URL (for usage statistics updates)",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "burn_nft",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "asset_id",
+                    "desc": "The asset ID of the NFT to burn"
+                }
+            ],
+            "returns": {
+                "type": "string",
+                "desc": "Success message"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Burn/destroy an NFT (if moderator is decommissioned)",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "get_nft_info",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "asset_id",
+                    "desc": "The asset ID of the NFT"
+                }
+            ],
+            "returns": {
+                "type": "string",
+                "desc": "NFT information as string"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Get NFT information",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "opt_in_asset",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "asset_id",
+                    "desc": "The asset ID to opt into"
+                }
+            ],
+            "returns": {
+                "type": "string",
+                "desc": "Success message"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Opt-in to receive an NFT (Algorand requires opt-in before receiving assets)",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "set_pricing",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "asset_id",
+                    "desc": "The asset ID of the moderator NFT"
+                },
+                {
+                    "type": "uint64",
+                    "name": "monthly_price",
+                    "desc": "Monthly subscription price in microAlgos"
+                },
+                {
+                    "type": "uint64",
+                    "name": "pay_per_use_price",
+                    "desc": "Pay-per-use price in microAlgos"
+                },
+                {
+                    "type": "uint64",
+                    "name": "outright_price",
+                    "desc": "One-time purchase price in microAlgos"
+                }
+            ],
+            "returns": {
+                "type": "string",
+                "desc": "Success message"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Set pricing models for the moderator NFT",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "record_usage",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "asset_id",
+                    "desc": "The asset ID of the moderator NFT"
+                },
+                {
+                    "type": "uint64",
+                    "name": "usage_count",
+                    "desc": "Number of times used"
+                }
+            ],
+            "returns": {
+                "type": "string",
+                "desc": "Success message with updated count"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Record usage statistics for pay-per-use model",
+            "events": [],
+            "recommendations": {}
+        }
+    ],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "\n    ModeratorNFT Smart Contract\n    \n    Manages NFT creation (ASA) for AI moderators with metadata\n    Each NFT represents a unique AI moderator with training context\n    ",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 0
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {},
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [
+            "NoOp"
+        ],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        78,
+                        123,
+                        175,
+                        223,
+                        272,
+                        313,
+                        373,
+                        419
+                    ],
+                    "errorMessage": "OnCompletion is not NoOp"
+                },
+                {
+                    "pc": [
+                        482
+                    ],
+                    "errorMessage": "Total supply must be greater than 0"
+                },
+                {
+                    "pc": [
+                        474
+                    ],
+                    "errorMessage": "can only call when creating"
+                },
+                {
+                    "pc": [
+                        81,
+                        126,
+                        178,
+                        226,
+                        275,
+                        316,
+                        376,
+                        422
+                    ],
+                    "errorMessage": "can only call when not creating"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9kZXJhdG9yX25mdC9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBNb2RlcmF0b3JORlQoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX2JhcmVfcm91dGluZ0AxMwogICAgcHVzaGJ5dGVzcyAweDgxMzVmMDgzIDB4YTE3YzFjZjMgMHg0YzhmMjhhZSAweGU1Y2M3ZjdhIDB4MzFkNDE2MTcgMHg4NTg5ZjhkZSAweDJjMDVkODhhIDB4NTI1NTBlM2IgLy8gbWV0aG9kICJtaW50X21vZGVyYXRvcl9uZnQoc3RyaW5nLHN0cmluZyxzdHJpbmcsc3RyaW5nLHVpbnQ2NCl1aW50NjQiLCBtZXRob2QgInRyYW5zZmVyX25mdCh1aW50NjQsYWRkcmVzcyxhZGRyZXNzLHVpbnQ2NClzdHJpbmciLCBtZXRob2QgInVwZGF0ZV9tZXRhZGF0YSh1aW50NjQsc3RyaW5nKXN0cmluZyIsIG1ldGhvZCAiYnVybl9uZnQodWludDY0KXN0cmluZyIsIG1ldGhvZCAiZ2V0X25mdF9pbmZvKHVpbnQ2NClzdHJpbmciLCBtZXRob2QgIm9wdF9pbl9hc3NldCh1aW50NjQpc3RyaW5nIiwgbWV0aG9kICJzZXRfcHJpY2luZyh1aW50NjQsdWludDY0LHVpbnQ2NCx1aW50NjQpc3RyaW5nIiwgbWV0aG9kICJyZWNvcmRfdXNhZ2UodWludDY0LHVpbnQ2NClzdHJpbmciCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX21pbnRfbW9kZXJhdG9yX25mdF9yb3V0ZUAzIG1haW5fdHJhbnNmZXJfbmZ0X3JvdXRlQDQgbWFpbl91cGRhdGVfbWV0YWRhdGFfcm91dGVANSBtYWluX2J1cm5fbmZ0X3JvdXRlQDYgbWFpbl9nZXRfbmZ0X2luZm9fcm91dGVANyBtYWluX29wdF9pbl9hc3NldF9yb3V0ZUA4IG1haW5fc2V0X3ByaWNpbmdfcm91dGVAOSBtYWluX3JlY29yZF91c2FnZV9yb3V0ZUAxMAoKbWFpbl9hZnRlcl9pZl9lbHNlQDE3OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vZGVyYXRvcl9uZnQvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgTW9kZXJhdG9yTkZUKEFSQzRDb250cmFjdCk6CiAgICBwdXNoaW50IDAgLy8gMAogICAgcmV0dXJuCgptYWluX3JlY29yZF91c2FnZV9yb3V0ZUAxMDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2RlcmF0b3JfbmZ0L2NvbnRyYWN0LnB5OjE5MAogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIHB1c2hieXRlcyAweDE1MWY3Yzc1MDAxYjU1NzM2MTY3NjUyMDcyNjU2MzZmNzI2NDY1NjQyMDczNzU2MzYzNjU3MzczNjY3NTZjNmM3OQogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3NldF9wcmljaW5nX3JvdXRlQDk6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9kZXJhdG9yX25mdC9jb250cmFjdC5weToxNjIKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NTAwMjI1MDcyNjk2MzY5NmU2NzIwNzM2NTc0MjA2NjZmNzIyMDYxNzM3MzY1NzQyMDczNzU2MzYzNjU3MzczNjY3NTZjNmM3OQogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX29wdF9pbl9hc3NldF9yb3V0ZUA4OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vZGVyYXRvcl9uZnQvY29udHJhY3QucHk6MTQyCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUwMDFlNGY3MDc0NjU2NDIwNjk2ZTIwNzQ2ZjIwNjE3MzczNjU3NDIwNzM3NTYzNjM2NTczNzM2Njc1NmM2Yzc5CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fZ2V0X25mdF9pbmZvX3JvdXRlQDc6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9kZXJhdG9yX25mdC9jb250cmFjdC5weToxMjMKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NTAwMWY0ZTQ2NTQyMDQ5NmU2NjZmMjA3MjY1NzQ3MjY5NjU3NjY1NjQyMDczNzU2MzYzNjU3MzczNjY3NTZjNmM3OQogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2J1cm5fbmZ0X3JvdXRlQDY6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9kZXJhdG9yX25mdC9jb250cmFjdC5weToxMDIKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NTAwMTc0ZTQ2NTQyMDYyNzU3MjZlNjU2NDIwNzM3NTYzNjM2NTczNzM2Njc1NmM2Yzc5CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fdXBkYXRlX21ldGFkYXRhX3JvdXRlQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9kZXJhdG9yX25mdC9jb250cmFjdC5weTo3OQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIHB1c2hieXRlcyAweDE1MWY3Yzc1MDAyYTRkNjU3NDYxNjQ2MTc0NjEyMDc1NzA2NDYxNzQ2NTY0MjA2NjZmNzIyMDYxNzM3MzY1NzQyMDQ5NDQyMDczNzU2MzYzNjU3MzczNjY3NTZjNmM3OQogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX3RyYW5zZmVyX25mdF9yb3V0ZUA0OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vZGVyYXRvcl9uZnQvY29udHJhY3QucHk6NTIKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NTAwMWM0ZTQ2NTQyMDc0NzI2MTZlNzM2NjY1NzI3MjY1NjQyMDczNzU2MzYzNjU3MzczNjY3NTZjNmM3OQogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX21pbnRfbW9kZXJhdG9yX25mdF9yb3V0ZUAzOgogICAgLy8gc21hcnRfY29udHJhY3RzL21vZGVyYXRvcl9uZnQvY29udHJhY3QucHk6MTMKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9kZXJhdG9yX25mdC9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBNb2RlcmF0b3JORlQoQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDQKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyA1CiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9kZXJhdG9yX25mdC9jb250cmFjdC5weToxMwogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBjYWxsc3ViIG1pbnRfbW9kZXJhdG9yX25mdAogICAgaXRvYgogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0AxMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2RlcmF0b3JfbmZ0L2NvbnRyYWN0LnB5OjUKICAgIC8vIGNsYXNzIE1vZGVyYXRvck5GVChBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAxNwogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMubW9kZXJhdG9yX25mdC5jb250cmFjdC5Nb2RlcmF0b3JORlQubWludF9tb2RlcmF0b3JfbmZ0KG1vZGVyYXRvcl9uYW1lOiBieXRlcywgbW9kZXJhdG9yX2Rlc2NyaXB0aW9uOiBieXRlcywgZGFvX2lkOiBieXRlcywgbWV0YWRhdGFfdXJsOiBieXRlcywgdG90YWxfc3VwcGx5OiB1aW50NjQpIC0+IHVpbnQ2NDoKbWludF9tb2RlcmF0b3JfbmZ0OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vZGVyYXRvcl9uZnQvY29udHJhY3QucHk6MTMtMjEKICAgIC8vIEBhYmltZXRob2QoKQogICAgLy8gZGVmIG1pbnRfbW9kZXJhdG9yX25mdCgKICAgIC8vICAgICBzZWxmLAogICAgLy8gICAgIG1vZGVyYXRvcl9uYW1lOiBTdHJpbmcsCiAgICAvLyAgICAgbW9kZXJhdG9yX2Rlc2NyaXB0aW9uOiBTdHJpbmcsCiAgICAvLyAgICAgZGFvX2lkOiBTdHJpbmcsCiAgICAvLyAgICAgbWV0YWRhdGFfdXJsOiBTdHJpbmcsCiAgICAvLyAgICAgdG90YWxfc3VwcGx5OiBVSW50NjQsCiAgICAvLyApIC0+IFVJbnQ2NDoKICAgIHByb3RvIDUgMQogICAgLy8gc21hcnRfY29udHJhY3RzL21vZGVyYXRvcl9uZnQvY29udHJhY3QucHk6MzUtMzYKICAgIC8vICMgVmFsaWRhdGUgaW5wdXRzCiAgICAvLyBhc3NlcnQgdG90YWxfc3VwcGx5ID4gMCwgIlRvdGFsIHN1cHBseSBtdXN0IGJlIGdyZWF0ZXIgdGhhbiAwIgogICAgZnJhbWVfZGlnIC0xCiAgICBhc3NlcnQgLy8gVG90YWwgc3VwcGx5IG11c3QgYmUgZ3JlYXRlciB0aGFuIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2RlcmF0b3JfbmZ0L2NvbnRyYWN0LnB5OjQ3LTQ4CiAgICAvLyAjIEZvciBub3csIHJldHVybiBhIG1vY2sgYXNzZXQgSUQKICAgIC8vIGFzc2V0X2lkID0gVUludDY0KDEwMDAwMCkgKyBHbG9iYWwubGF0ZXN0X3RpbWVzdGFtcAogICAgcHVzaGludCAxMDAwMDAgLy8gMTAwMDAwCiAgICBnbG9iYWwgTGF0ZXN0VGltZXN0YW1wCiAgICArCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9kZXJhdG9yX25mdC9jb250cmFjdC5weTo1MAogICAgLy8gcmV0dXJuIGFzc2V0X2lkCiAgICByZXRzdWIK",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"
+    },
+    "byteCode": {
+        "approval": "CiABATEbQQHJgggEgTXwgwShfBzzBEyPKK4E5cx/egQx1BYXBIWJ+N4ELAXYigRSVQ47NhoAjggBWAEqAO4AxQCUAGQAMAADgQBDMRkURDEYRIAhFR98dQAbVXNhZ2UgcmVjb3JkZWQgc3VjY2Vzc2Z1bGx5sCJDMRkURDEYRIAoFR98dQAiUHJpY2luZyBzZXQgZm9yIGFzc2V0IHN1Y2Nlc3NmdWxsebAiQzEZFEQxGESAJBUffHUAHk9wdGVkIGluIHRvIGFzc2V0IHN1Y2Nlc3NmdWxsebAiQzEZFEQxGESAJRUffHUAH05GVCBJbmZvIHJldHJpZXZlZCBzdWNjZXNzZnVsbHmwIkMxGRREMRhEgB0VH3x1ABdORlQgYnVybmVkIHN1Y2Nlc3NmdWxsebAiQzEZFEQxGESAMBUffHUAKk1ldGFkYXRhIHVwZGF0ZWQgZm9yIGFzc2V0IElEIHN1Y2Nlc3NmdWxsebAiQzEZFEQxGESAIhUffHUAHE5GVCB0cmFuc2ZlcnJlZCBzdWNjZXNzZnVsbHmwIkMxGRREMRhENhoBVwIANhoCVwIANhoDVwIANhoEVwIANhoFF4gAFxaABBUffHVMULAiQzEZQP5xMRgURCJDigUBi/9EgaCNBjIHCIk=",
+        "clear": "CoEBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 4,
+            "minor": 10,
+            "patch": 0
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

@@ -1,0 +1,494 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 1 0
+    bytecblock 0x151f7c75
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@13
+    pushbytess 0xaa27cc9d 0xb41e1db6 0x987b9bfb 0x2d6a8b62 0x5987381c 0xac4a2736 0x5dfaab05 0xb28a12d8 // method "create_dao(string,uint64,uint64,uint64,uint64)string", method "join_dao(string,uint64)string", method "create_proposal(string,string,string,uint64)string", method "vote(string,bool,uint64)string", method "execute_proposal(string,string)uint64", method "distribute_revenue(string,uint64,uint64)string", method "get_dao_info(string)string", method "get_proposal_status(string)string"
+    txna ApplicationArgs 0
+    match main_create_dao_route@3 main_join_dao_route@4 main_create_proposal_route@5 main_vote_route@6 main_execute_proposal_route@7 main_distribute_revenue_route@8 main_get_dao_info_route@9 main_get_proposal_status_route@10
+
+main_after_if_else@17:
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    intc_1 // 0
+    return
+
+main_get_proposal_status_route@10:
+    // smart_contracts/citadel_dao/contract.py:204
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // smart_contracts/citadel_dao/contract.py:204
+    // @abimethod()
+    callsub get_proposal_status
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_get_dao_info_route@9:
+    // smart_contracts/citadel_dao/contract.py:190
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    // smart_contracts/citadel_dao/contract.py:190
+    // @abimethod()
+    callsub get_dao_info
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_distribute_revenue_route@8:
+    // smart_contracts/citadel_dao/contract.py:161
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    // smart_contracts/citadel_dao/contract.py:161
+    // @abimethod()
+    callsub distribute_revenue
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_execute_proposal_route@7:
+    // smart_contracts/citadel_dao/contract.py:135
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    // smart_contracts/citadel_dao/contract.py:135
+    // @abimethod()
+    callsub execute_proposal
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_vote_route@6:
+    // smart_contracts/citadel_dao/contract.py:110
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    txna ApplicationArgs 3
+    btoi
+    // smart_contracts/citadel_dao/contract.py:110
+    // @abimethod()
+    callsub vote
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_create_proposal_route@5:
+    // smart_contracts/citadel_dao/contract.py:83
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    extract 2 0
+    txna ApplicationArgs 3
+    extract 2 0
+    txna ApplicationArgs 4
+    btoi
+    // smart_contracts/citadel_dao/contract.py:83
+    // @abimethod()
+    callsub create_proposal
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_join_dao_route@4:
+    // smart_contracts/citadel_dao/contract.py:61
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    btoi
+    // smart_contracts/citadel_dao/contract.py:61
+    // @abimethod()
+    callsub join_dao
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_create_dao_route@3:
+    // smart_contracts/citadel_dao/contract.py:27
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txna ApplicationArgs 1
+    extract 2 0
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    txna ApplicationArgs 4
+    btoi
+    txna ApplicationArgs 5
+    btoi
+    // smart_contracts/citadel_dao/contract.py:27
+    // @abimethod()
+    callsub create_dao
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+main_bare_routing@13:
+    // smart_contracts/citadel_dao/contract.py:20
+    // class CitadelDAO(ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@17
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    intc_0 // 1
+    return
+
+
+// smart_contracts.citadel_dao.contract.CitadelDAO.create_dao(dao_name: bytes, min_members: uint64, min_stake: uint64, voting_period: uint64, activation_threshold: uint64) -> bytes:
+create_dao:
+    // smart_contracts/citadel_dao/contract.py:27-35
+    // @abimethod()
+    // def create_dao(
+    //     self,
+    //     dao_name: String,
+    //     min_members: UInt64,
+    //     min_stake: UInt64,
+    //     voting_period: UInt64,
+    //     activation_threshold: UInt64,
+    // ) -> String:
+    proto 5 1
+    // smart_contracts/citadel_dao/contract.py:49-50
+    // # Validate inputs
+    // assert min_members > 0, "Minimum members must be greater than 0"
+    frame_dig -4
+    assert // Minimum members must be greater than 0
+    // smart_contracts/citadel_dao/contract.py:51
+    // assert min_stake > 0, "Minimum stake must be greater than 0"
+    frame_dig -3
+    assert // Minimum stake must be greater than 0
+    // smart_contracts/citadel_dao/contract.py:52
+    // assert activation_threshold >= 51 and activation_threshold <= 100, "Threshold must be between 51-100"
+    frame_dig -1
+    pushint 51 // 51
+    >=
+    bz create_dao_bool_false@3
+    frame_dig -1
+    pushint 100 // 100
+    <=
+    bz create_dao_bool_false@3
+    intc_0 // 1
+
+create_dao_bool_merge@4:
+    // smart_contracts/citadel_dao/contract.py:52
+    // assert activation_threshold >= 51 and activation_threshold <= 100, "Threshold must be between 51-100"
+    assert // Threshold must be between 51-100
+    // smart_contracts/citadel_dao/contract.py:58-59
+    // # In production, store full config. For now, return success
+    // return String("DAO created successfully with name: ") + dao_name
+    pushbytes "DAO created successfully with name: "
+    frame_dig -5
+    concat
+    retsub
+
+create_dao_bool_false@3:
+    intc_1 // 0
+    b create_dao_bool_merge@4
+
+
+// smart_contracts.citadel_dao.contract.CitadelDAO.join_dao(dao_id: bytes, stake_amount: uint64) -> bytes:
+join_dao:
+    // smart_contracts/citadel_dao/contract.py:61-62
+    // @abimethod()
+    // def join_dao(self, dao_id: String, stake_amount: UInt64) -> String:
+    proto 2 1
+    // smart_contracts/citadel_dao/contract.py:73-76
+    // # Verify payment transaction in group
+    // # Note: In production, verify the payment transaction is correct
+    // # For now, we'll accept the stake_amount parameter
+    // assert stake_amount > 0, "Stake amount must be greater than 0"
+    frame_dig -1
+    assert // Stake amount must be greater than 0
+    // smart_contracts/citadel_dao/contract.py:81
+    // return String("Successfully joined DAO: ") + dao_id
+    pushbytes "Successfully joined DAO: "
+    frame_dig -2
+    concat
+    retsub
+
+
+// smart_contracts.citadel_dao.contract.CitadelDAO.create_proposal(dao_id: bytes, proposal_title: bytes, proposal_description: bytes, required_votes: uint64) -> bytes:
+create_proposal:
+    // smart_contracts/citadel_dao/contract.py:83-90
+    // @abimethod()
+    // def create_proposal(
+    //     self,
+    //     dao_id: String,
+    //     proposal_title: String,
+    //     proposal_description: String,
+    //     required_votes: UInt64,
+    // ) -> String:
+    proto 4 1
+    // smart_contracts/citadel_dao/contract.py:103-106
+    // # Verify sender is DAO member
+    // # Store proposal data
+    // # Create a simple proposal ID using the DAO ID and title
+    // proposal_id = String("proposal_") + dao_id + String("_") + proposal_title
+    pushbytes "proposal_"
+    frame_dig -4
+    concat
+    pushbytes "_"
+    concat
+    frame_dig -3
+    concat
+    // smart_contracts/citadel_dao/contract.py:108
+    // return String("Proposal created: ") + proposal_id
+    pushbytes "Proposal created: "
+    swap
+    concat
+    retsub
+
+
+// smart_contracts.citadel_dao.contract.CitadelDAO.vote(proposal_id: bytes, vote_yes: bytes, voting_power: uint64) -> bytes:
+vote:
+    // smart_contracts/citadel_dao/contract.py:110-116
+    // @abimethod()
+    // def vote(
+    //     self,
+    //     proposal_id: String,
+    //     vote_yes: Bool,
+    //     voting_power: UInt64,
+    // ) -> String:
+    proto 3 1
+    // smart_contracts/citadel_dao/contract.py:132
+    // vote_type = String("yes") if vote_yes else String("no")
+    frame_dig -2
+    pushbytes 0x00
+    !=
+    bz vote_ternary_false@2
+    pushbytes "yes"
+
+vote_ternary_merge@3:
+    // smart_contracts/citadel_dao/contract.py:133
+    // return String("Vote cast: ") + vote_type + String(" on ") + proposal_id
+    pushbytes "Vote cast: "
+    swap
+    concat
+    pushbytes " on "
+    concat
+    frame_dig -3
+    concat
+    retsub
+
+vote_ternary_false@2:
+    // smart_contracts/citadel_dao/contract.py:132
+    // vote_type = String("yes") if vote_yes else String("no")
+    pushbytes "no"
+    b vote_ternary_merge@3
+
+
+// smart_contracts.citadel_dao.contract.CitadelDAO.execute_proposal(proposal_id: bytes, moderator_name: bytes) -> uint64:
+execute_proposal:
+    // smart_contracts/citadel_dao/contract.py:135-140
+    // @abimethod()
+    // def execute_proposal(
+    //     self,
+    //     proposal_id: String,
+    //     moderator_name: String,
+    // ) -> UInt64:
+    proto 2 1
+    // smart_contracts/citadel_dao/contract.py:155-157
+    // # In production: Create ASA (Algorand Standard Asset) for the moderator
+    // # Return the asset ID
+    // nft_asset_id = UInt64(1000) + Global.latest_timestamp  # Mock asset ID
+    pushint 1000 // 1000
+    global LatestTimestamp
+    +
+    // smart_contracts/citadel_dao/contract.py:159
+    // return nft_asset_id
+    retsub
+
+
+// smart_contracts.citadel_dao.contract.CitadelDAO.distribute_revenue(dao_id: bytes, total_revenue: uint64, member_count: uint64) -> bytes:
+distribute_revenue:
+    // smart_contracts/citadel_dao/contract.py:161-167
+    // @abimethod()
+    // def distribute_revenue(
+    //     self,
+    //     dao_id: String,
+    //     total_revenue: UInt64,
+    //     member_count: UInt64,
+    // ) -> String:
+    proto 3 1
+    // smart_contracts/citadel_dao/contract.py:179-181
+    // # Verify caller is authorized (DAO contract or admin)
+    // # Calculate per-member share
+    // assert member_count > 0, "No members to distribute to"
+    frame_dig -1
+    assert // No members to distribute to
+    // smart_contracts/citadel_dao/contract.py:188
+    // return String("Revenue distributed to DAO: ") + dao_id
+    pushbytes "Revenue distributed to DAO: "
+    frame_dig -3
+    concat
+    retsub
+
+
+// smart_contracts.citadel_dao.contract.CitadelDAO.get_dao_info(dao_id: bytes) -> bytes:
+get_dao_info:
+    // smart_contracts/citadel_dao/contract.py:190-191
+    // @abimethod()
+    // def get_dao_info(self, dao_id: String) -> String:
+    proto 1 1
+    // smart_contracts/citadel_dao/contract.py:201-202
+    // # In production: Retrieve from box storage
+    // return String("DAO Info for: ") + dao_id
+    pushbytes "DAO Info for: "
+    frame_dig -1
+    concat
+    retsub
+
+
+// smart_contracts.citadel_dao.contract.CitadelDAO.get_proposal_status(proposal_id: bytes) -> bytes:
+get_proposal_status:
+    // smart_contracts/citadel_dao/contract.py:204-205
+    // @abimethod()
+    // def get_proposal_status(self, proposal_id: String) -> String:
+    proto 1 1
+    // smart_contracts/citadel_dao/contract.py:215-216
+    // # In production: Retrieve vote counts from storage
+    // return String("Proposal status: ") + proposal_id
+    pushbytes "Proposal status: "
+    frame_dig -1
+    concat
+    retsub

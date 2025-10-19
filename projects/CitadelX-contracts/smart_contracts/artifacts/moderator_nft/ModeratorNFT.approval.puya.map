@@ -1,0 +1,895 @@
+{
+  "version": 3,
+  "sources": [
+    "../../moderator_nft/contract.py"
+  ],
+  "mappings": ";;;;AAIA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;AAAA;;;AAyLK;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AA5BA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AApBA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAnBA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AArBA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAvBA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AA3BA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAvCA;;AAAA;AAAA;AAAA;;AAAA;AARL;;;AAAA;;;AAAA;;;AAAA;;;AAAA;;;AAAA;;;AAAA;;;AAAA;;;AAAA;;;AAAA;AAQK;;;AAAA;AAAA;;;;;;AAAA;AAAA;AAAA;AAAA;;AARL;;AAAA;;;;;;;;;AAQA;;;AAuBQ;;AAAA;AAYW;;;;AAAiB;;AAAjB;AAEX",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "algopy.arc4.ARC4Contract.approval_program",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 1"
+    },
+    "4": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "6": {
+      "op": "bz main_bare_routing@13",
+      "stack_out": []
+    },
+    "9": {
+      "op": "pushbytess 0x8135f083 0xa17c1cf3 0x4c8f28ae 0xe5cc7f7a 0x31d41617 0x8589f8de 0x2c05d88a 0x52550e3b // method \"mint_moderator_nft(string,string,string,string,uint64)uint64\", method \"transfer_nft(uint64,address,address,uint64)string\", method \"update_metadata(uint64,string)string\", method \"burn_nft(uint64)string\", method \"get_nft_info(uint64)string\", method \"opt_in_asset(uint64)string\", method \"set_pricing(uint64,uint64,uint64,uint64)string\", method \"record_usage(uint64,uint64)string\"",
+      "defined_out": [
+        "Method(burn_nft(uint64)string)",
+        "Method(get_nft_info(uint64)string)",
+        "Method(mint_moderator_nft(string,string,string,string,uint64)uint64)",
+        "Method(opt_in_asset(uint64)string)",
+        "Method(record_usage(uint64,uint64)string)",
+        "Method(set_pricing(uint64,uint64,uint64,uint64)string)",
+        "Method(transfer_nft(uint64,address,address,uint64)string)",
+        "Method(update_metadata(uint64,string)string)"
+      ],
+      "stack_out": [
+        "Method(mint_moderator_nft(string,string,string,string,uint64)uint64)",
+        "Method(transfer_nft(uint64,address,address,uint64)string)",
+        "Method(update_metadata(uint64,string)string)",
+        "Method(burn_nft(uint64)string)",
+        "Method(get_nft_info(uint64)string)",
+        "Method(opt_in_asset(uint64)string)",
+        "Method(set_pricing(uint64,uint64,uint64,uint64)string)",
+        "Method(record_usage(uint64,uint64)string)"
+      ]
+    },
+    "51": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(burn_nft(uint64)string)",
+        "Method(get_nft_info(uint64)string)",
+        "Method(mint_moderator_nft(string,string,string,string,uint64)uint64)",
+        "Method(opt_in_asset(uint64)string)",
+        "Method(record_usage(uint64,uint64)string)",
+        "Method(set_pricing(uint64,uint64,uint64,uint64)string)",
+        "Method(transfer_nft(uint64,address,address,uint64)string)",
+        "Method(update_metadata(uint64,string)string)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "Method(mint_moderator_nft(string,string,string,string,uint64)uint64)",
+        "Method(transfer_nft(uint64,address,address,uint64)string)",
+        "Method(update_metadata(uint64,string)string)",
+        "Method(burn_nft(uint64)string)",
+        "Method(get_nft_info(uint64)string)",
+        "Method(opt_in_asset(uint64)string)",
+        "Method(set_pricing(uint64,uint64,uint64,uint64)string)",
+        "Method(record_usage(uint64,uint64)string)",
+        "tmp%2#0"
+      ]
+    },
+    "54": {
+      "op": "match main_mint_moderator_nft_route@3 main_transfer_nft_route@4 main_update_metadata_route@5 main_burn_nft_route@6 main_get_nft_info_route@7 main_opt_in_asset_route@8 main_set_pricing_route@9 main_record_usage_route@10",
+      "stack_out": []
+    },
+    "72": {
+      "block": "main_after_if_else@17",
+      "stack_in": [],
+      "op": "pushint 0 // 0",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "74": {
+      "op": "return",
+      "stack_out": []
+    },
+    "75": {
+      "block": "main_record_usage_route@10",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%59#0"
+      ],
+      "stack_out": [
+        "tmp%59#0"
+      ]
+    },
+    "77": {
+      "op": "!",
+      "defined_out": [
+        "tmp%60#0"
+      ],
+      "stack_out": [
+        "tmp%60#0"
+      ]
+    },
+    "78": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "79": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%61#0"
+      ],
+      "stack_out": [
+        "tmp%61#0"
+      ]
+    },
+    "81": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "82": {
+      "op": "pushbytes 0x151f7c75001b5573616765207265636f72646564207375636365737366756c6c79",
+      "defined_out": [
+        "0x151f7c75001b5573616765207265636f72646564207375636365737366756c6c79"
+      ],
+      "stack_out": [
+        "0x151f7c75001b5573616765207265636f72646564207375636365737366756c6c79"
+      ]
+    },
+    "117": {
+      "op": "log",
+      "stack_out": []
+    },
+    "118": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "119": {
+      "op": "return",
+      "stack_out": []
+    },
+    "120": {
+      "block": "main_set_pricing_route@9",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%50#0"
+      ],
+      "stack_out": [
+        "tmp%50#0"
+      ]
+    },
+    "122": {
+      "op": "!",
+      "defined_out": [
+        "tmp%51#0"
+      ],
+      "stack_out": [
+        "tmp%51#0"
+      ]
+    },
+    "123": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "124": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%52#0"
+      ],
+      "stack_out": [
+        "tmp%52#0"
+      ]
+    },
+    "126": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "127": {
+      "op": "pushbytes 0x151f7c75002250726963696e672073657420666f72206173736574207375636365737366756c6c79",
+      "defined_out": [
+        "0x151f7c75002250726963696e672073657420666f72206173736574207375636365737366756c6c79"
+      ],
+      "stack_out": [
+        "0x151f7c75002250726963696e672073657420666f72206173736574207375636365737366756c6c79"
+      ]
+    },
+    "169": {
+      "op": "log",
+      "stack_out": []
+    },
+    "170": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "171": {
+      "op": "return",
+      "stack_out": []
+    },
+    "172": {
+      "block": "main_opt_in_asset_route@8",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%44#0"
+      ],
+      "stack_out": [
+        "tmp%44#0"
+      ]
+    },
+    "174": {
+      "op": "!",
+      "defined_out": [
+        "tmp%45#0"
+      ],
+      "stack_out": [
+        "tmp%45#0"
+      ]
+    },
+    "175": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "176": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%46#0"
+      ],
+      "stack_out": [
+        "tmp%46#0"
+      ]
+    },
+    "178": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "179": {
+      "op": "pushbytes 0x151f7c75001e4f7074656420696e20746f206173736574207375636365737366756c6c79",
+      "defined_out": [
+        "0x151f7c75001e4f7074656420696e20746f206173736574207375636365737366756c6c79"
+      ],
+      "stack_out": [
+        "0x151f7c75001e4f7074656420696e20746f206173736574207375636365737366756c6c79"
+      ]
+    },
+    "217": {
+      "op": "log",
+      "stack_out": []
+    },
+    "218": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "219": {
+      "op": "return",
+      "stack_out": []
+    },
+    "220": {
+      "block": "main_get_nft_info_route@7",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%38#0"
+      ],
+      "stack_out": [
+        "tmp%38#0"
+      ]
+    },
+    "222": {
+      "op": "!",
+      "defined_out": [
+        "tmp%39#0"
+      ],
+      "stack_out": [
+        "tmp%39#0"
+      ]
+    },
+    "223": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "224": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%40#0"
+      ],
+      "stack_out": [
+        "tmp%40#0"
+      ]
+    },
+    "226": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "227": {
+      "op": "pushbytes 0x151f7c75001f4e465420496e666f20726574726965766564207375636365737366756c6c79",
+      "defined_out": [
+        "0x151f7c75001f4e465420496e666f20726574726965766564207375636365737366756c6c79"
+      ],
+      "stack_out": [
+        "0x151f7c75001f4e465420496e666f20726574726965766564207375636365737366756c6c79"
+      ]
+    },
+    "266": {
+      "op": "log",
+      "stack_out": []
+    },
+    "267": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "268": {
+      "op": "return",
+      "stack_out": []
+    },
+    "269": {
+      "block": "main_burn_nft_route@6",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%32#0"
+      ],
+      "stack_out": [
+        "tmp%32#0"
+      ]
+    },
+    "271": {
+      "op": "!",
+      "defined_out": [
+        "tmp%33#0"
+      ],
+      "stack_out": [
+        "tmp%33#0"
+      ]
+    },
+    "272": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "273": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%34#0"
+      ],
+      "stack_out": [
+        "tmp%34#0"
+      ]
+    },
+    "275": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "276": {
+      "op": "pushbytes 0x151f7c7500174e4654206275726e6564207375636365737366756c6c79",
+      "defined_out": [
+        "0x151f7c7500174e4654206275726e6564207375636365737366756c6c79"
+      ],
+      "stack_out": [
+        "0x151f7c7500174e4654206275726e6564207375636365737366756c6c79"
+      ]
+    },
+    "307": {
+      "op": "log",
+      "stack_out": []
+    },
+    "308": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "309": {
+      "op": "return",
+      "stack_out": []
+    },
+    "310": {
+      "block": "main_update_metadata_route@5",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%24#0"
+      ],
+      "stack_out": [
+        "tmp%24#0"
+      ]
+    },
+    "312": {
+      "op": "!",
+      "defined_out": [
+        "tmp%25#0"
+      ],
+      "stack_out": [
+        "tmp%25#0"
+      ]
+    },
+    "313": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "314": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%26#0"
+      ],
+      "stack_out": [
+        "tmp%26#0"
+      ]
+    },
+    "316": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "317": {
+      "op": "pushbytes 0x151f7c75002a4d65746164617461207570646174656420666f72206173736574204944207375636365737366756c6c79",
+      "defined_out": [
+        "0x151f7c75002a4d65746164617461207570646174656420666f72206173736574204944207375636365737366756c6c79"
+      ],
+      "stack_out": [
+        "0x151f7c75002a4d65746164617461207570646174656420666f72206173736574204944207375636365737366756c6c79"
+      ]
+    },
+    "367": {
+      "op": "log",
+      "stack_out": []
+    },
+    "368": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "369": {
+      "op": "return",
+      "stack_out": []
+    },
+    "370": {
+      "block": "main_transfer_nft_route@4",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%17#0"
+      ],
+      "stack_out": [
+        "tmp%17#0"
+      ]
+    },
+    "372": {
+      "op": "!",
+      "defined_out": [
+        "tmp%18#0"
+      ],
+      "stack_out": [
+        "tmp%18#0"
+      ]
+    },
+    "373": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "374": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%19#0"
+      ],
+      "stack_out": [
+        "tmp%19#0"
+      ]
+    },
+    "376": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "377": {
+      "op": "pushbytes 0x151f7c75001c4e4654207472616e73666572726564207375636365737366756c6c79",
+      "defined_out": [
+        "0x151f7c75001c4e4654207472616e73666572726564207375636365737366756c6c79"
+      ],
+      "stack_out": [
+        "0x151f7c75001c4e4654207472616e73666572726564207375636365737366756c6c79"
+      ]
+    },
+    "413": {
+      "op": "log",
+      "stack_out": []
+    },
+    "414": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "415": {
+      "op": "return",
+      "stack_out": []
+    },
+    "416": {
+      "block": "main_mint_moderator_nft_route@3",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "418": {
+      "op": "!",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "419": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "420": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "422": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "423": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "426": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "429": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ]
+    },
+    "432": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0"
+      ]
+    },
+    "435": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%11#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0",
+        "tmp%11#0"
+      ]
+    },
+    "438": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0",
+        "tmp%12#0"
+      ]
+    },
+    "441": {
+      "op": "txna ApplicationArgs 4",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%13#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%13#0"
+      ]
+    },
+    "444": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%14#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%14#0"
+      ]
+    },
+    "447": {
+      "op": "txna ApplicationArgs 5",
+      "defined_out": [
+        "reinterpret_bytes[8]%0#0",
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%14#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%14#0",
+        "reinterpret_bytes[8]%0#0"
+      ]
+    },
+    "450": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%14#0",
+        "tmp%15#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0",
+        "tmp%12#0",
+        "tmp%14#0",
+        "tmp%15#0"
+      ]
+    },
+    "451": {
+      "callsub": "smart_contracts.moderator_nft.contract.ModeratorNFT.mint_moderator_nft",
+      "op": "callsub mint_moderator_nft",
+      "defined_out": [
+        "to_encode%0#0"
+      ],
+      "stack_out": [
+        "to_encode%0#0"
+      ]
+    },
+    "454": {
+      "op": "itob",
+      "defined_out": [
+        "val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "val_as_bytes%0#0"
+      ]
+    },
+    "455": {
+      "op": "pushbytes 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "461": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "val_as_bytes%0#0"
+      ]
+    },
+    "462": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%16#0"
+      ],
+      "stack_out": [
+        "tmp%16#0"
+      ]
+    },
+    "463": {
+      "op": "log",
+      "stack_out": []
+    },
+    "464": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "465": {
+      "op": "return",
+      "stack_out": []
+    },
+    "466": {
+      "block": "main_bare_routing@13",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%66#0"
+      ],
+      "stack_out": [
+        "tmp%66#0"
+      ]
+    },
+    "468": {
+      "op": "bnz main_after_if_else@17",
+      "stack_out": []
+    },
+    "471": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%67#0"
+      ],
+      "stack_out": [
+        "tmp%67#0"
+      ]
+    },
+    "473": {
+      "op": "!",
+      "defined_out": [
+        "tmp%68#0"
+      ],
+      "stack_out": [
+        "tmp%68#0"
+      ]
+    },
+    "474": {
+      "error": "can only call when creating",
+      "op": "assert // can only call when creating",
+      "stack_out": []
+    },
+    "475": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "476": {
+      "op": "return",
+      "stack_out": []
+    },
+    "477": {
+      "subroutine": "smart_contracts.moderator_nft.contract.ModeratorNFT.mint_moderator_nft",
+      "params": {
+        "moderator_name#0": "bytes",
+        "moderator_description#0": "bytes",
+        "dao_id#0": "bytes",
+        "metadata_url#0": "bytes",
+        "total_supply#0": "uint64"
+      },
+      "block": "mint_moderator_nft",
+      "stack_in": [],
+      "op": "proto 5 1"
+    },
+    "480": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "total_supply#0 (copy)"
+      ],
+      "stack_out": [
+        "total_supply#0 (copy)"
+      ]
+    },
+    "482": {
+      "error": "Total supply must be greater than 0",
+      "op": "assert // Total supply must be greater than 0",
+      "stack_out": []
+    },
+    "483": {
+      "op": "pushint 100000 // 100000",
+      "defined_out": [
+        "100000"
+      ],
+      "stack_out": [
+        "100000"
+      ]
+    },
+    "487": {
+      "op": "global LatestTimestamp",
+      "defined_out": [
+        "100000",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "100000",
+        "tmp%1#0"
+      ]
+    },
+    "489": {
+      "op": "+",
+      "defined_out": [
+        "asset_id#0"
+      ],
+      "stack_out": [
+        "asset_id#0"
+      ]
+    },
+    "490": {
+      "retsub": true,
+      "op": "retsub"
+    }
+  }
+}
