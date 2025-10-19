@@ -23,15 +23,39 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ open, onClose }) => {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
 
+  // Close modal automatically if wallet connects
+  React.useEffect(() => {
+    if (activeAddress && open) {
+      // Wallet successfully connected, user can complete signup
+      setError('')
+    }
+  }, [activeAddress, open])
+
   const handleWalletConnect = async (walletId: string) => {
     try {
+      setError('') // Clear any previous errors
       const wallet = wallets?.find((w) => w.id === walletId)
-      if (wallet) {
+      if (!wallet) return
+
+      // If already connected, just proceed
+      if (wallet.isActive && activeAddress) {
+        return // Already connected, no need to connect again
+      }
+
+      // Only connect if not already active
+      if (!wallet.isActive) {
         await wallet.connect()
       }
-    } catch (err) {
-      setError('Failed to connect wallet')
-      console.error(err)
+    } catch (err: any) {
+      // Handle specific Pera wallet error
+      if (err.message?.includes('Session currently connected') || err.message?.includes('already connected')) {
+        // This means wallet reconnected from localStorage, which is fine
+        setError('')
+        return
+      }
+      
+      setError(`Failed to connect wallet: ${err.message || 'Unknown error'}`)
+      console.error('Wallet connection error:', err)
     }
   }
 

@@ -37,16 +37,17 @@ import ConnectWallet from '../components/ConnectWallet'
 const LandingPage: React.FC = () => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { activeAddress } = useWallet()
+  const { activeAddress, isReady } = useWallet()
   const [signUpOpen, setSignUpOpen] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
   const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 50 })
 
+  // Redirect to dashboard if wallet is already connected (from localStorage)
   React.useEffect(() => {
-    if (activeAddress) {
+    if (isReady && activeAddress) {
       navigate('/dashboard')
     }
-  }, [activeAddress, navigate])
+  }, [activeAddress, isReady, navigate])
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
