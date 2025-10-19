@@ -182,7 +182,7 @@ const LandingPage: React.FC = () => {
                   },
                 }}
               >
-                Get Started
+                Sign Up
               </Button>
             </Box>
           </Toolbar>
@@ -280,22 +280,22 @@ const LandingPage: React.FC = () => {
               <Button
                 variant="contained"
                 size="large"
-                  startIcon={<Rocket />}
+                startIcon={<Rocket />}
                 onClick={() => setSignUpOpen(true)}
                 sx={{
-                    px: 5,
-                    py: 2,
-                    fontSize: '1.2rem',
-                    fontWeight: 700,
-                    boxShadow: '0 8px 32px rgba(255, 107, 0, 0.4)',
-                    '&:hover': {
-                      boxShadow: '0 12px 48px rgba(255, 107, 0, 0.6)',
-                      transform: 'translateY(-2px)',
-                    },
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  Get Started Free
+                  px: 5,
+                  py: 2,
+                  fontSize: '1.2rem',
+                  fontWeight: 700,
+                  boxShadow: '0 8px 32px rgba(255, 107, 0, 0.4)',
+                  '&:hover': {
+                    boxShadow: '0 12px 48px rgba(255, 107, 0, 0.6)',
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Sign Up
               </Button>
               <Button
                 variant="outlined"
@@ -729,7 +729,7 @@ const LandingPage: React.FC = () => {
                 transition: 'all 0.3s ease',
               }}
             >
-              Get Started Now
+              Sign Up Now
             </Button>
           </Box>
           <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap' }}>
