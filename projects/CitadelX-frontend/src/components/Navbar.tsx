@@ -16,10 +16,12 @@ import { useNavigate } from 'react-router-dom'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
+import { useUser } from '../contexts/UserContext'
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate()
   const { activeAddress, wallets } = useWallet()
+  const { user, logout } = useUser()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [balance, setBalance] = useState<string>('0')
 
@@ -38,6 +40,7 @@ const Navbar: React.FC = () => {
         await activeWallet.disconnect()
       }
     }
+    await logout()
     handleMenuClose()
     navigate('/')
   }
@@ -92,7 +95,7 @@ const Navbar: React.FC = () => {
               WebkitTextFillColor: 'transparent',
               cursor: 'pointer',
             }}
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/')}
           >
             CitadelX
           </Typography>
@@ -113,10 +116,10 @@ const Navbar: React.FC = () => {
             </Button>
             <Button
               color="inherit"
-              onClick={() => navigate('/dao/create')}
+              onClick={() => navigate('/active-daos')}
               sx={{ '&:hover': { color: 'primary.main' } }}
             >
-              Create DAO
+              Active DAOs
             </Button>
           </Box>
         </Box>
@@ -141,6 +144,17 @@ const Navbar: React.FC = () => {
               border: '1px solid rgba(255, 107, 0, 0.3)',
             }}
           />
+          {user?.name && (
+            <Chip
+              label={user.name}
+              sx={{
+                backgroundColor: 'rgba(255, 107, 0, 0.1)',
+                color: 'text.primary',
+                fontWeight: 500,
+                border: '1px solid rgba(255, 107, 0, 0.3)',
+              }}
+            />
+          )}
           <IconButton
             onClick={handleMenuOpen}
             sx={{

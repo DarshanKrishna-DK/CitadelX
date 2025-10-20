@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import Marketplace from './pages/Marketplace'
+import ActiveDAOs from './pages/ActiveDAOs'
 import CreateDAOProposal from './pages/CreateDAOProposal'
 import DAODetail from './pages/DAODetail'
 import ModeratorDetail from './pages/ModeratorDetail'
@@ -78,6 +79,14 @@ export default function App() {
                   element={
                     <ProtectedRoute>
                       <Marketplace />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/active-daos"
+                  element={
+                    <ProtectedRoute>
+                      <ActiveDAOs />
                     </ProtectedRoute>
                   }
                 />

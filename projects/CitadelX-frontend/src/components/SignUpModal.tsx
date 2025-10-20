@@ -12,6 +12,7 @@ import {
 } from '@mui/material'
 import { YouTube, AccountBalanceWallet } from '@mui/icons-material'
 import { useWallet } from '@txnlab/use-wallet-react'
+import { supabase } from '../utils/supabase'
 
 interface SignUpModalProps {
   open: boolean
@@ -70,7 +71,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ open, onClose }) => {
     window.location.href = authUrl
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!name.trim()) {
       setError('Please enter your name')
       return
@@ -79,8 +80,25 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ open, onClose }) => {
       setError('Please connect your wallet')
       return
     }
-    // Registration is handled by UserContext when wallet connects
-    onClose()
+
+    try {
+      // Update user with name in Supabase
+      const { error } = await supabase
+        .from('users')
+        .update({ name: name.trim() })
+        .eq('wallet_address', activeAddress)
+
+      if (error) {
+        console.error('Error updating user name:', error)
+        setError('Failed to save name')
+        return
+      }
+
+      onClose()
+    } catch (error) {
+      console.error('Error in handleSubmit:', error)
+      setError('Failed to complete registration')
+    }
   }
 
   return (

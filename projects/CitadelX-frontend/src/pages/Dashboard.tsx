@@ -22,6 +22,7 @@ import {
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { useWallet } from '@txnlab/use-wallet-react'
+import { useUser } from '../contexts/UserContext'
 import Navbar from '../components/Navbar'
 import StatsCard from '../components/StatsCard'
 import DAOCard from '../components/DAOCard'
@@ -31,6 +32,7 @@ import { supabase, DAO, AIModerator, Proposal } from '../utils/supabase'
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { activeAddress } = useWallet()
+  const { user } = useUser()
   const [loading, setLoading] = useState(true)
   const [myDAOs, setMyDAOs] = useState<DAO[]>([])
   const [myModerators, setMyModerators] = useState<AIModerator[]>([])
@@ -174,7 +176,7 @@ const Dashboard: React.FC = () => {
               Dashboard
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Welcome back! Here's your CitadelX overview.
+              Welcome back{user?.name ? `, ${user.name}` : ''}! Here's your CitadelX overview.
             </Typography>
           </Box>
 
@@ -225,7 +227,7 @@ const Dashboard: React.FC = () => {
                 startIcon={<Add />}
                 onClick={() => navigate('/dao/create')}
               >
-                Create DAO
+                Create AI Moderator
               </Button>
             </Box>
             {myDAOs.length > 0 ? (
@@ -244,7 +246,7 @@ const Dashboard: React.FC = () => {
                     You haven't joined any DAOs yet
                   </Typography>
                   <Button variant="contained" onClick={() => navigate('/dao/create')}>
-                    Create Your First DAO
+                    Create Your First AI Moderator
                   </Button>
                 </CardContent>
               </Card>

@@ -22,9 +22,8 @@ import { AppFactory as _AppFactory, AppFactoryAppClientParams, AppFactoryResolve
 import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgument, SimulateOptions, RawSimulateOptions, SkipSignaturesSimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
-import SimulateResponse = modelsv2.SimulateResponse
 
-export const APP_SPEC: Arc56Contract = {"name":"CitadelDAO","structs":{},"methods":[{"name":"create_dao","args":[{"type":"string","name":"dao_name","desc":"Name of the DAO"},{"type":"uint64","name":"min_members","desc":"Minimum members required"},{"type":"uint64","name":"min_stake","desc":"Minimum stake per member in microAlgos"},{"type":"uint64","name":"voting_period","desc":"Voting period in seconds"},{"type":"uint64","name":"activation_threshold","desc":"Percentage needed to pass (0-100)"}],"returns":{"type":"string","desc":"Success message with DAO ID"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Initialize a new DAO","events":[],"recommendations":{}},{"name":"join_dao","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO to join"},{"type":"uint64","name":"stake_amount","desc":"Amount to stake in microAlgos"}],"returns":{"type":"string","desc":"Success message"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Join an existing DAO with required stake","events":[],"recommendations":{}},{"name":"create_proposal","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO"},{"type":"string","name":"proposal_title","desc":"Title of the proposal"},{"type":"string","name":"proposal_description","desc":"Description"},{"type":"uint64","name":"required_votes","desc":"Number of votes required to pass"}],"returns":{"type":"string","desc":"Proposal ID"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Create a new proposal for voting","events":[],"recommendations":{}},{"name":"vote","args":[{"type":"string","name":"proposal_id","desc":"ID of the proposal"},{"type":"bool","name":"vote_yes","desc":"True for yes, False for no"},{"type":"uint64","name":"voting_power","desc":"Voter's voting power"}],"returns":{"type":"string","desc":"Success message with vote count"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Cast a vote on a proposal","events":[],"recommendations":{}},{"name":"execute_proposal","args":[{"type":"string","name":"proposal_id","desc":"ID of the passed proposal"},{"type":"string","name":"moderator_name","desc":"Name for the AI moderator"}],"returns":{"type":"uint64","desc":"NFT Asset ID"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Execute a passed proposal and mint NFT for AI moderator","events":[],"recommendations":{}},{"name":"distribute_revenue","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO"},{"type":"uint64","name":"total_revenue","desc":"Total revenue to distribute in microAlgos"},{"type":"uint64","name":"member_count","desc":"Number of members"}],"returns":{"type":"string","desc":"Success message"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Distribute revenue among DAO members","events":[],"recommendations":{}},{"name":"get_dao_info","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO"}],"returns":{"type":"string","desc":"DAO information as string"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Get DAO information","events":[],"recommendations":{}},{"name":"get_proposal_status","args":[{"type":"string","name":"proposal_id","desc":"ID of the proposal"}],"returns":{"type":"string","desc":"Proposal status"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Get proposal voting status","events":[],"recommendations":{}}],"arcs":[22,28],"desc":"\n    CitadelDAO Smart Contract\n    \n    Manages DAO creation, membership, proposals, voting, and revenue distribution\n    ","networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[388],"errorMessage":"Minimum members must be greater than 0"},{"pc":[391],"errorMessage":"Minimum stake must be greater than 0"},{"pc":[605],"errorMessage":"No members to distribute to"},{"pc":[85,115,145,183,212,249,295,329],"errorMessage":"OnCompletion is not NoOp"},{"pc":[461],"errorMessage":"Stake amount must be greater than 0"},{"pc":[409],"errorMessage":"Threshold must be between 51-100"},{"pc":[380],"errorMessage":"can only call when creating"},{"pc":[88,118,148,186,215,252,298,332],"errorMessage":"can only call when not creating"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIDAKICAgIGJ5dGVjYmxvY2sgMHgxNTFmN2M3NQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwCiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdAMTMKICAgIHB1c2hieXRlc3MgMHhhYTI3Y2M5ZCAweGI0MWUxZGI2IDB4OTg3YjliZmIgMHgyZDZhOGI2MiAweDU5ODczODFjIDB4YWM0YTI3MzYgMHg1ZGZhYWIwNSAweGIyOGExMmQ4IC8vIG1ldGhvZCAiY3JlYXRlX2RhbyhzdHJpbmcsdWludDY0LHVpbnQ2NCx1aW50NjQsdWludDY0KXN0cmluZyIsIG1ldGhvZCAiam9pbl9kYW8oc3RyaW5nLHVpbnQ2NClzdHJpbmciLCBtZXRob2QgImNyZWF0ZV9wcm9wb3NhbChzdHJpbmcsc3RyaW5nLHN0cmluZyx1aW50NjQpc3RyaW5nIiwgbWV0aG9kICJ2b3RlKHN0cmluZyxib29sLHVpbnQ2NClzdHJpbmciLCBtZXRob2QgImV4ZWN1dGVfcHJvcG9zYWwoc3RyaW5nLHN0cmluZyl1aW50NjQiLCBtZXRob2QgImRpc3RyaWJ1dGVfcmV2ZW51ZShzdHJpbmcsdWludDY0LHVpbnQ2NClzdHJpbmciLCBtZXRob2QgImdldF9kYW9faW5mbyhzdHJpbmcpc3RyaW5nIiwgbWV0aG9kICJnZXRfcHJvcG9zYWxfc3RhdHVzKHN0cmluZylzdHJpbmciCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX2NyZWF0ZV9kYW9fcm91dGVAMyBtYWluX2pvaW5fZGFvX3JvdXRlQDQgbWFpbl9jcmVhdGVfcHJvcG9zYWxfcm91dGVANSBtYWluX3ZvdGVfcm91dGVANiBtYWluX2V4ZWN1dGVfcHJvcG9zYWxfcm91dGVANyBtYWluX2Rpc3RyaWJ1dGVfcmV2ZW51ZV9yb3V0ZUA4IG1haW5fZ2V0X2Rhb19pbmZvX3JvdXRlQDkgbWFpbl9nZXRfcHJvcG9zYWxfc3RhdHVzX3JvdXRlQDEwCgptYWluX2FmdGVyX2lmX2Vsc2VAMTc6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjAKICAgIC8vIGNsYXNzIENpdGFkZWxEQU8oQVJDNENvbnRyYWN0KToKICAgIGludGNfMSAvLyAwCiAgICByZXR1cm4KCm1haW5fZ2V0X3Byb3Bvc2FsX3N0YXR1c19yb3V0ZUAxMDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMDQKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjAKICAgIC8vIGNsYXNzIENpdGFkZWxEQU8oQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjA0CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgZ2V0X3Byb3Bvc2FsX3N0YXR1cwogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fZ2V0X2Rhb19pbmZvX3JvdXRlQDk6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTkwCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwCiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE5MAogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBjYWxsc3ViIGdldF9kYW9faW5mbwogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fZGlzdHJpYnV0ZV9yZXZlbnVlX3JvdXRlQDg6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTYxCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwCiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE2MQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBjYWxsc3ViIGRpc3RyaWJ1dGVfcmV2ZW51ZQogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fZXhlY3V0ZV9wcm9wb3NhbF9yb3V0ZUA3OgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEzNQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMAogICAgLy8gY2xhc3MgQ2l0YWRlbERBTyhBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTM1CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgZXhlY3V0ZV9wcm9wb3NhbAogICAgaXRvYgogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl92b3RlX3JvdXRlQDY6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTEwCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwCiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjExMAogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBjYWxsc3ViIHZvdGUKICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2NyZWF0ZV9wcm9wb3NhbF9yb3V0ZUA1OgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjgzCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwCiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDMKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyA0CiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6ODMKICAgIC8vIEBhYmltZXRob2QoKQogICAgY2FsbHN1YiBjcmVhdGVfcHJvcG9zYWwKICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2pvaW5fZGFvX3JvdXRlQDQ6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6NjEKICAgIC8vIEBhYmltZXRob2QoKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjAKICAgIC8vIGNsYXNzIENpdGFkZWxEQU8oQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6NjEKICAgIC8vIEBhYmltZXRob2QoKQogICAgY2FsbHN1YiBqb2luX2RhbwogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fY3JlYXRlX2Rhb19yb3V0ZUAzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI3CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwCiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNAogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNQogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI3CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgY3JlYXRlX2RhbwogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fYmFyZV9yb3V0aW5nQDEzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwCiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBibnogbWFpbl9hZnRlcl9pZl9lbHNlQDE3CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jaXRhZGVsX2Rhby5jb250cmFjdC5DaXRhZGVsREFPLmNyZWF0ZV9kYW8oZGFvX25hbWU6IGJ5dGVzLCBtaW5fbWVtYmVyczogdWludDY0LCBtaW5fc3Rha2U6IHVpbnQ2NCwgdm90aW5nX3BlcmlvZDogdWludDY0LCBhY3RpdmF0aW9uX3RocmVzaG9sZDogdWludDY0KSAtPiBieXRlczoKY3JlYXRlX2RhbzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNy0zNQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICAvLyBkZWYgY3JlYXRlX2RhbygKICAgIC8vICAgICBzZWxmLAogICAgLy8gICAgIGRhb19uYW1lOiBTdHJpbmcsCiAgICAvLyAgICAgbWluX21lbWJlcnM6IFVJbnQ2NCwKICAgIC8vICAgICBtaW5fc3Rha2U6IFVJbnQ2NCwKICAgIC8vICAgICB2b3RpbmdfcGVyaW9kOiBVSW50NjQsCiAgICAvLyAgICAgYWN0aXZhdGlvbl90aHJlc2hvbGQ6IFVJbnQ2NCwKICAgIC8vICkgLT4gU3RyaW5nOgogICAgcHJvdG8gNSAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6NDktNTAKICAgIC8vICMgVmFsaWRhdGUgaW5wdXRzCiAgICAvLyBhc3NlcnQgbWluX21lbWJlcnMgPiAwLCAiTWluaW11bSBtZW1iZXJzIG11c3QgYmUgZ3JlYXRlciB0aGFuIDAiCiAgICBmcmFtZV9kaWcgLTQKICAgIGFzc2VydCAvLyBNaW5pbXVtIG1lbWJlcnMgbXVzdCBiZSBncmVhdGVyIHRoYW4gMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjUxCiAgICAvLyBhc3NlcnQgbWluX3N0YWtlID4gMCwgIk1pbmltdW0gc3Rha2UgbXVzdCBiZSBncmVhdGVyIHRoYW4gMCIKICAgIGZyYW1lX2RpZyAtMwogICAgYXNzZXJ0IC8vIE1pbmltdW0gc3Rha2UgbXVzdCBiZSBncmVhdGVyIHRoYW4gMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjUyCiAgICAvLyBhc3NlcnQgYWN0aXZhdGlvbl90aHJlc2hvbGQgPj0gNTEgYW5kIGFjdGl2YXRpb25fdGhyZXNob2xkIDw9IDEwMCwgIlRocmVzaG9sZCBtdXN0IGJlIGJldHdlZW4gNTEtMTAwIgogICAgZnJhbWVfZGlnIC0xCiAgICBwdXNoaW50IDUxIC8vIDUxCiAgICA+PQogICAgYnogY3JlYXRlX2Rhb19ib29sX2ZhbHNlQDMKICAgIGZyYW1lX2RpZyAtMQogICAgcHVzaGludCAxMDAgLy8gMTAwCiAgICA8PQogICAgYnogY3JlYXRlX2Rhb19ib29sX2ZhbHNlQDMKICAgIGludGNfMCAvLyAxCgpjcmVhdGVfZGFvX2Jvb2xfbWVyZ2VANDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo1MgogICAgLy8gYXNzZXJ0IGFjdGl2YXRpb25fdGhyZXNob2xkID49IDUxIGFuZCBhY3RpdmF0aW9uX3RocmVzaG9sZCA8PSAxMDAsICJUaHJlc2hvbGQgbXVzdCBiZSBiZXR3ZWVuIDUxLTEwMCIKICAgIGFzc2VydCAvLyBUaHJlc2hvbGQgbXVzdCBiZSBiZXR3ZWVuIDUxLTEwMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjU4LTU5CiAgICAvLyAjIEluIHByb2R1Y3Rpb24sIHN0b3JlIGZ1bGwgY29uZmlnLiBGb3Igbm93LCByZXR1cm4gc3VjY2VzcwogICAgLy8gcmV0dXJuIFN0cmluZygiREFPIGNyZWF0ZWQgc3VjY2Vzc2Z1bGx5IHdpdGggbmFtZTogIikgKyBkYW9fbmFtZQogICAgcHVzaGJ5dGVzICJEQU8gY3JlYXRlZCBzdWNjZXNzZnVsbHkgd2l0aCBuYW1lOiAiCiAgICBmcmFtZV9kaWcgLTUKICAgIGNvbmNhdAogICAgcmV0c3ViCgpjcmVhdGVfZGFvX2Jvb2xfZmFsc2VAMzoKICAgIGludGNfMSAvLyAwCiAgICBiIGNyZWF0ZV9kYW9fYm9vbF9tZXJnZUA0CgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8uam9pbl9kYW8oZGFvX2lkOiBieXRlcywgc3Rha2VfYW1vdW50OiB1aW50NjQpIC0+IGJ5dGVzOgpqb2luX2RhbzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo2MS02MgogICAgLy8gQGFiaW1ldGhvZCgpCiAgICAvLyBkZWYgam9pbl9kYW8oc2VsZiwgZGFvX2lkOiBTdHJpbmcsIHN0YWtlX2Ftb3VudDogVUludDY0KSAtPiBTdHJpbmc6CiAgICBwcm90byAyIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo3My03NgogICAgLy8gIyBWZXJpZnkgcGF5bWVudCB0cmFuc2FjdGlvbiBpbiBncm91cAogICAgLy8gIyBOb3RlOiBJbiBwcm9kdWN0aW9uLCB2ZXJpZnkgdGhlIHBheW1lbnQgdHJhbnNhY3Rpb24gaXMgY29ycmVjdAogICAgLy8gIyBGb3Igbm93LCB3ZSdsbCBhY2NlcHQgdGhlIHN0YWtlX2Ftb3VudCBwYXJhbWV0ZXIKICAgIC8vIGFzc2VydCBzdGFrZV9hbW91bnQgPiAwLCAiU3Rha2UgYW1vdW50IG11c3QgYmUgZ3JlYXRlciB0aGFuIDAiCiAgICBmcmFtZV9kaWcgLTEKICAgIGFzc2VydCAvLyBTdGFrZSBhbW91bnQgbXVzdCBiZSBncmVhdGVyIHRoYW4gMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjgxCiAgICAvLyByZXR1cm4gU3RyaW5nKCJTdWNjZXNzZnVsbHkgam9pbmVkIERBTzogIikgKyBkYW9faWQKICAgIHB1c2hieXRlcyAiU3VjY2Vzc2Z1bGx5IGpvaW5lZCBEQU86ICIKICAgIGZyYW1lX2RpZyAtMgogICAgY29uY2F0CiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMuY2l0YWRlbF9kYW8uY29udHJhY3QuQ2l0YWRlbERBTy5jcmVhdGVfcHJvcG9zYWwoZGFvX2lkOiBieXRlcywgcHJvcG9zYWxfdGl0bGU6IGJ5dGVzLCBwcm9wb3NhbF9kZXNjcmlwdGlvbjogYnl0ZXMsIHJlcXVpcmVkX3ZvdGVzOiB1aW50NjQpIC0+IGJ5dGVzOgpjcmVhdGVfcHJvcG9zYWw6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6ODMtOTAKICAgIC8vIEBhYmltZXRob2QoKQogICAgLy8gZGVmIGNyZWF0ZV9wcm9wb3NhbCgKICAgIC8vICAgICBzZWxmLAogICAgLy8gICAgIGRhb19pZDogU3RyaW5nLAogICAgLy8gICAgIHByb3Bvc2FsX3RpdGxlOiBTdHJpbmcsCiAgICAvLyAgICAgcHJvcG9zYWxfZGVzY3JpcHRpb246IFN0cmluZywKICAgIC8vICAgICByZXF1aXJlZF92b3RlczogVUludDY0LAogICAgLy8gKSAtPiBTdHJpbmc6CiAgICBwcm90byA0IDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxMDMtMTA2CiAgICAvLyAjIFZlcmlmeSBzZW5kZXIgaXMgREFPIG1lbWJlcgogICAgLy8gIyBTdG9yZSBwcm9wb3NhbCBkYXRhCiAgICAvLyAjIENyZWF0ZSBhIHNpbXBsZSBwcm9wb3NhbCBJRCB1c2luZyB0aGUgREFPIElEIGFuZCB0aXRsZQogICAgLy8gcHJvcG9zYWxfaWQgPSBTdHJpbmcoInByb3Bvc2FsXyIpICsgZGFvX2lkICsgU3RyaW5nKCJfIikgKyBwcm9wb3NhbF90aXRsZQogICAgcHVzaGJ5dGVzICJwcm9wb3NhbF8iCiAgICBmcmFtZV9kaWcgLTQKICAgIGNvbmNhdAogICAgcHVzaGJ5dGVzICJfIgogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgLTMKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEwOAogICAgLy8gcmV0dXJuIFN0cmluZygiUHJvcG9zYWwgY3JlYXRlZDogIikgKyBwcm9wb3NhbF9pZAogICAgcHVzaGJ5dGVzICJQcm9wb3NhbCBjcmVhdGVkOiAiCiAgICBzd2FwCiAgICBjb25jYXQKICAgIHJldHN1YgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jaXRhZGVsX2Rhby5jb250cmFjdC5DaXRhZGVsREFPLnZvdGUocHJvcG9zYWxfaWQ6IGJ5dGVzLCB2b3RlX3llczogYnl0ZXMsIHZvdGluZ19wb3dlcjogdWludDY0KSAtPiBieXRlczoKdm90ZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxMTAtMTE2CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIC8vIGRlZiB2b3RlKAogICAgLy8gICAgIHNlbGYsCiAgICAvLyAgICAgcHJvcG9zYWxfaWQ6IFN0cmluZywKICAgIC8vICAgICB2b3RlX3llczogQm9vbCwKICAgIC8vICAgICB2b3RpbmdfcG93ZXI6IFVJbnQ2NCwKICAgIC8vICkgLT4gU3RyaW5nOgogICAgcHJvdG8gMyAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTMyCiAgICAvLyB2b3RlX3R5cGUgPSBTdHJpbmcoInllcyIpIGlmIHZvdGVfeWVzIGVsc2UgU3RyaW5nKCJubyIpCiAgICBmcmFtZV9kaWcgLTIKICAgIHB1c2hieXRlcyAweDAwCiAgICAhPQogICAgYnogdm90ZV90ZXJuYXJ5X2ZhbHNlQDIKICAgIHB1c2hieXRlcyAieWVzIgoKdm90ZV90ZXJuYXJ5X21lcmdlQDM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTMzCiAgICAvLyByZXR1cm4gU3RyaW5nKCJWb3RlIGNhc3Q6ICIpICsgdm90ZV90eXBlICsgU3RyaW5nKCIgb24gIikgKyBwcm9wb3NhbF9pZAogICAgcHVzaGJ5dGVzICJWb3RlIGNhc3Q6ICIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgcHVzaGJ5dGVzICIgb24gIgogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgLTMKICAgIGNvbmNhdAogICAgcmV0c3ViCgp2b3RlX3Rlcm5hcnlfZmFsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxMzIKICAgIC8vIHZvdGVfdHlwZSA9IFN0cmluZygieWVzIikgaWYgdm90ZV95ZXMgZWxzZSBTdHJpbmcoIm5vIikKICAgIHB1c2hieXRlcyAibm8iCiAgICBiIHZvdGVfdGVybmFyeV9tZXJnZUAzCgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8uZXhlY3V0ZV9wcm9wb3NhbChwcm9wb3NhbF9pZDogYnl0ZXMsIG1vZGVyYXRvcl9uYW1lOiBieXRlcykgLT4gdWludDY0OgpleGVjdXRlX3Byb3Bvc2FsOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEzNS0xNDAKICAgIC8vIEBhYmltZXRob2QoKQogICAgLy8gZGVmIGV4ZWN1dGVfcHJvcG9zYWwoCiAgICAvLyAgICAgc2VsZiwKICAgIC8vICAgICBwcm9wb3NhbF9pZDogU3RyaW5nLAogICAgLy8gICAgIG1vZGVyYXRvcl9uYW1lOiBTdHJpbmcsCiAgICAvLyApIC0+IFVJbnQ2NDoKICAgIHByb3RvIDIgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE1NS0xNTcKICAgIC8vICMgSW4gcHJvZHVjdGlvbjogQ3JlYXRlIEFTQSAoQWxnb3JhbmQgU3RhbmRhcmQgQXNzZXQpIGZvciB0aGUgbW9kZXJhdG9yCiAgICAvLyAjIFJldHVybiB0aGUgYXNzZXQgSUQKICAgIC8vIG5mdF9hc3NldF9pZCA9IFVJbnQ2NCgxMDAwKSArIEdsb2JhbC5sYXRlc3RfdGltZXN0YW1wICAjIE1vY2sgYXNzZXQgSUQKICAgIHB1c2hpbnQgMTAwMCAvLyAxMDAwCiAgICBnbG9iYWwgTGF0ZXN0VGltZXN0YW1wCiAgICArCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTU5CiAgICAvLyByZXR1cm4gbmZ0X2Fzc2V0X2lkCiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMuY2l0YWRlbF9kYW8uY29udHJhY3QuQ2l0YWRlbERBTy5kaXN0cmlidXRlX3JldmVudWUoZGFvX2lkOiBieXRlcywgdG90YWxfcmV2ZW51ZTogdWludDY0LCBtZW1iZXJfY291bnQ6IHVpbnQ2NCkgLT4gYnl0ZXM6CmRpc3RyaWJ1dGVfcmV2ZW51ZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxNjEtMTY3CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIC8vIGRlZiBkaXN0cmlidXRlX3JldmVudWUoCiAgICAvLyAgICAgc2VsZiwKICAgIC8vICAgICBkYW9faWQ6IFN0cmluZywKICAgIC8vICAgICB0b3RhbF9yZXZlbnVlOiBVSW50NjQsCiAgICAvLyAgICAgbWVtYmVyX2NvdW50OiBVSW50NjQsCiAgICAvLyApIC0+IFN0cmluZzoKICAgIHByb3RvIDMgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE3OS0xODEKICAgIC8vICMgVmVyaWZ5IGNhbGxlciBpcyBhdXRob3JpemVkIChEQU8gY29udHJhY3Qgb3IgYWRtaW4pCiAgICAvLyAjIENhbGN1bGF0ZSBwZXItbWVtYmVyIHNoYXJlCiAgICAvLyBhc3NlcnQgbWVtYmVyX2NvdW50ID4gMCwgIk5vIG1lbWJlcnMgdG8gZGlzdHJpYnV0ZSB0byIKICAgIGZyYW1lX2RpZyAtMQogICAgYXNzZXJ0IC8vIE5vIG1lbWJlcnMgdG8gZGlzdHJpYnV0ZSB0bwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE4OAogICAgLy8gcmV0dXJuIFN0cmluZygiUmV2ZW51ZSBkaXN0cmlidXRlZCB0byBEQU86ICIpICsgZGFvX2lkCiAgICBwdXNoYnl0ZXMgIlJldmVudWUgZGlzdHJpYnV0ZWQgdG8gREFPOiAiCiAgICBmcmFtZV9kaWcgLTMKICAgIGNvbmNhdAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8uZ2V0X2Rhb19pbmZvKGRhb19pZDogYnl0ZXMpIC0+IGJ5dGVzOgpnZXRfZGFvX2luZm86CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTkwLTE5MQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICAvLyBkZWYgZ2V0X2Rhb19pbmZvKHNlbGYsIGRhb19pZDogU3RyaW5nKSAtPiBTdHJpbmc6CiAgICBwcm90byAxIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMDEtMjAyCiAgICAvLyAjIEluIHByb2R1Y3Rpb246IFJldHJpZXZlIGZyb20gYm94IHN0b3JhZ2UKICAgIC8vIHJldHVybiBTdHJpbmcoIkRBTyBJbmZvIGZvcjogIikgKyBkYW9faWQKICAgIHB1c2hieXRlcyAiREFPIEluZm8gZm9yOiAiCiAgICBmcmFtZV9kaWcgLTEKICAgIGNvbmNhdAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8uZ2V0X3Byb3Bvc2FsX3N0YXR1cyhwcm9wb3NhbF9pZDogYnl0ZXMpIC0+IGJ5dGVzOgpnZXRfcHJvcG9zYWxfc3RhdHVzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwNC0yMDUKICAgIC8vIEBhYmltZXRob2QoKQogICAgLy8gZGVmIGdldF9wcm9wb3NhbF9zdGF0dXMoc2VsZiwgcHJvcG9zYWxfaWQ6IFN0cmluZykgLT4gU3RyaW5nOgogICAgcHJvdG8gMSAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjE1LTIxNgogICAgLy8gIyBJbiBwcm9kdWN0aW9uOiBSZXRyaWV2ZSB2b3RlIGNvdW50cyBmcm9tIHN0b3JhZ2UKICAgIC8vIHJldHVybiBTdHJpbmcoIlByb3Bvc2FsIHN0YXR1czogIikgKyBwcm9wb3NhbF9pZAogICAgcHVzaGJ5dGVzICJQcm9wb3NhbCBzdGF0dXM6ICIKICAgIGZyYW1lX2RpZyAtMQogICAgY29uY2F0CiAgICByZXRzdWIK","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"byteCode":{"approval":"CiACAQAmAQQVH3x1MRtBAWOCCASqJ8ydBLQeHbYEmHub+wQtaotiBFmHOBwErEonNgRd+qsFBLKKEtg2GgCOCAD2ANQApgCBAGQAPgAgAAIjQzEZFEQxGEQ2GgFXAgCIAjVJFRZXBgJMUChMULAiQzEZFEQxGEQ2GgFXAgCIAgBJFRZXBgJMUChMULAiQzEZFEQxGEQ2GgFXAgA2GgIXNhoDF4gBskkVFlcGAkxQKExQsCJDMRkURDEYRDYaAVcCADYaAlcCAIgBhBYoTFCwIkMxGRREMRhENhoBVwIANhoCNhoDF4gBNEkVFlcGAkxQKExQsCJDMRkURDEYRDYaAVcCADYaAlcCADYaA1cCADYaBBeIANdJFRZXBgJMUChMULAiQzEZFEQxGEQ2GgFXAgA2GgIXiACQSRUWVwYCTFAoTFCwIkMxGRREMRhENhoBVwIANhoCFzYaAxc2GgQXNhoFF4gAGUkVFlcGAkxQKExQsCJDMRlA/tcxGBREIkOKBQGL/ESL/USL/4EzD0EANIv/gWQOQQAsIkSAJERBTyBjcmVhdGVkIHN1Y2Nlc3NmdWxseSB3aXRoIG5hbWU6IIv7UIkjQv/RigIBi/9EgBlTdWNjZXNzZnVsbHkgam9pbmVkIERBTzogi/5QiYoEAYAJcHJvcG9zYWxfi/xQgAFfUIv9UIASUHJvcG9zYWwgY3JlYXRlZDogTFCJigMBi/6AAQATQQAfgAN5ZXOAC1ZvdGUgY2FzdDogTFCABCBvbiBQi/1QiYACbm9C/9+KAgGB6AcyBwiJigMBi/9EgBxSZXZlbnVlIGRpc3RyaWJ1dGVkIHRvIERBTzogi/1QiYoBAYAOREFPIEluZm8gZm9yOiCL/1CJigEBgBFQcm9wb3NhbCBzdGF0dXM6IIv/UIk=","clear":"CoEBQw=="},"compilerInfo":{"compiler":"puya","compilerVersion":{"major":4,"minor":10,"patch":0}},"events":[],"templateVariables":{}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"CitadelDAO","structs":{"DAOConfig":[{"name":"minMembers","type":"uint64"},{"name":"minStake","type":"uint64"},{"name":"votingPeriod","type":"uint64"},{"name":"activationThreshold","type":"uint64"},{"name":"creator","type":"address"}],"ProposalData":[{"name":"daoId","type":"string"},{"name":"title","type":"string"},{"name":"description","type":"string"},{"name":"creator","type":"address"},{"name":"requiredVotes","type":"uint64"},{"name":"currentVotes","type":"uint64"},{"name":"status","type":"string"},{"name":"createdAt","type":"uint64"}]},"methods":[{"name":"create_dao_proposal","args":[{"type":"string","name":"dao_name","desc":"Name of the DAO"},{"type":"string","name":"description","desc":"DAO description"},{"type":"string","name":"category","desc":"AI moderator category"},{"type":"uint64","name":"min_members","desc":"Minimum members required"},{"type":"uint64","name":"min_stake","desc":"Minimum stake per member in microAlgos"},{"type":"uint64","name":"voting_period","desc":"Voting period in seconds"},{"type":"uint64","name":"activation_threshold","desc":"Percentage needed to pass (51-100)"},{"type":"pay","name":"payment_txn","desc":"Initial treasury contribution payment"}],"returns":{"type":"string","desc":"DAO ID"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Create a DAO proposal with initial treasury contribution","events":[],"recommendations":{}},{"name":"join_dao","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO to join"},{"type":"pay","name":"payment_txn","desc":"Stake payment transaction"}],"returns":{"type":"string","desc":"Success message"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Join an existing DAO with required stake payment","events":[],"recommendations":{}},{"name":"create_proposal","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO"},{"type":"string","name":"proposal_title","desc":"Title of the proposal"},{"type":"string","name":"proposal_description","desc":"Description with context documents"},{"type":"string","name":"moderator_category","desc":"Category of AI moderator"}],"returns":{"type":"string","desc":"Proposal ID"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Create a new proposal for DAO activation and AI moderator creation","events":[],"recommendations":{}},{"name":"vote_on_proposal","args":[{"type":"string","name":"proposal_id","desc":"ID of the proposal"},{"type":"bool","name":"vote_yes","desc":"True for yes, False for no"}],"returns":{"type":"string","desc":"Success message with updated vote count"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Cast a vote on a proposal (members can only vote once)","events":[],"recommendations":{}},{"name":"execute_proposal","args":[{"type":"string","name":"proposal_id","desc":"ID of the passed proposal"},{"type":"string","name":"moderator_name","desc":"Name for the AI moderator"}],"returns":{"type":"uint64","desc":"NFT Asset ID (mock for now)"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Execute a passed proposal and mint NFT for AI moderator","events":[],"recommendations":{}},{"name":"distribute_revenue","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO"},{"type":"uint64","name":"revenue_amount","desc":"Revenue to distribute in microAlgos"}],"returns":{"type":"string","desc":"Success message"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"desc":"Distribute revenue among DAO members proportionally","events":[],"recommendations":{}},{"name":"get_dao_info","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO"}],"returns":{"type":"string","desc":"DAO information as formatted string"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get DAO configuration and status","events":[],"recommendations":{}},{"name":"get_proposal_info","args":[{"type":"string","name":"proposal_id","desc":"ID of the proposal"}],"returns":{"type":"string","desc":"Proposal information as formatted string"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get proposal details and voting status","events":[],"recommendations":{}},{"name":"check_membership","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO"},{"type":"account","name":"member_address","desc":"Address to check"}],"returns":{"type":"bool","desc":"True if member, False otherwise"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Check if an address is a member of a DAO","events":[],"recommendations":{}},{"name":"get_treasury_balance","args":[{"type":"string","name":"dao_id","desc":"ID of the DAO"}],"returns":{"type":"uint64","desc":"Treasury balance in microAlgos"},"actions":{"create":[],"call":["NoOp"]},"readonly":true,"desc":"Get DAO treasury balance","events":[],"recommendations":{}}],"arcs":[22,28],"desc":"\n    Enhanced CitadelDAO Smart Contract\n    \n    Manages DAO creation, membership, proposals, voting with proper payment handling,\n    and revenue distribution with comprehensive state management\n    ","networks":{},"state":{"schema":{"global":{"ints":2,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{"dao_counter":{"keyType":"AVMString","valueType":"AVMUint64","key":"ZGFvX2NvdW50ZXI="},"proposal_counter":{"keyType":"AVMString","valueType":"AVMUint64","key":"cHJvcG9zYWxfY291bnRlcg=="}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{"dao_configs":{"keyType":"AVMBytes","valueType":"DAOConfig","prefix":"ZGFvX2NvbmZpZ18="},"proposals":{"keyType":"AVMBytes","valueType":"ProposalData","prefix":"cHJvcG9zYWxf"},"member_stakes":{"keyType":"AVMBytes","valueType":"uint64","prefix":"c3Rha2Vf"},"votes":{"keyType":"AVMBytes","valueType":"uint64","prefix":"dm90ZV8="},"treasury_balances":{"keyType":"AVMBytes","valueType":"uint64","prefix":"dHJlYXN1cnlf"}}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[768],"errorMessage":"Already a member of this DAO"},{"pc":[1048],"errorMessage":"Already voted on this proposal"},{"pc":[724,828,1376],"errorMessage":"DAO does not exist"},{"pc":[633],"errorMessage":"Initial payment must meet minimum stake"},{"pc":[574],"errorMessage":"Minimum 2 members required for DAO"},{"pc":[582],"errorMessage":"Minimum stake must be at least 0.1 ALGO"},{"pc":[196,219,247,277,307,341,370,403,451,491],"errorMessage":"OnCompletion is not NoOp"},{"pc":[842],"errorMessage":"Only DAO members can create proposals"},{"pc":[1245],"errorMessage":"Only DAO members can execute proposals"},{"pc":[1028],"errorMessage":"Only DAO members can vote"},{"pc":[616,734],"errorMessage":"Payment must be to contract"},{"pc":[754],"errorMessage":"Payment must meet minimum stake"},{"pc":[624,742],"errorMessage":"Payment sender must match transaction sender"},{"pc":[985,1202],"errorMessage":"Proposal does not exist"},{"pc":[1222],"errorMessage":"Proposal has not passed"},{"pc":[1006],"errorMessage":"Proposal is not active"},{"pc":[600],"errorMessage":"Threshold must be between 51-100"},{"pc":[608],"errorMessage":"Voting period must be at least 1 day"},{"pc":[564],"errorMessage":"can only call when creating"},{"pc":[199,222,250,280,310,344,373,406,454,494],"errorMessage":"can only call when not creating"},{"pc":[726,830,1465],"errorMessage":"check self.dao_configs entry exists"},{"pc":[638],"errorMessage":"check self.dao_counter exists"},{"pc":[847],"errorMessage":"check self.proposal_counter exists"},{"pc":[991,1205,1590],"errorMessage":"check self.proposals entry exists"},{"pc":[779,1383,1471,1705],"errorMessage":"check self.treasury_balances entry exists"},{"pc":[470,538],"errorMessage":"transaction type is pay"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBzbWFydF9jb250cmFjdHMuY2l0YWRlbF9kYW8uY29udHJhY3QuQ2l0YWRlbERBTy5fX2FsZ29weV9lbnRyeXBvaW50X3dpdGhfaW5pdCgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIDAgMiA1NAogICAgYnl0ZWNibG9jayAweDE1MWY3Yzc1IDB4NzM3NDYxNmI2NTVmIDB4NjQ2MTZmNWY2MzZmNmU2NjY5Njc1ZiAweDc0NzI2NTYxNzM3NTcyNzk1ZiAweDcwNzI2ZjcwNmY3MzYxNmM1ZiAiZGFvX2NvdW50ZXIiICJwcm9wb3NhbF9jb3VudGVyIiAweDYxNjM3NDY5NzY2NSAweDcwNjE3MzczNjU2NAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAMgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjUwLTUxCiAgICAvLyAjIEdsb2JhbCBjb3VudGVyIGZvciB1bmlxdWUgSURzCiAgICAvLyBzZWxmLmRhb19jb3VudGVyID0gR2xvYmFsU3RhdGUoVUludDY0KDApLCBrZXk9ImRhb19jb3VudGVyIikKICAgIGJ5dGVjIDUgLy8gImRhb19jb3VudGVyIgogICAgaW50Y18xIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6NTIKICAgIC8vIHNlbGYucHJvcG9zYWxfY291bnRlciA9IEdsb2JhbFN0YXRlKFVJbnQ2NCgwKSwga2V5PSJwcm9wb3NhbF9jb3VudGVyIikKICAgIGJ5dGVjIDYgLy8gInByb3Bvc2FsX2NvdW50ZXIiCiAgICBpbnRjXzEgLy8gMAogICAgYXBwX2dsb2JhbF9wdXQKCm1haW5fYWZ0ZXJfaWZfZWxzZUAyOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI2CiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdAMTUKICAgIHB1c2hieXRlc3MgMHgzYWZiZWRhOCAweGExOWJmZDM4IDB4NzYzMDU2YTggMHgyNjlmODVlNCAweDU5ODczODFjIDB4ZTNjMTNmMzUgMHg1ZGZhYWIwNSAweDU1OWQ2MWM2IDB4YWQ2MGE2ZDIgMHhjMjBlNzkyYSAvLyBtZXRob2QgImNyZWF0ZV9kYW9fcHJvcG9zYWwoc3RyaW5nLHN0cmluZyxzdHJpbmcsdWludDY0LHVpbnQ2NCx1aW50NjQsdWludDY0LHBheSlzdHJpbmciLCBtZXRob2QgImpvaW5fZGFvKHN0cmluZyxwYXkpc3RyaW5nIiwgbWV0aG9kICJjcmVhdGVfcHJvcG9zYWwoc3RyaW5nLHN0cmluZyxzdHJpbmcsc3RyaW5nKXN0cmluZyIsIG1ldGhvZCAidm90ZV9vbl9wcm9wb3NhbChzdHJpbmcsYm9vbClzdHJpbmciLCBtZXRob2QgImV4ZWN1dGVfcHJvcG9zYWwoc3RyaW5nLHN0cmluZyl1aW50NjQiLCBtZXRob2QgImRpc3RyaWJ1dGVfcmV2ZW51ZShzdHJpbmcsdWludDY0KXN0cmluZyIsIG1ldGhvZCAiZ2V0X2Rhb19pbmZvKHN0cmluZylzdHJpbmciLCBtZXRob2QgImdldF9wcm9wb3NhbF9pbmZvKHN0cmluZylzdHJpbmciLCBtZXRob2QgImNoZWNrX21lbWJlcnNoaXAoc3RyaW5nLGFjY291bnQpYm9vbCIsIG1ldGhvZCAiZ2V0X3RyZWFzdXJ5X2JhbGFuY2Uoc3RyaW5nKXVpbnQ2NCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fY3JlYXRlX2Rhb19wcm9wb3NhbF9yb3V0ZUA1IG1haW5fam9pbl9kYW9fcm91dGVANiBtYWluX2NyZWF0ZV9wcm9wb3NhbF9yb3V0ZUA3IG1haW5fdm90ZV9vbl9wcm9wb3NhbF9yb3V0ZUA4IG1haW5fZXhlY3V0ZV9wcm9wb3NhbF9yb3V0ZUA5IG1haW5fZGlzdHJpYnV0ZV9yZXZlbnVlX3JvdXRlQDEwIG1haW5fZ2V0X2Rhb19pbmZvX3JvdXRlQDExIG1haW5fZ2V0X3Byb3Bvc2FsX2luZm9fcm91dGVAMTIgbWFpbl9jaGVja19tZW1iZXJzaGlwX3JvdXRlQDEzIG1haW5fZ2V0X3RyZWFzdXJ5X2JhbGFuY2Vfcm91dGVAMTQKCm1haW5fYWZ0ZXJfaWZfZWxzZUAxNzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNgogICAgLy8gY2xhc3MgQ2l0YWRlbERBTyhBUkM0Q29udHJhY3QpOgogICAgaW50Y18xIC8vIDAKICAgIHJldHVybgoKbWFpbl9nZXRfdHJlYXN1cnlfYmFsYW5jZV9yb3V0ZUAxNDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozOTkKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI2CiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM5OQogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgY2FsbHN1YiBnZXRfdHJlYXN1cnlfYmFsYW5jZQogICAgaXRvYgogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9jaGVja19tZW1iZXJzaGlwX3JvdXRlQDEzOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM4MgogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjYKICAgIC8vIGNsYXNzIENpdGFkZWxEQU8oQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBidG9pCiAgICB0eG5hcyBBY2NvdW50cwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM4MgogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgY2FsbHN1YiBjaGVja19tZW1iZXJzaGlwCiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2dldF9wcm9wb3NhbF9pbmZvX3JvdXRlQDEyOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM1OQogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBpcyBub3QgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjYKICAgIC8vIGNsYXNzIENpdGFkZWxEQU8oQVJDNENvbnRyYWN0KToKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzU5CiAgICAvLyBAYWJpbWV0aG9kKHJlYWRvbmx5PVRydWUpCiAgICBjYWxsc3ViIGdldF9wcm9wb3NhbF9pbmZvCiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9nZXRfZGFvX2luZm9fcm91dGVAMTE6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzM1CiAgICAvLyBAYWJpbWV0aG9kKHJlYWRvbmx5PVRydWUpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNgogICAgLy8gY2xhc3MgQ2l0YWRlbERBTyhBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZXh0cmFjdCAyIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozMzUKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIGNhbGxzdWIgZ2V0X2Rhb19pbmZvCiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9kaXN0cmlidXRlX3JldmVudWVfcm91dGVAMTA6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzA1CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI2CiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjMwNQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBjYWxsc3ViIGRpc3RyaWJ1dGVfcmV2ZW51ZQogICAgZHVwCiAgICBsZW4KICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCm1haW5fZXhlY3V0ZV9wcm9wb3NhbF9yb3V0ZUA5OgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI2MwogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNgogICAgLy8gY2xhc3MgQ2l0YWRlbERBTyhBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGV4dHJhY3QgMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjYzCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgZXhlY3V0ZV9wcm9wb3NhbAogICAgaXRvYgogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl92b3RlX29uX3Byb3Bvc2FsX3JvdXRlQDg6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjExCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI2CiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIxMQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICBjYWxsc3ViIHZvdGVfb25fcHJvcG9zYWwKICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2NyZWF0ZV9wcm9wb3NhbF9yb3V0ZUA3OgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE1NwogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNgogICAgLy8gY2xhc3MgQ2l0YWRlbERBTyhBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAzCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNAogICAgZXh0cmFjdCAyIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxNTcKICAgIC8vIEBhYmltZXRob2QoKQogICAgY2FsbHN1YiBjcmVhdGVfcHJvcG9zYWwKICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2pvaW5fZGFvX3JvdXRlQDY6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTE2CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI2CiAgICAvLyBjbGFzcyBDaXRhZGVsREFPKEFSQzRDb250cmFjdCk6CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBleHRyYWN0IDIgMAogICAgdHhuIEdyb3VwSW5kZXgKICAgIGludGNfMCAvLyAxCiAgICAtCiAgICBkdXAKICAgIGd0eG5zIFR5cGVFbnVtCiAgICBpbnRjXzAgLy8gcGF5CiAgICA9PQogICAgYXNzZXJ0IC8vIHRyYW5zYWN0aW9uIHR5cGUgaXMgcGF5CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTE2CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIGNhbGxzdWIgam9pbl9kYW8KICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgptYWluX2NyZWF0ZV9kYW9fcHJvcG9zYWxfcm91dGVANToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo1NAogICAgLy8gQGFiaW1ldGhvZCgpCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIGlzIG5vdCBOb09wCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYXNzZXJ0IC8vIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNgogICAgLy8gY2xhc3MgQ2l0YWRlbERBTyhBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGV4dHJhY3QgMiAwCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAzCiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNAogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNQogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNgogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgNwogICAgYnRvaQogICAgdHhuIEdyb3VwSW5kZXgKICAgIGludGNfMCAvLyAxCiAgICAtCiAgICBkdXAKICAgIGd0eG5zIFR5cGVFbnVtCiAgICBpbnRjXzAgLy8gcGF5CiAgICA9PQogICAgYXNzZXJ0IC8vIHRyYW5zYWN0aW9uIHR5cGUgaXMgcGF5CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6NTQKICAgIC8vIEBhYmltZXRob2QoKQogICAgY2FsbHN1YiBjcmVhdGVfZGFvX3Byb3Bvc2FsCiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKbWFpbl9iYXJlX3JvdXRpbmdAMTU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjYKICAgIC8vIGNsYXNzIENpdGFkZWxEQU8oQVJDNENvbnRyYWN0KToKICAgIHR4biBPbkNvbXBsZXRpb24KICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAMTcKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8uY3JlYXRlX2Rhb19wcm9wb3NhbChkYW9fbmFtZTogYnl0ZXMsIGRlc2NyaXB0aW9uOiBieXRlcywgY2F0ZWdvcnk6IGJ5dGVzLCBtaW5fbWVtYmVyczogdWludDY0LCBtaW5fc3Rha2U6IHVpbnQ2NCwgdm90aW5nX3BlcmlvZDogdWludDY0LCBhY3RpdmF0aW9uX3RocmVzaG9sZDogdWludDY0LCBwYXltZW50X3R4bjogdWludDY0KSAtPiBieXRlczoKY3JlYXRlX2Rhb19wcm9wb3NhbDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo1NC02NQogICAgLy8gQGFiaW1ldGhvZCgpCiAgICAvLyBkZWYgY3JlYXRlX2Rhb19wcm9wb3NhbCgKICAgIC8vICAgICBzZWxmLAogICAgLy8gICAgIGRhb19uYW1lOiBTdHJpbmcsCiAgICAvLyAgICAgZGVzY3JpcHRpb246IFN0cmluZywKICAgIC8vICAgICBjYXRlZ29yeTogU3RyaW5nLAogICAgLy8gICAgIG1pbl9tZW1iZXJzOiBVSW50NjQsCiAgICAvLyAgICAgbWluX3N0YWtlOiBVSW50NjQsCiAgICAvLyAgICAgdm90aW5nX3BlcmlvZDogVUludDY0LAogICAgLy8gICAgIGFjdGl2YXRpb25fdGhyZXNob2xkOiBVSW50NjQsCiAgICAvLyAgICAgcGF5bWVudF90eG46IGd0eG4uUGF5bWVudFRyYW5zYWN0aW9uLAogICAgLy8gKSAtPiBTdHJpbmc6CiAgICBwcm90byA4IDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo4Mi04MwogICAgLy8gIyBWYWxpZGF0ZSBpbnB1dHMKICAgIC8vIGFzc2VydCBtaW5fbWVtYmVycyA+PSAyLCAiTWluaW11bSAyIG1lbWJlcnMgcmVxdWlyZWQgZm9yIERBTyIKICAgIGZyYW1lX2RpZyAtNQogICAgaW50Y18yIC8vIDIKICAgID49CiAgICBhc3NlcnQgLy8gTWluaW11bSAyIG1lbWJlcnMgcmVxdWlyZWQgZm9yIERBTwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5Ojg0CiAgICAvLyBhc3NlcnQgbWluX3N0YWtlID49IDEwMDAwMCwgIk1pbmltdW0gc3Rha2UgbXVzdCBiZSBhdCBsZWFzdCAwLjEgQUxHTyIgICMgMC4xIEFMR08KICAgIGZyYW1lX2RpZyAtNAogICAgcHVzaGludCAxMDAwMDAgLy8gMTAwMDAwCiAgICA+PQogICAgYXNzZXJ0IC8vIE1pbmltdW0gc3Rha2UgbXVzdCBiZSBhdCBsZWFzdCAwLjEgQUxHTwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5Ojg1CiAgICAvLyBhc3NlcnQgYWN0aXZhdGlvbl90aHJlc2hvbGQgPj0gNTEgYW5kIGFjdGl2YXRpb25fdGhyZXNob2xkIDw9IDEwMCwgIlRocmVzaG9sZCBtdXN0IGJlIGJldHdlZW4gNTEtMTAwIgogICAgZnJhbWVfZGlnIC0yCiAgICBwdXNoaW50IDUxIC8vIDUxCiAgICA+PQogICAgYnogY3JlYXRlX2Rhb19wcm9wb3NhbF9ib29sX2ZhbHNlQDMKICAgIGZyYW1lX2RpZyAtMgogICAgcHVzaGludCAxMDAgLy8gMTAwCiAgICA8PQogICAgYnogY3JlYXRlX2Rhb19wcm9wb3NhbF9ib29sX2ZhbHNlQDMKICAgIGludGNfMCAvLyAxCgpjcmVhdGVfZGFvX3Byb3Bvc2FsX2Jvb2xfbWVyZ2VANDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo4NQogICAgLy8gYXNzZXJ0IGFjdGl2YXRpb25fdGhyZXNob2xkID49IDUxIGFuZCBhY3RpdmF0aW9uX3RocmVzaG9sZCA8PSAxMDAsICJUaHJlc2hvbGQgbXVzdCBiZSBiZXR3ZWVuIDUxLTEwMCIKICAgIGFzc2VydCAvLyBUaHJlc2hvbGQgbXVzdCBiZSBiZXR3ZWVuIDUxLTEwMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5Ojg2CiAgICAvLyBhc3NlcnQgdm90aW5nX3BlcmlvZCA+PSA4NjQwMCwgIlZvdGluZyBwZXJpb2QgbXVzdCBiZSBhdCBsZWFzdCAxIGRheSIgICMgMSBkYXkgaW4gc2Vjb25kcwogICAgZnJhbWVfZGlnIC0zCiAgICBwdXNoaW50IDg2NDAwIC8vIDg2NDAwCiAgICA+PQogICAgYXNzZXJ0IC8vIFZvdGluZyBwZXJpb2QgbXVzdCBiZSBhdCBsZWFzdCAxIGRheQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5Ojg4LTg5CiAgICAvLyAjIFZlcmlmeSBwYXltZW50IHRyYW5zYWN0aW9uCiAgICAvLyBhc3NlcnQgcGF5bWVudF90eG4ucmVjZWl2ZXIgPT0gR2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywgIlBheW1lbnQgbXVzdCBiZSB0byBjb250cmFjdCIKICAgIGZyYW1lX2RpZyAtMQogICAgZ3R4bnMgUmVjZWl2ZXIKICAgIGdsb2JhbCBDdXJyZW50QXBwbGljYXRpb25BZGRyZXNzCiAgICA9PQogICAgYXNzZXJ0IC8vIFBheW1lbnQgbXVzdCBiZSB0byBjb250cmFjdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjkwCiAgICAvLyBhc3NlcnQgcGF5bWVudF90eG4uc2VuZGVyID09IFR4bi5zZW5kZXIsICJQYXltZW50IHNlbmRlciBtdXN0IG1hdGNoIHRyYW5zYWN0aW9uIHNlbmRlciIKICAgIGZyYW1lX2RpZyAtMQogICAgZ3R4bnMgU2VuZGVyCiAgICB0eG4gU2VuZGVyCiAgICA9PQogICAgYXNzZXJ0IC8vIFBheW1lbnQgc2VuZGVyIG11c3QgbWF0Y2ggdHJhbnNhY3Rpb24gc2VuZGVyCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6OTEKICAgIC8vIGFzc2VydCBwYXltZW50X3R4bi5hbW91bnQgPj0gbWluX3N0YWtlLCAiSW5pdGlhbCBwYXltZW50IG11c3QgbWVldCBtaW5pbXVtIHN0YWtlIgogICAgZnJhbWVfZGlnIC0xCiAgICBndHhucyBBbW91bnQKICAgIGR1cAogICAgZnJhbWVfZGlnIC00CiAgICA+PQogICAgYXNzZXJ0IC8vIEluaXRpYWwgcGF5bWVudCBtdXN0IG1lZXQgbWluaW11bSBzdGFrZQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjkzLTk0CiAgICAvLyAjIEdlbmVyYXRlIHVuaXF1ZSBEQU8gSUQKICAgIC8vIHNlbGYuZGFvX2NvdW50ZXIudmFsdWUgKz0gVUludDY0KDEpCiAgICBpbnRjXzEgLy8gMAogICAgYnl0ZWMgNSAvLyAiZGFvX2NvdW50ZXIiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYuZGFvX2NvdW50ZXIgZXhpc3RzCiAgICBpbnRjXzAgLy8gMQogICAgKwogICAgYnl0ZWMgNSAvLyAiZGFvX2NvdW50ZXIiCiAgICBkaWcgMQogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo5NQogICAgLy8gZGFvX2lkX2J5dGVzID0gb3AuY29uY2F0KEJ5dGVzKGIiZGFvXyIpLCBvcC5pdG9iKHNlbGYuZGFvX2NvdW50ZXIudmFsdWUpKQogICAgaXRvYgogICAgcHVzaGJ5dGVzIDB4NjQ2MTZmNWYKICAgIHN3YXAKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5Ojk5CiAgICAvLyBtaW5fbWVtYmVycz1BUkM0VUludDY0KG1pbl9tZW1iZXJzKSwKICAgIGZyYW1lX2RpZyAtNQogICAgaXRvYgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEwMAogICAgLy8gbWluX3N0YWtlPUFSQzRVSW50NjQobWluX3N0YWtlKSwKICAgIGZyYW1lX2RpZyAtNAogICAgaXRvYgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEwMQogICAgLy8gdm90aW5nX3BlcmlvZD1BUkM0VUludDY0KHZvdGluZ19wZXJpb2QpLAogICAgZnJhbWVfZGlnIC0zCiAgICBpdG9iCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTAyCiAgICAvLyBhY3RpdmF0aW9uX3RocmVzaG9sZD1BUkM0VUludDY0KGFjdGl2YXRpb25fdGhyZXNob2xkKSwKICAgIGZyYW1lX2RpZyAtMgogICAgaXRvYgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEwMwogICAgLy8gY3JlYXRvcj1BZGRyZXNzKFR4bi5zZW5kZXIpCiAgICB0eG4gU2VuZGVyCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6OTctMTA0CiAgICAvLyAjIFN0b3JlIERBTyBjb25maWd1cmF0aW9uCiAgICAvLyBkYW9fY29uZmlnID0gREFPQ29uZmlnKAogICAgLy8gICAgIG1pbl9tZW1iZXJzPUFSQzRVSW50NjQobWluX21lbWJlcnMpLAogICAgLy8gICAgIG1pbl9zdGFrZT1BUkM0VUludDY0KG1pbl9zdGFrZSksCiAgICAvLyAgICAgdm90aW5nX3BlcmlvZD1BUkM0VUludDY0KHZvdGluZ19wZXJpb2QpLAogICAgLy8gICAgIGFjdGl2YXRpb25fdGhyZXNob2xkPUFSQzRVSW50NjQoYWN0aXZhdGlvbl90aHJlc2hvbGQpLAogICAgLy8gICAgIGNyZWF0b3I9QWRkcmVzcyhUeG4uc2VuZGVyKQogICAgLy8gKQogICAgdW5jb3ZlciA0CiAgICB1bmNvdmVyIDQKICAgIGNvbmNhdAogICAgdW5jb3ZlciAzCiAgICBjb25jYXQKICAgIHVuY292ZXIgMgogICAgY29uY2F0CiAgICBzd2FwCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxMDUKICAgIC8vIHNlbGYuZGFvX2NvbmZpZ3NbZGFvX2lkX2J5dGVzXSA9IGRhb19jb25maWcuY29weSgpCiAgICBieXRlY18yIC8vIDB4NjQ2MTZmNWY2MzZmNmU2NjY5Njc1ZgogICAgZGlnIDIKICAgIGNvbmNhdAogICAgc3dhcAogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEwNy0xMDgKICAgIC8vICMgUmVjb3JkIGNyZWF0b3IncyBzdGFrZQogICAgLy8gbWVtYmVyX2tleSA9IGRhb19pZF9ieXRlcyArIFR4bi5zZW5kZXIuYnl0ZXMKICAgIGR1cAogICAgdHhuIFNlbmRlcgogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTA5CiAgICAvLyBzZWxmLm1lbWJlcl9zdGFrZXNbbWVtYmVyX2tleV0gPSBwYXltZW50X3R4bi5hbW91bnQKICAgIGJ5dGVjXzEgLy8gMHg3Mzc0NjE2YjY1NWYKICAgIHN3YXAKICAgIGNvbmNhdAogICAgdW5jb3ZlciAyCiAgICBpdG9iCiAgICBzd2FwCiAgICBkaWcgMQogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjExMS0xMTIKICAgIC8vICMgSW5pdGlhbGl6ZSB0cmVhc3VyeSB3aXRoIGNyZWF0b3IncyBjb250cmlidXRpb24KICAgIC8vIHNlbGYudHJlYXN1cnlfYmFsYW5jZXNbZGFvX2lkX2J5dGVzXSA9IHBheW1lbnRfdHhuLmFtb3VudAogICAgYnl0ZWNfMyAvLyAweDc0NzI2NTYxNzM3NTcyNzk1ZgogICAgZGlnIDIKICAgIGNvbmNhdAogICAgc3dhcAogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjExNAogICAgLy8gcmV0dXJuIFN0cmluZy5mcm9tX2J5dGVzKGRhb19pZF9ieXRlcykKICAgIHJldHN1YgoKY3JlYXRlX2Rhb19wcm9wb3NhbF9ib29sX2ZhbHNlQDM6CiAgICBpbnRjXzEgLy8gMAogICAgYiBjcmVhdGVfZGFvX3Byb3Bvc2FsX2Jvb2xfbWVyZ2VANAoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jaXRhZGVsX2Rhby5jb250cmFjdC5DaXRhZGVsREFPLmpvaW5fZGFvKGRhb19pZDogYnl0ZXMsIHBheW1lbnRfdHhuOiB1aW50NjQpIC0+IGJ5dGVzOgpqb2luX2RhbzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxMTYtMTIxCiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIC8vIGRlZiBqb2luX2RhbygKICAgIC8vICAgICBzZWxmLAogICAgLy8gICAgIGRhb19pZDogU3RyaW5nLAogICAgLy8gICAgIHBheW1lbnRfdHhuOiBndHhuLlBheW1lbnRUcmFuc2FjdGlvbgogICAgLy8gKSAtPiBTdHJpbmc6CiAgICBwcm90byAyIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxMzQtMTM1CiAgICAvLyAjIFZlcmlmeSBEQU8gZXhpc3RzIChzaW1wbGlmaWVkIGNoZWNrKQogICAgLy8gYXNzZXJ0IGRhb19pZF9ieXRlcyBpbiBzZWxmLmRhb19jb25maWdzLCAiREFPIGRvZXMgbm90IGV4aXN0IgogICAgYnl0ZWNfMiAvLyAweDY0NjE2ZjVmNjM2ZjZlNjY2OTY3NWYKICAgIGZyYW1lX2RpZyAtMgogICAgY29uY2F0CiAgICBkdXAKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYXNzZXJ0IC8vIERBTyBkb2VzIG5vdCBleGlzdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEzNgogICAgLy8gZGFvX2NvbmZpZyA9IHNlbGYuZGFvX2NvbmZpZ3NbZGFvX2lkX2J5dGVzXS5jb3B5KCkKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLmRhb19jb25maWdzIGVudHJ5IGV4aXN0cwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjEzOC0xMzkKICAgIC8vICMgVmVyaWZ5IHBheW1lbnQgdHJhbnNhY3Rpb24KICAgIC8vIGFzc2VydCBwYXltZW50X3R4bi5yZWNlaXZlciA9PSBHbG9iYWwuY3VycmVudF9hcHBsaWNhdGlvbl9hZGRyZXNzLCAiUGF5bWVudCBtdXN0IGJlIHRvIGNvbnRyYWN0IgogICAgZnJhbWVfZGlnIC0xCiAgICBndHhucyBSZWNlaXZlcgogICAgZ2xvYmFsIEN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MKICAgID09CiAgICBhc3NlcnQgLy8gUGF5bWVudCBtdXN0IGJlIHRvIGNvbnRyYWN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTQwCiAgICAvLyBhc3NlcnQgcGF5bWVudF90eG4uc2VuZGVyID09IFR4bi5zZW5kZXIsICJQYXltZW50IHNlbmRlciBtdXN0IG1hdGNoIHRyYW5zYWN0aW9uIHNlbmRlciIKICAgIGZyYW1lX2RpZyAtMQogICAgZ3R4bnMgU2VuZGVyCiAgICB0eG4gU2VuZGVyCiAgICA9PQogICAgYXNzZXJ0IC8vIFBheW1lbnQgc2VuZGVyIG11c3QgbWF0Y2ggdHJhbnNhY3Rpb24gc2VuZGVyCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTQxCiAgICAvLyBhc3NlcnQgcGF5bWVudF90eG4uYW1vdW50ID49IGRhb19jb25maWcubWluX3N0YWtlLm5hdGl2ZSwgIlBheW1lbnQgbXVzdCBtZWV0IG1pbmltdW0gc3Rha2UiCiAgICBmcmFtZV9kaWcgLTEKICAgIGd0eG5zIEFtb3VudAogICAgc3dhcAogICAgcHVzaGludCA4IC8vIDgKICAgIGV4dHJhY3RfdWludDY0CiAgICBkaWcgMQogICAgPD0KICAgIGFzc2VydCAvLyBQYXltZW50IG11c3QgbWVldCBtaW5pbXVtIHN0YWtlCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTQzLTE0NAogICAgLy8gIyBDaGVjayBpZiBhbHJlYWR5IGEgbWVtYmVyCiAgICAvLyBtZW1iZXJfa2V5ID0gZGFvX2lkX2J5dGVzICsgVHhuLnNlbmRlci5ieXRlcwogICAgZnJhbWVfZGlnIC0yCiAgICB0eG4gU2VuZGVyCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxNDUKICAgIC8vIGV4aXN0aW5nX3N0YWtlLCBpc19tZW1iZXIgPSBzZWxmLm1lbWJlcl9zdGFrZXMubWF5YmUobWVtYmVyX2tleSkKICAgIGJ5dGVjXzEgLy8gMHg3Mzc0NjE2YjY1NWYKICAgIHN3YXAKICAgIGNvbmNhdAogICAgZHVwCiAgICBib3hfZ2V0CiAgICBidXJ5IDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxNDYKICAgIC8vIGFzc2VydCBub3QgaXNfbWVtYmVyLCAiQWxyZWFkeSBhIG1lbWJlciBvZiB0aGlzIERBTyIKICAgICEKICAgIGFzc2VydCAvLyBBbHJlYWR5IGEgbWVtYmVyIG9mIHRoaXMgREFPCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTQ4LTE0OQogICAgLy8gIyBSZWNvcmQgbWVtYmVyc2hpcCBhbmQgc3Rha2UKICAgIC8vIHNlbGYubWVtYmVyX3N0YWtlc1ttZW1iZXJfa2V5XSA9IHBheW1lbnRfdHhuLmFtb3VudAogICAgZGlnIDEKICAgIGl0b2IKICAgIGJveF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxNTEtMTUyCiAgICAvLyAjIEFkZCB0byB0cmVhc3VyeQogICAgLy8gY3VycmVudF90cmVhc3VyeSA9IHNlbGYudHJlYXN1cnlfYmFsYW5jZXNbZGFvX2lkX2J5dGVzXQogICAgYnl0ZWNfMyAvLyAweDc0NzI2NTYxNzM3NTcyNzk1ZgogICAgZnJhbWVfZGlnIC0yCiAgICBjb25jYXQKICAgIGR1cAogICAgYm94X2dldAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYudHJlYXN1cnlfYmFsYW5jZXMgZW50cnkgZXhpc3RzCiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTUzCiAgICAvLyBzZWxmLnRyZWFzdXJ5X2JhbGFuY2VzW2Rhb19pZF9ieXRlc10gPSBjdXJyZW50X3RyZWFzdXJ5ICsgcGF5bWVudF90eG4uYW1vdW50CiAgICB1bmNvdmVyIDIKICAgICsKICAgIGl0b2IKICAgIGJveF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxNTUKICAgIC8vIHJldHVybiBTdHJpbmcoIlN1Y2Nlc3NmdWxseSBqb2luZWQgREFPOiAiKSArIGRhb19pZAogICAgcHVzaGJ5dGVzICJTdWNjZXNzZnVsbHkgam9pbmVkIERBTzogIgogICAgZnJhbWVfZGlnIC0yCiAgICBjb25jYXQKICAgIHJldHN1YgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jaXRhZGVsX2Rhby5jb250cmFjdC5DaXRhZGVsREFPLmNyZWF0ZV9wcm9wb3NhbChkYW9faWQ6IGJ5dGVzLCBwcm9wb3NhbF90aXRsZTogYnl0ZXMsIHByb3Bvc2FsX2Rlc2NyaXB0aW9uOiBieXRlcywgbW9kZXJhdG9yX2NhdGVnb3J5OiBieXRlcykgLT4gYnl0ZXM6CmNyZWF0ZV9wcm9wb3NhbDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxNTctMTY0CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIC8vIGRlZiBjcmVhdGVfcHJvcG9zYWwoCiAgICAvLyAgICAgc2VsZiwKICAgIC8vICAgICBkYW9faWQ6IFN0cmluZywKICAgIC8vICAgICBwcm9wb3NhbF90aXRsZTogU3RyaW5nLAogICAgLy8gICAgIHByb3Bvc2FsX2Rlc2NyaXB0aW9uOiBTdHJpbmcsCiAgICAvLyAgICAgbW9kZXJhdG9yX2NhdGVnb3J5OiBTdHJpbmcsCiAgICAvLyApIC0+IFN0cmluZzoKICAgIHByb3RvIDQgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE3OS0xODAKICAgIC8vICMgVmVyaWZ5IERBTyBleGlzdHMgKHNpbXBsaWZpZWQgY2hlY2spCiAgICAvLyBhc3NlcnQgZGFvX2lkX2J5dGVzIGluIHNlbGYuZGFvX2NvbmZpZ3MsICJEQU8gZG9lcyBub3QgZXhpc3QiCiAgICBieXRlY18yIC8vIDB4NjQ2MTZmNWY2MzZmNmU2NjY5Njc1ZgogICAgZnJhbWVfZGlnIC00CiAgICBjb25jYXQKICAgIGR1cAogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBhc3NlcnQgLy8gREFPIGRvZXMgbm90IGV4aXN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTgxCiAgICAvLyBkYW9fY29uZmlnID0gc2VsZi5kYW9fY29uZmlnc1tkYW9faWRfYnl0ZXNdLmNvcHkoKQogICAgYm94X2dldAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYuZGFvX2NvbmZpZ3MgZW50cnkgZXhpc3RzCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTgzLTE4NAogICAgLy8gIyBWZXJpZnkgc2VuZGVyIGlzIERBTyBtZW1iZXIKICAgIC8vIG1lbWJlcl9rZXkgPSBkYW9faWRfYnl0ZXMgKyBUeG4uc2VuZGVyLmJ5dGVzCiAgICBmcmFtZV9kaWcgLTQKICAgIHR4biBTZW5kZXIKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE4NQogICAgLy8gbWVtYmVyX3N0YWtlLCBpc19tZW1iZXIgPSBzZWxmLm1lbWJlcl9zdGFrZXMubWF5YmUobWVtYmVyX2tleSkKICAgIGJ5dGVjXzEgLy8gMHg3Mzc0NjE2YjY1NWYKICAgIHN3YXAKICAgIGNvbmNhdAogICAgYm94X2dldAogICAgYnVyeSAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTg2CiAgICAvLyBhc3NlcnQgaXNfbWVtYmVyLCAiT25seSBEQU8gbWVtYmVycyBjYW4gY3JlYXRlIHByb3Bvc2FscyIKICAgIGFzc2VydCAvLyBPbmx5IERBTyBtZW1iZXJzIGNhbiBjcmVhdGUgcHJvcG9zYWxzCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTg4LTE4OQogICAgLy8gIyBHZW5lcmF0ZSB1bmlxdWUgcHJvcG9zYWwgSUQKICAgIC8vIHNlbGYucHJvcG9zYWxfY291bnRlci52YWx1ZSArPSBVSW50NjQoMSkKICAgIGludGNfMSAvLyAwCiAgICBieXRlYyA2IC8vICJwcm9wb3NhbF9jb3VudGVyIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnByb3Bvc2FsX2NvdW50ZXIgZXhpc3RzCiAgICBpbnRjXzAgLy8gMQogICAgKwogICAgYnl0ZWMgNiAvLyAicHJvcG9zYWxfY291bnRlciIKICAgIGRpZyAxCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE5MAogICAgLy8gcHJvcG9zYWxfaWRfYnl0ZXMgPSBvcC5jb25jYXQoQnl0ZXMoYiJwcm9wXyIpLCBvcC5pdG9iKHNlbGYucHJvcG9zYWxfY291bnRlci52YWx1ZSkpCiAgICBpdG9iCiAgICBwdXNoYnl0ZXMgMHg3MDcyNmY3MDVmCiAgICBzd2FwCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToxOTItMTk0CiAgICAvLyAjIENhbGN1bGF0ZSByZXF1aXJlZCB2b3RlcyBiYXNlZCBvbiB0aHJlc2hvbGQKICAgIC8vICMgRm9yIHNpbXBsaWNpdHksIHdlJ2xsIHVzZSB0aGUgbWluaW11bSBtZW1iZXJzIGFzIGJhc2UKICAgIC8vIHJlcXVpcmVkX3ZvdGVzID0gKGRhb19jb25maWcubWluX21lbWJlcnMubmF0aXZlICogZGFvX2NvbmZpZy5hY3RpdmF0aW9uX3RocmVzaG9sZC5uYXRpdmUpIC8vIFVJbnQ2NCgxMDApCiAgICBkaWcgMQogICAgaW50Y18xIC8vIDAKICAgIGV4dHJhY3RfdWludDY0CiAgICB1bmNvdmVyIDIKICAgIHB1c2hpbnQgMjQgLy8gMjQKICAgIGV4dHJhY3RfdWludDY0CiAgICAqCiAgICBwdXNoaW50IDEwMCAvLyAxMDAKICAgIC8KICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMDEKICAgIC8vIGNyZWF0b3I9QWRkcmVzcyhUeG4uc2VuZGVyKSwKICAgIHR4biBTZW5kZXIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMDIKICAgIC8vIHJlcXVpcmVkX3ZvdGVzPUFSQzRVSW50NjQocmVxdWlyZWRfdm90ZXMpLAogICAgc3dhcAogICAgaXRvYgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwNQogICAgLy8gY3JlYXRlZF9hdD1BUkM0VUludDY0KEdsb2JhbC5sYXRlc3RfdGltZXN0YW1wKQogICAgZ2xvYmFsIExhdGVzdFRpbWVzdGFtcAogICAgaXRvYgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE5Ni0yMDYKICAgIC8vICMgU3RvcmUgcHJvcG9zYWwgZGF0YQogICAgLy8gcHJvcG9zYWxfZGF0YSA9IFByb3Bvc2FsRGF0YSgKICAgIC8vICAgICBkYW9faWQ9QVJDNFN0cmluZy5mcm9tX2J5dGVzKGRhb19pZF9ieXRlcyksCiAgICAvLyAgICAgdGl0bGU9QVJDNFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX3RpdGxlLmJ5dGVzKSwKICAgIC8vICAgICBkZXNjcmlwdGlvbj1BUkM0U3RyaW5nLmZyb21fYnl0ZXMocHJvcG9zYWxfZGVzY3JpcHRpb24uYnl0ZXMpLAogICAgLy8gICAgIGNyZWF0b3I9QWRkcmVzcyhUeG4uc2VuZGVyKSwKICAgIC8vICAgICByZXF1aXJlZF92b3Rlcz1BUkM0VUludDY0KHJlcXVpcmVkX3ZvdGVzKSwKICAgIC8vICAgICBjdXJyZW50X3ZvdGVzPUFSQzRVSW50NjQoMCksCiAgICAvLyAgICAgc3RhdHVzPUFSQzRTdHJpbmcuZnJvbV9ieXRlcyhCeXRlcyhiImFjdGl2ZSIpKSwKICAgIC8vICAgICBjcmVhdGVkX2F0PUFSQzRVSW50NjQoR2xvYmFsLmxhdGVzdF90aW1lc3RhbXApCiAgICAvLyApCiAgICBmcmFtZV9kaWcgLTQKICAgIGxlbgogICAgcHVzaGludCA2NCAvLyA2NAogICAgKwogICAgZHVwCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgcHVzaGJ5dGVzIDB4MDA0MAogICAgc3dhcAogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgLTMKICAgIGxlbgogICAgdW5jb3ZlciAyCiAgICArCiAgICBkdXAKICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICB1bmNvdmVyIDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgZnJhbWVfZGlnIC0yCiAgICBsZW4KICAgIHVuY292ZXIgMgogICAgKwogICAgc3dhcAogICAgdW5jb3ZlciA0CiAgICBjb25jYXQKICAgIHVuY292ZXIgMwogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjAzCiAgICAvLyBjdXJyZW50X3ZvdGVzPUFSQzRVSW50NjQoMCksCiAgICBwdXNoYnl0ZXMgMHgwMDAwMDAwMDAwMDAwMDAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MTk2LTIwNgogICAgLy8gIyBTdG9yZSBwcm9wb3NhbCBkYXRhCiAgICAvLyBwcm9wb3NhbF9kYXRhID0gUHJvcG9zYWxEYXRhKAogICAgLy8gICAgIGRhb19pZD1BUkM0U3RyaW5nLmZyb21fYnl0ZXMoZGFvX2lkX2J5dGVzKSwKICAgIC8vICAgICB0aXRsZT1BUkM0U3RyaW5nLmZyb21fYnl0ZXMocHJvcG9zYWxfdGl0bGUuYnl0ZXMpLAogICAgLy8gICAgIGRlc2NyaXB0aW9uPUFSQzRTdHJpbmcuZnJvbV9ieXRlcyhwcm9wb3NhbF9kZXNjcmlwdGlvbi5ieXRlcyksCiAgICAvLyAgICAgY3JlYXRvcj1BZGRyZXNzKFR4bi5zZW5kZXIpLAogICAgLy8gICAgIHJlcXVpcmVkX3ZvdGVzPUFSQzRVSW50NjQocmVxdWlyZWRfdm90ZXMpLAogICAgLy8gICAgIGN1cnJlbnRfdm90ZXM9QVJDNFVJbnQ2NCgwKSwKICAgIC8vICAgICBzdGF0dXM9QVJDNFN0cmluZy5mcm9tX2J5dGVzKEJ5dGVzKGIiYWN0aXZlIikpLAogICAgLy8gICAgIGNyZWF0ZWRfYXQ9QVJDNFVJbnQ2NChHbG9iYWwubGF0ZXN0X3RpbWVzdGFtcCkKICAgIC8vICkKICAgIGNvbmNhdAogICAgc3dhcAogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIGNvbmNhdAogICAgc3dhcAogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgLTQKICAgIGNvbmNhdAogICAgZnJhbWVfZGlnIC0zCiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAtMgogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjA0CiAgICAvLyBzdGF0dXM9QVJDNFN0cmluZy5mcm9tX2J5dGVzKEJ5dGVzKGIiYWN0aXZlIikpLAogICAgYnl0ZWMgNyAvLyAweDYxNjM3NDY5NzY2NQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjE5Ni0yMDYKICAgIC8vICMgU3RvcmUgcHJvcG9zYWwgZGF0YQogICAgLy8gcHJvcG9zYWxfZGF0YSA9IFByb3Bvc2FsRGF0YSgKICAgIC8vICAgICBkYW9faWQ9QVJDNFN0cmluZy5mcm9tX2J5dGVzKGRhb19pZF9ieXRlcyksCiAgICAvLyAgICAgdGl0bGU9QVJDNFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX3RpdGxlLmJ5dGVzKSwKICAgIC8vICAgICBkZXNjcmlwdGlvbj1BUkM0U3RyaW5nLmZyb21fYnl0ZXMocHJvcG9zYWxfZGVzY3JpcHRpb24uYnl0ZXMpLAogICAgLy8gICAgIGNyZWF0b3I9QWRkcmVzcyhUeG4uc2VuZGVyKSwKICAgIC8vICAgICByZXF1aXJlZF92b3Rlcz1BUkM0VUludDY0KHJlcXVpcmVkX3ZvdGVzKSwKICAgIC8vICAgICBjdXJyZW50X3ZvdGVzPUFSQzRVSW50NjQoMCksCiAgICAvLyAgICAgc3RhdHVzPUFSQzRTdHJpbmcuZnJvbV9ieXRlcyhCeXRlcyhiImFjdGl2ZSIpKSwKICAgIC8vICAgICBjcmVhdGVkX2F0PUFSQzRVSW50NjQoR2xvYmFsLmxhdGVzdF90aW1lc3RhbXApCiAgICAvLyApCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMDcKICAgIC8vIHNlbGYucHJvcG9zYWxzW3Byb3Bvc2FsX2lkX2J5dGVzXSA9IHByb3Bvc2FsX2RhdGEuY29weSgpCiAgICBieXRlYyA0IC8vIDB4NzA3MjZmNzA2ZjczNjE2YzVmCiAgICBkaWcgMgogICAgY29uY2F0CiAgICBkdXAKICAgIGJveF9kZWwKICAgIHBvcAogICAgc3dhcAogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIwOQogICAgLy8gcmV0dXJuIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2lkX2J5dGVzKQogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8udm90ZV9vbl9wcm9wb3NhbChwcm9wb3NhbF9pZDogYnl0ZXMsIHZvdGVfeWVzOiBieXRlcykgLT4gYnl0ZXM6CnZvdGVfb25fcHJvcG9zYWw6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjExLTIxNgogICAgLy8gQGFiaW1ldGhvZCgpCiAgICAvLyBkZWYgdm90ZV9vbl9wcm9wb3NhbCgKICAgIC8vICAgICBzZWxmLAogICAgLy8gICAgIHByb3Bvc2FsX2lkOiBTdHJpbmcsCiAgICAvLyAgICAgdm90ZV95ZXM6IEJvb2wsCiAgICAvLyApIC0+IFN0cmluZzoKICAgIHByb3RvIDIgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIyOS0yMzAKICAgIC8vICMgVmVyaWZ5IHByb3Bvc2FsIGV4aXN0cyAoc2ltcGxpZmllZCBjaGVjaykKICAgIC8vIGFzc2VydCBwcm9wb3NhbF9pZF9ieXRlcyBpbiBzZWxmLnByb3Bvc2FscywgIlByb3Bvc2FsIGRvZXMgbm90IGV4aXN0IgogICAgYnl0ZWMgNCAvLyAweDcwNzI2ZjcwNmY3MzYxNmM1ZgogICAgZnJhbWVfZGlnIC0yCiAgICBjb25jYXQKICAgIGR1cG4gMgogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBhc3NlcnQgLy8gUHJvcG9zYWwgZG9lcyBub3QgZXhpc3QKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMzEKICAgIC8vIHByb3Bvc2FsX2RhdGEgPSBzZWxmLnByb3Bvc2Fsc1twcm9wb3NhbF9pZF9ieXRlc10uY29weSgpCiAgICBib3hfZ2V0CiAgICBzd2FwCiAgICBkdXAKICAgIHVuY292ZXIgMgogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYucHJvcG9zYWxzIGVudHJ5IGV4aXN0cwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIzMgogICAgLy8gYXNzZXJ0IHByb3Bvc2FsX2RhdGEuc3RhdHVzLmJ5dGVzID09IEJ5dGVzKGIiYWN0aXZlIiksICJQcm9wb3NhbCBpcyBub3QgYWN0aXZlIgogICAgZHVwCiAgICBpbnRjXzMgLy8gNTQKICAgIGV4dHJhY3RfdWludDE2CiAgICBkaWcgMQogICAgbGVuCiAgICBkaWcgMgogICAgY292ZXIgMgogICAgc3Vic3RyaW5nMwogICAgYnl0ZWMgNyAvLyAweDYxNjM3NDY5NzY2NQogICAgPT0KICAgIGFzc2VydCAvLyBQcm9wb3NhbCBpcyBub3QgYWN0aXZlCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjM0LTIzNQogICAgLy8gIyBWZXJpZnkgc2VuZGVyIGlzIERBTyBtZW1iZXIKICAgIC8vIGRhb19pZF9ieXRlcyA9IHByb3Bvc2FsX2RhdGEuZGFvX2lkLmJ5dGVzCiAgICBkdXAKICAgIGludGNfMSAvLyAwCiAgICBleHRyYWN0X3VpbnQxNgogICAgZGlnIDEKICAgIGludGNfMiAvLyAyCiAgICBleHRyYWN0X3VpbnQxNgogICAgZGlnIDIKICAgIGNvdmVyIDIKICAgIHN1YnN0cmluZzMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMzYKICAgIC8vIG1lbWJlcl9rZXkgPSBkYW9faWRfYnl0ZXMgKyBUeG4uc2VuZGVyLmJ5dGVzCiAgICB0eG4gU2VuZGVyCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyMzcKICAgIC8vIG1lbWJlcl9zdGFrZSwgaXNfbWVtYmVyID0gc2VsZi5tZW1iZXJfc3Rha2VzLm1heWJlKG1lbWJlcl9rZXkpCiAgICBieXRlY18xIC8vIDB4NzM3NDYxNmI2NTVmCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJveF9nZXQKICAgIGJ1cnkgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjIzOAogICAgLy8gYXNzZXJ0IGlzX21lbWJlciwgIk9ubHkgREFPIG1lbWJlcnMgY2FuIHZvdGUiCiAgICBhc3NlcnQgLy8gT25seSBEQU8gbWVtYmVycyBjYW4gdm90ZQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI0MC0yNDEKICAgIC8vICMgQ2hlY2sgaWYgYWxyZWFkeSB2b3RlZAogICAgLy8gdm90ZV9rZXkgPSBwcm9wb3NhbF9pZF9ieXRlcyArIFR4bi5zZW5kZXIuYnl0ZXMKICAgIGZyYW1lX2RpZyAtMgogICAgdHhuIFNlbmRlcgogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjQyCiAgICAvLyBleGlzdGluZ192b3RlLCBoYXNfdm90ZWQgPSBzZWxmLnZvdGVzLm1heWJlKHZvdGVfa2V5KQogICAgcHVzaGJ5dGVzIDB4NzY2Zjc0NjU1ZgogICAgc3dhcAogICAgY29uY2F0CiAgICBkdXAKICAgIGJveF9nZXQKICAgIGJ1cnkgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI0MwogICAgLy8gYXNzZXJ0IG5vdCBoYXNfdm90ZWQsICJBbHJlYWR5IHZvdGVkIG9uIHRoaXMgcHJvcG9zYWwiCiAgICAhCiAgICBhc3NlcnQgLy8gQWxyZWFkeSB2b3RlZCBvbiB0aGlzIHByb3Bvc2FsCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjQ1LTI0NgogICAgLy8gIyBSZWNvcmQgdm90ZSAoMSA9IHllcywgMiA9IG5vKQogICAgLy8gdm90ZV92YWx1ZSA9IFVJbnQ2NCgxKSBpZiB2b3RlX3llcyBlbHNlIFVJbnQ2NCgyKQogICAgZnJhbWVfZGlnIC0xCiAgICBwdXNoYnl0ZXMgMHgwMAogICAgIT0KICAgIGR1cAogICAgY292ZXIgMwogICAgaW50Y18yIC8vIDIKICAgIGludGNfMCAvLyAxCiAgICBkaWcgMgogICAgc2VsZWN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjQ3CiAgICAvLyBzZWxmLnZvdGVzW3ZvdGVfa2V5XSA9IHZvdGVfdmFsdWUKICAgIGl0b2IKICAgIHVuY292ZXIgMgogICAgc3dhcAogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI0OS0yNTAKICAgIC8vICMgVXBkYXRlIHZvdGUgY291bnQgKG9ubHkgY291bnQgeWVzIHZvdGVzKQogICAgLy8gaWYgdm90ZV95ZXM6CiAgICBieiB2b3RlX29uX3Byb3Bvc2FsX2FmdGVyX2lmX2Vsc2VANAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI1MQogICAgLy8gcHJvcG9zYWxfZGF0YS5jdXJyZW50X3ZvdGVzID0gQVJDNFVJbnQ2NChwcm9wb3NhbF9kYXRhLmN1cnJlbnRfdm90ZXMubmF0aXZlICsgVUludDY0KDEpKQogICAgZnJhbWVfZGlnIDEKICAgIGR1cAogICAgcHVzaGludCA0NiAvLyA0NgogICAgZXh0cmFjdF91aW50NjQKICAgIGludGNfMCAvLyAxCiAgICArCiAgICBpdG9iCiAgICByZXBsYWNlMiA0NgogICAgZHVwCiAgICBmcmFtZV9idXJ5IDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNTMtMjU0CiAgICAvLyAjIENoZWNrIGlmIHByb3Bvc2FsIHBhc3NlcwogICAgLy8gaWYgcHJvcG9zYWxfZGF0YS5jdXJyZW50X3ZvdGVzLm5hdGl2ZSA+PSBwcm9wb3NhbF9kYXRhLnJlcXVpcmVkX3ZvdGVzLm5hdGl2ZToKICAgIGR1cAogICAgcHVzaGludCA0NiAvLyA0NgogICAgZXh0cmFjdF91aW50NjQKICAgIGRpZyAxCiAgICBwdXNoaW50IDM4IC8vIDM4CiAgICBleHRyYWN0X3VpbnQ2NAogICAgPj0KICAgIHN3YXAKICAgIGZyYW1lX2J1cnkgMwogICAgYnogdm90ZV9vbl9wcm9wb3NhbF9hZnRlcl9pZl9lbHNlQDQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNTUKICAgIC8vIHByb3Bvc2FsX2RhdGEuc3RhdHVzID0gQVJDNFN0cmluZy5mcm9tX2J5dGVzKEJ5dGVzKGIicGFzc2VkIikpCiAgICBmcmFtZV9kaWcgMQogICAgZHVwCiAgICBpbnRjXzMgLy8gNTQKICAgIGV4dHJhY3RfdWludDE2CiAgICBpbnRjXzEgLy8gMAogICAgc3dhcAogICAgZXh0cmFjdDMKICAgIGJ5dGVjIDggLy8gMHg3MDYxNzM3MzY1NjQKICAgIGNvbmNhdAogICAgZnJhbWVfYnVyeSAzCgp2b3RlX29uX3Byb3Bvc2FsX2FmdGVyX2lmX2Vsc2VANDoKICAgIGZyYW1lX2RpZyAzCiAgICBkdXAKICAgIGZyYW1lX2J1cnkgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI1Ny0yNTgKICAgIC8vICMgVXBkYXRlIHByb3Bvc2FsIGRhdGEKICAgIC8vIHNlbGYucHJvcG9zYWxzW3Byb3Bvc2FsX2lkX2J5dGVzXSA9IHByb3Bvc2FsX2RhdGEuY29weSgpCiAgICBmcmFtZV9kaWcgMAogICAgZHVwCiAgICBib3hfZGVsCiAgICBwb3AKICAgIHN3YXAKICAgIGJveF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNjAKICAgIC8vIHZvdGVfdHlwZSA9IFN0cmluZygieWVzIikgaWYgdm90ZV95ZXMgZWxzZSBTdHJpbmcoIm5vIikKICAgIGZyYW1lX2RpZyAyCiAgICBieiB2b3RlX29uX3Byb3Bvc2FsX3Rlcm5hcnlfZmFsc2VANgogICAgcHVzaGJ5dGVzICJ5ZXMiCgp2b3RlX29uX3Byb3Bvc2FsX3Rlcm5hcnlfbWVyZ2VANzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNjEKICAgIC8vIHJldHVybiBTdHJpbmcoIlZvdGUgY2FzdDogIikgKyB2b3RlX3R5cGUgKyBTdHJpbmcoIiwgVG90YWwgeWVzIHZvdGVzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IocHJvcG9zYWxfZGF0YS5jdXJyZW50X3ZvdGVzLm5hdGl2ZSkpCiAgICBwdXNoYnl0ZXMgIlZvdGUgY2FzdDogIgogICAgc3dhcAogICAgY29uY2F0CiAgICBwdXNoYnl0ZXMgIiwgVG90YWwgeWVzIHZvdGVzOiAiCiAgICBjb25jYXQKICAgIGZyYW1lX2RpZyAxCiAgICBwdXNoaW50IDQ2IC8vIDQ2CiAgICBleHRyYWN0X3VpbnQ2NAogICAgaXRvYgogICAgY29uY2F0CiAgICBmcmFtZV9idXJ5IDAKICAgIHJldHN1YgoKdm90ZV9vbl9wcm9wb3NhbF90ZXJuYXJ5X2ZhbHNlQDY6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjYwCiAgICAvLyB2b3RlX3R5cGUgPSBTdHJpbmcoInllcyIpIGlmIHZvdGVfeWVzIGVsc2UgU3RyaW5nKCJubyIpCiAgICBwdXNoYnl0ZXMgIm5vIgogICAgYiB2b3RlX29uX3Byb3Bvc2FsX3Rlcm5hcnlfbWVyZ2VANwoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jaXRhZGVsX2Rhby5jb250cmFjdC5DaXRhZGVsREFPLmV4ZWN1dGVfcHJvcG9zYWwocHJvcG9zYWxfaWQ6IGJ5dGVzLCBtb2RlcmF0b3JfbmFtZTogYnl0ZXMpIC0+IHVpbnQ2NDoKZXhlY3V0ZV9wcm9wb3NhbDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyNjMtMjY4CiAgICAvLyBAYWJpbWV0aG9kKCkKICAgIC8vIGRlZiBleGVjdXRlX3Byb3Bvc2FsKAogICAgLy8gICAgIHNlbGYsCiAgICAvLyAgICAgcHJvcG9zYWxfaWQ6IFN0cmluZywKICAgIC8vICAgICBtb2RlcmF0b3JfbmFtZTogU3RyaW5nLAogICAgLy8gKSAtPiBVSW50NjQ6CiAgICBwcm90byAyIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyODEtMjgyCiAgICAvLyAjIFZlcmlmeSBwcm9wb3NhbCBleGlzdHMgYW5kIGhhcyBwYXNzZWQgKHNpbXBsaWZpZWQgY2hlY2spCiAgICAvLyBhc3NlcnQgcHJvcG9zYWxfaWRfYnl0ZXMgaW4gc2VsZi5wcm9wb3NhbHMsICJQcm9wb3NhbCBkb2VzIG5vdCBleGlzdCIKICAgIGJ5dGVjIDQgLy8gMHg3MDcyNmY3MDZmNzM2MTZjNWYKICAgIGZyYW1lX2RpZyAtMgogICAgY29uY2F0CiAgICBkdXAKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYXNzZXJ0IC8vIFByb3Bvc2FsIGRvZXMgbm90IGV4aXN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjgzCiAgICAvLyBwcm9wb3NhbF9kYXRhID0gc2VsZi5wcm9wb3NhbHNbcHJvcG9zYWxfaWRfYnl0ZXNdLmNvcHkoKQogICAgZHVwCiAgICBib3hfZ2V0CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5wcm9wb3NhbHMgZW50cnkgZXhpc3RzCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6Mjg0CiAgICAvLyBhc3NlcnQgcHJvcG9zYWxfZGF0YS5zdGF0dXMuYnl0ZXMgPT0gQnl0ZXMoYiJwYXNzZWQiKSwgIlByb3Bvc2FsIGhhcyBub3QgcGFzc2VkIgogICAgZHVwCiAgICBpbnRjXzMgLy8gNTQKICAgIGV4dHJhY3RfdWludDE2CiAgICBkaWcgMQogICAgbGVuCiAgICBkaWcgMgogICAgZGlnIDIKICAgIHVuY292ZXIgMgogICAgc3Vic3RyaW5nMwogICAgYnl0ZWMgOCAvLyAweDcwNjE3MzczNjU2NAogICAgPT0KICAgIGFzc2VydCAvLyBQcm9wb3NhbCBoYXMgbm90IHBhc3NlZAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI4Ni0yODcKICAgIC8vICMgVmVyaWZ5IHNlbmRlciBpcyBwcm9wb3NhbCBjcmVhdG9yIG9yIERBTyBtZW1iZXIKICAgIC8vIGRhb19pZF9ieXRlcyA9IHByb3Bvc2FsX2RhdGEuZGFvX2lkLmJ5dGVzCiAgICBkaWcgMQogICAgaW50Y18xIC8vIDAKICAgIGV4dHJhY3RfdWludDE2CiAgICBkaWcgMgogICAgaW50Y18yIC8vIDIKICAgIGV4dHJhY3RfdWludDE2CiAgICBkaWcgMwogICAgY292ZXIgMgogICAgc3Vic3RyaW5nMwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI4OAogICAgLy8gbWVtYmVyX2tleSA9IGRhb19pZF9ieXRlcyArIFR4bi5zZW5kZXIuYnl0ZXMKICAgIHR4biBTZW5kZXIKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI4OQogICAgLy8gbWVtYmVyX3N0YWtlLCBpc19tZW1iZXIgPSBzZWxmLm1lbWJlcl9zdGFrZXMubWF5YmUobWVtYmVyX2tleSkKICAgIGJ5dGVjXzEgLy8gMHg3Mzc0NjE2YjY1NWYKICAgIHN3YXAKICAgIGNvbmNhdAogICAgYm94X2dldAogICAgYnVyeSAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MjkwCiAgICAvLyBhc3NlcnQgaXNfbWVtYmVyLCAiT25seSBEQU8gbWVtYmVycyBjYW4gZXhlY3V0ZSBwcm9wb3NhbHMiCiAgICBhc3NlcnQgLy8gT25seSBEQU8gbWVtYmVycyBjYW4gZXhlY3V0ZSBwcm9wb3NhbHMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weToyOTUKICAgIC8vIHByb3Bvc2FsX2RhdGEuZGVzY3JpcHRpb24uYnl0ZXMsCiAgICBkaWcgMQogICAgcHVzaGludCA0IC8vIDQKICAgIGV4dHJhY3RfdWludDE2CiAgICBkaWcgMgogICAgc3dhcAogICAgZGlnIDIKICAgIHN1YnN0cmluZzMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo0MzEtNDQ1CiAgICAvLyAjIENyZWF0ZSBBU0EgKE5GVCkgd2l0aCBpbm5lciB0cmFuc2FjdGlvbgogICAgLy8gIyBUaGUgYXNzZXQgd2lsbCBiZSBjcmVhdGVkIGFuZCBtYW5hZ2VkIGJ5IHRoZSBzbWFydCBjb250cmFjdAogICAgLy8gaXR4bi5Bc3NldENvbmZpZygKICAgIC8vICAgICB0b3RhbD1VSW50NjQoMSksICAjIE5GVCAtIG9ubHkgMSB1bml0CiAgICAvLyAgICAgZGVjaW1hbHM9VUludDY0KDApLCAgIyBORlQgLSBubyBkZWNpbWFscwogICAgLy8gICAgIGRlZmF1bHRfZnJvemVuPUZhbHNlLAogICAgLy8gICAgIGFzc2V0X25hbWU9bW9kZXJhdG9yX25hbWUuYnl0ZXMsCiAgICAvLyAgICAgdW5pdF9uYW1lPUJ5dGVzKGIiQ0lUTU9EIiksCiAgICAvLyAgICAgdXJsPUJ5dGVzKGIiaHR0cHM6Ly9jaXRhZGVseC5haS9tb2RlcmF0b3IvIiksCiAgICAvLyAgICAgbWV0YWRhdGFfaGFzaD1vcC5zaGEyNTYoZGVzY3JpcHRpb24pLAogICAgLy8gICAgIG1hbmFnZXI9R2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywKICAgIC8vICAgICByZXNlcnZlPUdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MsCiAgICAvLyAgICAgZnJlZXplPUdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MsCiAgICAvLyAgICAgY2xhd2JhY2s9R2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywKICAgIC8vICkuc3VibWl0KCkKICAgIGl0eG5fYmVnaW4KICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo0NDAKICAgIC8vIG1ldGFkYXRhX2hhc2g9b3Auc2hhMjU2KGRlc2NyaXB0aW9uKSwKICAgIHNoYTI1NgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjQ0MQogICAgLy8gbWFuYWdlcj1HbG9iYWwuY3VycmVudF9hcHBsaWNhdGlvbl9hZGRyZXNzLAogICAgZ2xvYmFsIEN1cnJlbnRBcHBsaWNhdGlvbkFkZHJlc3MKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo0NDItNDQ0CiAgICAvLyByZXNlcnZlPUdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MsCiAgICAvLyBmcmVlemU9R2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywKICAgIC8vIGNsYXdiYWNrPUdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MsCiAgICBkdXBuIDMKICAgIGl0eG5fZmllbGQgQ29uZmlnQXNzZXRDbGF3YmFjawogICAgaXR4bl9maWVsZCBDb25maWdBc3NldEZyZWV6ZQogICAgaXR4bl9maWVsZCBDb25maWdBc3NldFJlc2VydmUKICAgIGl0eG5fZmllbGQgQ29uZmlnQXNzZXRNYW5hZ2VyCiAgICBpdHhuX2ZpZWxkIENvbmZpZ0Fzc2V0TWV0YWRhdGFIYXNoCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6NDM5CiAgICAvLyB1cmw9Qnl0ZXMoYiJodHRwczovL2NpdGFkZWx4LmFpL21vZGVyYXRvci8iKSwKICAgIHB1c2hieXRlcyAweDY4NzQ3NDcwNzMzYTJmMmY2MzY5NzQ2MTY0NjU2Yzc4MmU2MTY5MmY2ZDZmNjQ2NTcyNjE3NDZmNzIyZgogICAgaXR4bl9maWVsZCBDb25maWdBc3NldFVSTAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjQzOAogICAgLy8gdW5pdF9uYW1lPUJ5dGVzKGIiQ0lUTU9EIiksCiAgICBwdXNoYnl0ZXMgMHg0MzQ5NTQ0ZDRmNDQKICAgIGl0eG5fZmllbGQgQ29uZmlnQXNzZXRVbml0TmFtZQogICAgZnJhbWVfZGlnIC0xCiAgICBpdHhuX2ZpZWxkIENvbmZpZ0Fzc2V0TmFtZQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjQzNgogICAgLy8gZGVmYXVsdF9mcm96ZW49RmFsc2UsCiAgICBpbnRjXzEgLy8gMAogICAgaXR4bl9maWVsZCBDb25maWdBc3NldERlZmF1bHRGcm96ZW4KICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo0MzUKICAgIC8vIGRlY2ltYWxzPVVJbnQ2NCgwKSwgICMgTkZUIC0gbm8gZGVjaW1hbHMKICAgIGludGNfMSAvLyAwCiAgICBpdHhuX2ZpZWxkIENvbmZpZ0Fzc2V0RGVjaW1hbHMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo0MzQKICAgIC8vIHRvdGFsPVVJbnQ2NCgxKSwgICMgTkZUIC0gb25seSAxIHVuaXQKICAgIGludGNfMCAvLyAxCiAgICBpdHhuX2ZpZWxkIENvbmZpZ0Fzc2V0VG90YWwKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo0MzEtNDMzCiAgICAvLyAjIENyZWF0ZSBBU0EgKE5GVCkgd2l0aCBpbm5lciB0cmFuc2FjdGlvbgogICAgLy8gIyBUaGUgYXNzZXQgd2lsbCBiZSBjcmVhdGVkIGFuZCBtYW5hZ2VkIGJ5IHRoZSBzbWFydCBjb250cmFjdAogICAgLy8gaXR4bi5Bc3NldENvbmZpZygKICAgIHB1c2hpbnQgMyAvLyBhY2ZnCiAgICBpdHhuX2ZpZWxkIFR5cGVFbnVtCiAgICBpbnRjXzEgLy8gMAogICAgaXR4bl9maWVsZCBGZWUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTo0MzEtNDQ1CiAgICAvLyAjIENyZWF0ZSBBU0EgKE5GVCkgd2l0aCBpbm5lciB0cmFuc2FjdGlvbgogICAgLy8gIyBUaGUgYXNzZXQgd2lsbCBiZSBjcmVhdGVkIGFuZCBtYW5hZ2VkIGJ5IHRoZSBzbWFydCBjb250cmFjdAogICAgLy8gaXR4bi5Bc3NldENvbmZpZygKICAgIC8vICAgICB0b3RhbD1VSW50NjQoMSksICAjIE5GVCAtIG9ubHkgMSB1bml0CiAgICAvLyAgICAgZGVjaW1hbHM9VUludDY0KDApLCAgIyBORlQgLSBubyBkZWNpbWFscwogICAgLy8gICAgIGRlZmF1bHRfZnJvemVuPUZhbHNlLAogICAgLy8gICAgIGFzc2V0X25hbWU9bW9kZXJhdG9yX25hbWUuYnl0ZXMsCiAgICAvLyAgICAgdW5pdF9uYW1lPUJ5dGVzKGIiQ0lUTU9EIiksCiAgICAvLyAgICAgdXJsPUJ5dGVzKGIiaHR0cHM6Ly9jaXRhZGVseC5haS9tb2RlcmF0b3IvIiksCiAgICAvLyAgICAgbWV0YWRhdGFfaGFzaD1vcC5zaGEyNTYoZGVzY3JpcHRpb24pLAogICAgLy8gICAgIG1hbmFnZXI9R2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywKICAgIC8vICAgICByZXNlcnZlPUdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MsCiAgICAvLyAgICAgZnJlZXplPUdsb2JhbC5jdXJyZW50X2FwcGxpY2F0aW9uX2FkZHJlc3MsCiAgICAvLyAgICAgY2xhd2JhY2s9R2xvYmFsLmN1cnJlbnRfYXBwbGljYXRpb25fYWRkcmVzcywKICAgIC8vICkuc3VibWl0KCkKICAgIGl0eG5fc3VibWl0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6NDQ3LTQ1MAogICAgLy8gIyBSZXR1cm4gYSB1bmlxdWUgaWRlbnRpZmllciBmb3IgdGhlIGNyZWF0ZWQgYXNzZXQKICAgIC8vICMgSW4gYSByZWFsIGltcGxlbWVudGF0aW9uLCB0aGlzIHdvdWxkIGJlIHRoZSBhY3R1YWwgYXNzZXQgSUQgZnJvbSB0aGUgdHJhbnNhY3Rpb24KICAgIC8vICMgRm9yIG5vdywgd2UgdXNlIGEgZGV0ZXJtaW5pc3RpYyB2YWx1ZSBiYXNlZCBvbiB0aGUgY29udHJhY3Qgc3RhdGUKICAgIC8vIHJldHVybiBHbG9iYWwubGF0ZXN0X3RpbWVzdGFtcAogICAgZ2xvYmFsIExhdGVzdFRpbWVzdGFtcAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjI5OS0zMDAKICAgIC8vICMgTWFyayBwcm9wb3NhbCBhcyBleGVjdXRlZCAoY2hhbmdlIHN0YXR1cykKICAgIC8vIHByb3Bvc2FsX2RhdGEuc3RhdHVzID0gQVJDNFN0cmluZy5mcm9tX2J5dGVzKEJ5dGVzKGIiZXhlY3V0ZWQiKSkKICAgIHVuY292ZXIgMgogICAgaW50Y18xIC8vIDAKICAgIHVuY292ZXIgMwogICAgZXh0cmFjdDMKICAgIHB1c2hieXRlcyAweDY1Nzg2NTYzNzU3NDY1NjQKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjMwMQogICAgLy8gc2VsZi5wcm9wb3NhbHNbcHJvcG9zYWxfaWRfYnl0ZXNdID0gcHJvcG9zYWxfZGF0YS5jb3B5KCkKICAgIGRpZyAyCiAgICBib3hfZGVsCiAgICBwb3AKICAgIHVuY292ZXIgMgogICAgc3dhcAogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjMwMwogICAgLy8gcmV0dXJuIG5mdF9hc3NldF9pZAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8uZGlzdHJpYnV0ZV9yZXZlbnVlKGRhb19pZDogYnl0ZXMsIHJldmVudWVfYW1vdW50OiB1aW50NjQpIC0+IGJ5dGVzOgpkaXN0cmlidXRlX3JldmVudWU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzA1LTMxMAogICAgLy8gQGFiaW1ldGhvZCgpCiAgICAvLyBkZWYgZGlzdHJpYnV0ZV9yZXZlbnVlKAogICAgLy8gICAgIHNlbGYsCiAgICAvLyAgICAgZGFvX2lkOiBTdHJpbmcsCiAgICAvLyAgICAgcmV2ZW51ZV9hbW91bnQ6IFVJbnQ2NCwKICAgIC8vICkgLT4gU3RyaW5nOgogICAgcHJvdG8gMiAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzIzLTMyNAogICAgLy8gIyBWZXJpZnkgREFPIGV4aXN0cyAoc2ltcGxpZmllZCBjaGVjaykKICAgIC8vIGFzc2VydCBkYW9faWRfYnl0ZXMgaW4gc2VsZi5kYW9fY29uZmlncywgIkRBTyBkb2VzIG5vdCBleGlzdCIKICAgIGJ5dGVjXzIgLy8gMHg2NDYxNmY1ZjYzNmY2ZTY2Njk2NzVmCiAgICBmcmFtZV9kaWcgLTIKICAgIGNvbmNhdAogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBhc3NlcnQgLy8gREFPIGRvZXMgbm90IGV4aXN0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzI2LTMyNwogICAgLy8gIyBBZGQgcmV2ZW51ZSB0byB0cmVhc3VyeSAoaW4gcHJvZHVjdGlvbiwgdGhpcyB3b3VsZCBjb21lIGZyb20gZXh0ZXJuYWwgcGF5bWVudHMpCiAgICAvLyBjdXJyZW50X3RyZWFzdXJ5ID0gc2VsZi50cmVhc3VyeV9iYWxhbmNlc1tkYW9faWRfYnl0ZXNdCiAgICBieXRlY18zIC8vIDB4NzQ3MjY1NjE3Mzc1NzI3OTVmCiAgICBmcmFtZV9kaWcgLTIKICAgIGNvbmNhdAogICAgZHVwCiAgICBib3hfZ2V0CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi50cmVhc3VyeV9iYWxhbmNlcyBlbnRyeSBleGlzdHMKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozMjgKICAgIC8vIHNlbGYudHJlYXN1cnlfYmFsYW5jZXNbZGFvX2lkX2J5dGVzXSA9IGN1cnJlbnRfdHJlYXN1cnkgKyByZXZlbnVlX2Ftb3VudAogICAgZnJhbWVfZGlnIC0xCiAgICArCiAgICBpdG9iCiAgICBib3hfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzMzCiAgICAvLyByZXR1cm4gU3RyaW5nKCJSZXZlbnVlIGFkZGVkIHRvIHRyZWFzdXJ5IGZvciBEQU86ICIpICsgZGFvX2lkCiAgICBwdXNoYnl0ZXMgIlJldmVudWUgYWRkZWQgdG8gdHJlYXN1cnkgZm9yIERBTzogIgogICAgZnJhbWVfZGlnIC0yCiAgICBjb25jYXQKICAgIHJldHN1YgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy5jaXRhZGVsX2Rhby5jb250cmFjdC5DaXRhZGVsREFPLmdldF9kYW9faW5mbyhkYW9faWQ6IGJ5dGVzKSAtPiBieXRlczoKZ2V0X2Rhb19pbmZvOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjMzNS0zMzYKICAgIC8vIEBhYmltZXRob2QocmVhZG9ubHk9VHJ1ZSkKICAgIC8vIGRlZiBnZXRfZGFvX2luZm8oc2VsZiwgZGFvX2lkOiBTdHJpbmcpIC0+IFN0cmluZzoKICAgIHByb3RvIDEgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM0OAogICAgLy8gaWYgZGFvX2lkX2J5dGVzIG5vdCBpbiBzZWxmLmRhb19jb25maWdzOgogICAgYnl0ZWNfMiAvLyAweDY0NjE2ZjVmNjM2ZjZlNjY2OTY3NWYKICAgIGZyYW1lX2RpZyAtMQogICAgY29uY2F0CiAgICBkdXAKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgYm56IGdldF9kYW9faW5mb19hZnRlcl9pZl9lbHNlQDIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNDkKICAgIC8vIHJldHVybiBTdHJpbmcoIkRBTyBub3QgZm91bmQiKQogICAgcHVzaGJ5dGVzICJEQU8gbm90IGZvdW5kIgogICAgc3dhcAogICAgcmV0c3ViCgpnZXRfZGFvX2luZm9fYWZ0ZXJfaWZfZWxzZUAyOgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM1MQogICAgLy8gZGFvX2NvbmZpZyA9IHNlbGYuZGFvX2NvbmZpZ3NbZGFvX2lkX2J5dGVzXS5jb3B5KCkKICAgIGZyYW1lX2RpZyAwCiAgICBib3hfZ2V0CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi5kYW9fY29uZmlncyBlbnRyeSBleGlzdHMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNTIKICAgIC8vIHRyZWFzdXJ5X2JhbGFuY2UgPSBzZWxmLnRyZWFzdXJ5X2JhbGFuY2VzW2Rhb19pZF9ieXRlc10KICAgIGJ5dGVjXzMgLy8gMHg3NDcyNjU2MTczNzU3Mjc5NWYKICAgIGZyYW1lX2RpZyAtMQogICAgY29uY2F0CiAgICBib3hfZ2V0CiAgICBhc3NlcnQgLy8gY2hlY2sgc2VsZi50cmVhc3VyeV9iYWxhbmNlcyBlbnRyeSBleGlzdHMKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNTQKICAgIC8vIHJldHVybiAoU3RyaW5nKCJEQU86ICIpICsgZGFvX2lkICsKICAgIHB1c2hieXRlcyAiREFPOiAiCiAgICBmcmFtZV9kaWcgLTEKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM1NQogICAgLy8gU3RyaW5nKCIsIE1pbiBNZW1iZXJzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IoZGFvX2NvbmZpZy5taW5fbWVtYmVycy5uYXRpdmUpKSArCiAgICBwdXNoYnl0ZXMgIiwgTWluIE1lbWJlcnM6ICIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNTQtMzU1CiAgICAvLyByZXR1cm4gKFN0cmluZygiREFPOiAiKSArIGRhb19pZCArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBNaW4gTWVtYmVyczogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKGRhb19jb25maWcubWluX21lbWJlcnMubmF0aXZlKSkgKwogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzU1CiAgICAvLyBTdHJpbmcoIiwgTWluIE1lbWJlcnM6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihkYW9fY29uZmlnLm1pbl9tZW1iZXJzLm5hdGl2ZSkpICsKICAgIGRpZyAyCiAgICBpbnRjXzEgLy8gMAogICAgZXh0cmFjdF91aW50NjQKICAgIGl0b2IKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNTQtMzU1CiAgICAvLyByZXR1cm4gKFN0cmluZygiREFPOiAiKSArIGRhb19pZCArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBNaW4gTWVtYmVyczogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKGRhb19jb25maWcubWluX21lbWJlcnMubmF0aXZlKSkgKwogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzU2CiAgICAvLyBTdHJpbmcoIiwgTWluIFN0YWtlOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IoZGFvX2NvbmZpZy5taW5fc3Rha2UubmF0aXZlKSkgKwogICAgcHVzaGJ5dGVzICIsIE1pbiBTdGFrZTogIgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM1NC0zNTYKICAgIC8vIHJldHVybiAoU3RyaW5nKCJEQU86ICIpICsgZGFvX2lkICsKICAgIC8vICAgICAgICAgU3RyaW5nKCIsIE1pbiBNZW1iZXJzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IoZGFvX2NvbmZpZy5taW5fbWVtYmVycy5uYXRpdmUpKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBNaW4gU3Rha2U6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihkYW9fY29uZmlnLm1pbl9zdGFrZS5uYXRpdmUpKSArCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNTYKICAgIC8vIFN0cmluZygiLCBNaW4gU3Rha2U6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihkYW9fY29uZmlnLm1pbl9zdGFrZS5uYXRpdmUpKSArCiAgICB1bmNvdmVyIDIKICAgIHB1c2hpbnQgOCAvLyA4CiAgICBleHRyYWN0X3VpbnQ2NAogICAgaXRvYgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM1NC0zNTYKICAgIC8vIHJldHVybiAoU3RyaW5nKCJEQU86ICIpICsgZGFvX2lkICsKICAgIC8vICAgICAgICAgU3RyaW5nKCIsIE1pbiBNZW1iZXJzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IoZGFvX2NvbmZpZy5taW5fbWVtYmVycy5uYXRpdmUpKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBNaW4gU3Rha2U6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihkYW9fY29uZmlnLm1pbl9zdGFrZS5uYXRpdmUpKSArCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNTcKICAgIC8vIFN0cmluZygiLCBUcmVhc3VyeTogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHRyZWFzdXJ5X2JhbGFuY2UpKSkKICAgIHB1c2hieXRlcyAiLCBUcmVhc3VyeTogIgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM1NC0zNTcKICAgIC8vIHJldHVybiAoU3RyaW5nKCJEQU86ICIpICsgZGFvX2lkICsKICAgIC8vICAgICAgICAgU3RyaW5nKCIsIE1pbiBNZW1iZXJzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IoZGFvX2NvbmZpZy5taW5fbWVtYmVycy5uYXRpdmUpKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBNaW4gU3Rha2U6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihkYW9fY29uZmlnLm1pbl9zdGFrZS5uYXRpdmUpKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBUcmVhc3VyeTogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHRyZWFzdXJ5X2JhbGFuY2UpKSkKICAgIGNvbmNhdAogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM1NwogICAgLy8gU3RyaW5nKCIsIFRyZWFzdXJ5OiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IodHJlYXN1cnlfYmFsYW5jZSkpKQogICAgc3dhcAogICAgaXRvYgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM1NC0zNTcKICAgIC8vIHJldHVybiAoU3RyaW5nKCJEQU86ICIpICsgZGFvX2lkICsKICAgIC8vICAgICAgICAgU3RyaW5nKCIsIE1pbiBNZW1iZXJzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IoZGFvX2NvbmZpZy5taW5fbWVtYmVycy5uYXRpdmUpKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBNaW4gU3Rha2U6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihkYW9fY29uZmlnLm1pbl9zdGFrZS5uYXRpdmUpKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBUcmVhc3VyeTogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHRyZWFzdXJ5X2JhbGFuY2UpKSkKICAgIGNvbmNhdAogICAgc3dhcAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8uZ2V0X3Byb3Bvc2FsX2luZm8ocHJvcG9zYWxfaWQ6IGJ5dGVzKSAtPiBieXRlczoKZ2V0X3Byb3Bvc2FsX2luZm86CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzU5LTM2MAogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgLy8gZGVmIGdldF9wcm9wb3NhbF9pbmZvKHNlbGYsIHByb3Bvc2FsX2lkOiBTdHJpbmcpIC0+IFN0cmluZzoKICAgIHByb3RvIDEgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM3MgogICAgLy8gaWYgcHJvcG9zYWxfaWRfYnl0ZXMgbm90IGluIHNlbGYucHJvcG9zYWxzOgogICAgYnl0ZWMgNCAvLyAweDcwNzI2ZjcwNmY3MzYxNmM1ZgogICAgZnJhbWVfZGlnIC0xCiAgICBjb25jYXQKICAgIGR1cAogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBibnogZ2V0X3Byb3Bvc2FsX2luZm9fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzczCiAgICAvLyByZXR1cm4gU3RyaW5nKCJQcm9wb3NhbCBub3QgZm91bmQiKQogICAgcHVzaGJ5dGVzICJQcm9wb3NhbCBub3QgZm91bmQiCiAgICBzd2FwCiAgICByZXRzdWIKCmdldF9wcm9wb3NhbF9pbmZvX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNzUKICAgIC8vIHByb3Bvc2FsX2RhdGEgPSBzZWxmLnByb3Bvc2Fsc1twcm9wb3NhbF9pZF9ieXRlc10uY29weSgpCiAgICBmcmFtZV9kaWcgMAogICAgYm94X2dldAogICAgYXNzZXJ0IC8vIGNoZWNrIHNlbGYucHJvcG9zYWxzIGVudHJ5IGV4aXN0cwogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM3NwogICAgLy8gcmV0dXJuIChTdHJpbmcoIlByb3Bvc2FsOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2RhdGEudGl0bGUuYnl0ZXMpICsKICAgIGR1cAogICAgaW50Y18yIC8vIDIKICAgIGV4dHJhY3RfdWludDE2CiAgICBkaWcgMQogICAgcHVzaGludCA0IC8vIDQKICAgIGV4dHJhY3RfdWludDE2CiAgICBkaWcgMgogICAgY292ZXIgMgogICAgc3Vic3RyaW5nMwogICAgcHVzaGJ5dGVzICJQcm9wb3NhbDogIgogICAgc3dhcAogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6Mzc4CiAgICAvLyBTdHJpbmcoIiwgU3RhdHVzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2RhdGEuc3RhdHVzLmJ5dGVzKSArCiAgICBwdXNoYnl0ZXMgIiwgU3RhdHVzOiAiCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6Mzc3LTM3OAogICAgLy8gcmV0dXJuIChTdHJpbmcoIlByb3Bvc2FsOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2RhdGEudGl0bGUuYnl0ZXMpICsKICAgIC8vICAgICAgICAgU3RyaW5nKCIsIFN0YXR1czogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhwcm9wb3NhbF9kYXRhLnN0YXR1cy5ieXRlcykgKwogICAgY29uY2F0CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6Mzc4CiAgICAvLyBTdHJpbmcoIiwgU3RhdHVzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2RhdGEuc3RhdHVzLmJ5dGVzKSArCiAgICBkaWcgMQogICAgaW50Y18zIC8vIDU0CiAgICBleHRyYWN0X3VpbnQxNgogICAgZGlnIDIKICAgIGxlbgogICAgZGlnIDMKICAgIGNvdmVyIDIKICAgIHN1YnN0cmluZzMKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNzctMzc4CiAgICAvLyByZXR1cm4gKFN0cmluZygiUHJvcG9zYWw6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMocHJvcG9zYWxfZGF0YS50aXRsZS5ieXRlcykgKwogICAgLy8gICAgICAgICBTdHJpbmcoIiwgU3RhdHVzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2RhdGEuc3RhdHVzLmJ5dGVzKSArCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNzkKICAgIC8vIFN0cmluZygiLCBWb3RlczogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHByb3Bvc2FsX2RhdGEuY3VycmVudF92b3Rlcy5uYXRpdmUpKSArCiAgICBwdXNoYnl0ZXMgIiwgVm90ZXM6ICIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNzctMzc5CiAgICAvLyByZXR1cm4gKFN0cmluZygiUHJvcG9zYWw6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMocHJvcG9zYWxfZGF0YS50aXRsZS5ieXRlcykgKwogICAgLy8gICAgICAgICBTdHJpbmcoIiwgU3RhdHVzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2RhdGEuc3RhdHVzLmJ5dGVzKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBWb3RlczogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHByb3Bvc2FsX2RhdGEuY3VycmVudF92b3Rlcy5uYXRpdmUpKSArCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNzkKICAgIC8vIFN0cmluZygiLCBWb3RlczogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHByb3Bvc2FsX2RhdGEuY3VycmVudF92b3Rlcy5uYXRpdmUpKSArCiAgICBkaWcgMQogICAgcHVzaGludCA0NiAvLyA0NgogICAgZXh0cmFjdF91aW50NjQKICAgIGl0b2IKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNzctMzc5CiAgICAvLyByZXR1cm4gKFN0cmluZygiUHJvcG9zYWw6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMocHJvcG9zYWxfZGF0YS50aXRsZS5ieXRlcykgKwogICAgLy8gICAgICAgICBTdHJpbmcoIiwgU3RhdHVzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2RhdGEuc3RhdHVzLmJ5dGVzKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBWb3RlczogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHByb3Bvc2FsX2RhdGEuY3VycmVudF92b3Rlcy5uYXRpdmUpKSArCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozODAKICAgIC8vIFN0cmluZygiLyIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihwcm9wb3NhbF9kYXRhLnJlcXVpcmVkX3ZvdGVzLm5hdGl2ZSkpKQogICAgcHVzaGJ5dGVzICIvIgogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM3Ny0zODAKICAgIC8vIHJldHVybiAoU3RyaW5nKCJQcm9wb3NhbDogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhwcm9wb3NhbF9kYXRhLnRpdGxlLmJ5dGVzKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBTdGF0dXM6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMocHJvcG9zYWxfZGF0YS5zdGF0dXMuYnl0ZXMpICsKICAgIC8vICAgICAgICAgU3RyaW5nKCIsIFZvdGVzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKG9wLml0b2IocHJvcG9zYWxfZGF0YS5jdXJyZW50X3ZvdGVzLm5hdGl2ZSkpICsKICAgIC8vICAgICAgICAgU3RyaW5nKCIvIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHByb3Bvc2FsX2RhdGEucmVxdWlyZWRfdm90ZXMubmF0aXZlKSkpCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozODAKICAgIC8vIFN0cmluZygiLyIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihwcm9wb3NhbF9kYXRhLnJlcXVpcmVkX3ZvdGVzLm5hdGl2ZSkpKQogICAgc3dhcAogICAgcHVzaGludCAzOCAvLyAzOAogICAgZXh0cmFjdF91aW50NjQKICAgIGl0b2IKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozNzctMzgwCiAgICAvLyByZXR1cm4gKFN0cmluZygiUHJvcG9zYWw6ICIpICsgU3RyaW5nLmZyb21fYnl0ZXMocHJvcG9zYWxfZGF0YS50aXRsZS5ieXRlcykgKwogICAgLy8gICAgICAgICBTdHJpbmcoIiwgU3RhdHVzOiAiKSArIFN0cmluZy5mcm9tX2J5dGVzKHByb3Bvc2FsX2RhdGEuc3RhdHVzLmJ5dGVzKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLCBWb3RlczogIikgKyBTdHJpbmcuZnJvbV9ieXRlcyhvcC5pdG9iKHByb3Bvc2FsX2RhdGEuY3VycmVudF92b3Rlcy5uYXRpdmUpKSArCiAgICAvLyAgICAgICAgIFN0cmluZygiLyIpICsgU3RyaW5nLmZyb21fYnl0ZXMob3AuaXRvYihwcm9wb3NhbF9kYXRhLnJlcXVpcmVkX3ZvdGVzLm5hdGl2ZSkpKQogICAgY29uY2F0CiAgICBzd2FwCiAgICByZXRzdWIKCgovLyBzbWFydF9jb250cmFjdHMuY2l0YWRlbF9kYW8uY29udHJhY3QuQ2l0YWRlbERBTy5jaGVja19tZW1iZXJzaGlwKGRhb19pZDogYnl0ZXMsIG1lbWJlcl9hZGRyZXNzOiBieXRlcykgLT4gYnl0ZXM6CmNoZWNrX21lbWJlcnNoaXA6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6MzgyLTM4MwogICAgLy8gQGFiaW1ldGhvZChyZWFkb25seT1UcnVlKQogICAgLy8gZGVmIGNoZWNrX21lbWJlcnNoaXAoc2VsZiwgZGFvX2lkOiBTdHJpbmcsIG1lbWJlcl9hZGRyZXNzOiBBY2NvdW50KSAtPiBCb29sOgogICAgcHJvdG8gMiAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvY2l0YWRlbF9kYW8vY29udHJhY3QucHk6Mzk1CiAgICAvLyBtZW1iZXJfa2V5ID0gZGFvX2lkX2J5dGVzICsgbWVtYmVyX2FkZHJlc3MuYnl0ZXMKICAgIGZyYW1lX2RpZyAtMgogICAgZnJhbWVfZGlnIC0xCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozOTYKICAgIC8vIG1lbWJlcl9zdGFrZSwgaXNfbWVtYmVyID0gc2VsZi5tZW1iZXJfc3Rha2VzLm1heWJlKG1lbWJlcl9rZXkpCiAgICBieXRlY18xIC8vIDB4NzM3NDYxNmI2NTVmCiAgICBzd2FwCiAgICBjb25jYXQKICAgIGJveF9nZXQKICAgIGJ1cnkgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjM5NwogICAgLy8gcmV0dXJuIEJvb2woaXNfbWVtYmVyKQogICAgcHVzaGJ5dGVzIDB4MDAKICAgIGludGNfMSAvLyAwCiAgICB1bmNvdmVyIDIKICAgIHNldGJpdAogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLmNpdGFkZWxfZGFvLmNvbnRyYWN0LkNpdGFkZWxEQU8uZ2V0X3RyZWFzdXJ5X2JhbGFuY2UoZGFvX2lkOiBieXRlcykgLT4gdWludDY0OgpnZXRfdHJlYXN1cnlfYmFsYW5jZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jaXRhZGVsX2Rhby9jb250cmFjdC5weTozOTktNDAwCiAgICAvLyBAYWJpbWV0aG9kKHJlYWRvbmx5PVRydWUpCiAgICAvLyBkZWYgZ2V0X3RyZWFzdXJ5X2JhbGFuY2Uoc2VsZiwgZGFvX2lkOiBTdHJpbmcpIC0+IFVJbnQ2NDoKICAgIHByb3RvIDEgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2NpdGFkZWxfZGFvL2NvbnRyYWN0LnB5OjQxMQogICAgLy8gcmV0dXJuIHNlbGYudHJlYXN1cnlfYmFsYW5jZXNbZGFvX2lkX2J5dGVzXQogICAgYnl0ZWNfMyAvLyAweDc0NzI2NTYxNzM3NTcyNzk1ZgogICAgZnJhbWVfZGlnIC0xCiAgICBjb25jYXQKICAgIGJveF9nZXQKICAgIGFzc2VydCAvLyBjaGVjayBzZWxmLnRyZWFzdXJ5X2JhbGFuY2VzIGVudHJ5IGV4aXN0cwogICAgYnRvaQogICAgcmV0c3ViCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"},"byteCode":{"approval":"CiAEAQACNiYJBBUffHUGc3Rha2VfC2Rhb19jb25maWdfCXRyZWFzdXJ5Xwlwcm9wb3NhbF8LZGFvX2NvdW50ZXIQcHJvcG9zYWxfY291bnRlcgZhY3RpdmUGcGFzc2VkMRhAAAgnBSNnJwYjZzEbQQG6ggoEOvvtqAShm/04BHYwVqgEJp+F5ARZhzgcBOPBPzUEXfqrBQRVnWHGBK1gptIEwg55KjYaAI4KASkBAQDRALAAkwBxAFMANQAZAAIjQzEZFEQxGEQ2GgFXAgCIBdAWKExQsCJDMRkURDEYRDYaAVcCADYaAhfAHIgFnShMULAiQzEZFEQxGEQ2GgFXAgCIBQpJFRZXBgJMUChMULAiQzEZFEQxGEQ2GgFXAgCIBHVJFRZXBgJMUChMULAiQzEZFEQxGEQ2GgFXAgA2GgIXiAQSSRUWVwYCTFAoTFCwIkMxGRREMRhENhoBVwIANhoCVwIAiAM+FihMULAiQzEZFEQxGEQ2GgFXAgA2GgKIAkpJFRZXBgJMUChMULAiQzEZFEQxGEQ2GgFXAgA2GgJXAgA2GgNXAgA2GgRXAgCIAX9JFRZXBgJMUChMULAiQzEZFEQxGEQ2GgFXAgAxFiIJSTgQIhJEiADvSRUWVwYCTFAoTFCwIkMxGRREMRhENhoBVwIANhoCVwIANhoDVwIANhoEFzYaBRc2GgYXNhoHFzEWIglJOBAiEkSIABlJFRZXBgJMUChMULAiQzEZQP6OMRgURCJDiggBi/skD0SL/IGgjQYPRIv+gTMPQQB2i/6BZA5BAG4iRIv9gYCjBQ9Ei/84BzIKEkSL/zgAMQASRIv/OAhJi/wPRCMnBWVEIggnBUsBZxaABGRhb19MUIv7Fov8Fov9Fov+FjEATwRPBFBPA1BPAlBMUCpLAlBMv0kxAFApTFBPAhZMSwG/K0sCUEy/iSNC/4+KAgEqi/5QSb1FAUS+RIv/OAcyChJEi/84ADEAEkSL/zgITIEIW0sBDkSL/jEAUClMUEm+RQEUREsBFr8ri/5QSb5EF08CCBa/gBlTdWNjZXNzZnVsbHkgam9pbmVkIERBTzogi/5QiYoEASqL/FBJvUUBRL5Ei/wxAFApTFC+RQFEIycGZUQiCCcGSwFnFoAFcHJvcF9MUEsBI1tPAoEYWwuBZAoxAEwWMgcWi/wVgUAISRZXBgKAAgBATFCL/RVPAghJFlcGAk8CTFCL/hVPAghMTwRQTwNQgAgAAAAAAAAAAFBMFlcGAlBMUIv8UIv9UIv+UCcHUCcESwJQSbxITL+JigIBJwSL/lBHAr1FAUS+TElPAkRJJVlLARVLAk4CUicHEkRJI1lLASRZSwJOAlIxAFApTFC+RQFEi/4xAFCABXZvdGVfTFBJvkUBFESL/4ABABNJTgMkIksCTRZPAky/QQAriwFJgS5bIggWXC5JjAFJgS5bSwGBJlsPTIwDQQANiwFJJVkjTFgnCFCMA4sDSYwBiwBJvEhMv4sCQQA0gAN5ZXOAC1ZvdGUgY2FzdDogTFCAEywgVG90YWwgeWVzIHZvdGVzOiBQiwGBLlsWUIwAiYACbm9C/8qKAgEnBIv+UEm9RQFESb5ESSVZSwEVSwJLAk8CUicIEkRLASNZSwIkWUsDTgJSMQBQKUxQvkUBREsBgQRZSwJMSwJSsQEyCkcDsiyyK7IqsimyKIAeaHR0cHM6Ly9jaXRhZGVseC5haS9tb2RlcmF0b3IvsieABkNJVE1PRLIli/+yJiOyJCOyIyKyIoEDshAjsgGzMgdPAiNPA1iACGV4ZWN1dGVkUEsCvEhPAky/iYoCASqL/lC9RQFEK4v+UEm+RBeL/wgWv4AjUmV2ZW51ZSBhZGRlZCB0byB0cmVhc3VyeSBmb3IgREFPOiCL/lCJigEBKov/UEm9RQFAABGADURBTyBub3QgZm91bmRMiYsAvkQri/9QvkQXgAVEQU86IIv/UIAPLCBNaW4gTWVtYmVyczogUEsCI1sWUIANLCBNaW4gU3Rha2U6IFBPAoEIWxZQgAwsIFRyZWFzdXJ5OiBQTBZQTImKAQEnBIv/UEm9RQFAABaAElByb3Bvc2FsIG5vdCBmb3VuZEyJiwC+REkkWUsBgQRZSwJOAlKAClByb3Bvc2FsOiBMUIAKLCBTdGF0dXM6IFBLASVZSwIVSwNOAlJQgAksIFZvdGVzOiBQSwGBLlsWUIABL1BMgSZbFlBMiYoCAYv+i/9QKUxQvkUBgAEAI08CVImKAQEri/9QvkQXiQ==","clear":"CoEBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -63,6 +62,43 @@ export type Expand<T> = T extends (...args: infer A) => infer R
     : never
 
 
+// Type definitions for ARC-56 structs
+
+export type DaoConfig = {
+  minMembers: bigint,
+  minStake: bigint,
+  votingPeriod: bigint,
+  activationThreshold: bigint,
+  creator: string
+}
+
+
+/**
+ * Converts the ABI tuple representation of a DAOConfig to the struct representation
+ */
+export function DaoConfigFromTuple(abiTuple: [bigint, bigint, bigint, bigint, string]) {
+  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.DAOConfig, APP_SPEC.structs) as DaoConfig
+}
+
+export type ProposalData = {
+  daoId: string,
+  title: string,
+  description: string,
+  creator: string,
+  requiredVotes: bigint,
+  currentVotes: bigint,
+  status: string,
+  createdAt: bigint
+}
+
+
+/**
+ * Converts the ABI tuple representation of a ProposalData to the struct representation
+ */
+export function ProposalDataFromTuple(abiTuple: [string, string, string, string, bigint, bigint, string, bigint]) {
+  return getABIStructFromABITuple(abiTuple, APP_SPEC.structs.ProposalData, APP_SPEC.structs) as ProposalData
+}
+
 /**
  * The argument types for the CitadelDao contract
  */
@@ -71,11 +107,19 @@ export type CitadelDaoArgs = {
    * The object representation of the arguments for each method
    */
   obj: {
-    'create_dao(string,uint64,uint64,uint64,uint64)string': {
+    'create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string': {
       /**
        * Name of the DAO
        */
       daoName: string
+      /**
+       * DAO description
+       */
+      description: string
+      /**
+       * AI moderator category
+       */
+      category: string
       /**
        * Minimum members required
        */
@@ -89,21 +133,25 @@ export type CitadelDaoArgs = {
        */
       votingPeriod: bigint | number
       /**
-       * Percentage needed to pass (0-100)
+       * Percentage needed to pass (51-100)
        */
       activationThreshold: bigint | number
+      /**
+       * Initial treasury contribution payment
+       */
+      paymentTxn: AppMethodCallTransactionArgument
     }
-    'join_dao(string,uint64)string': {
+    'join_dao(string,pay)string': {
       /**
        * ID of the DAO to join
        */
       daoId: string
       /**
-       * Amount to stake in microAlgos
+       * Stake payment transaction
        */
-      stakeAmount: bigint | number
+      paymentTxn: AppMethodCallTransactionArgument
     }
-    'create_proposal(string,string,string,uint64)string': {
+    'create_proposal(string,string,string,string)string': {
       /**
        * ID of the DAO
        */
@@ -113,15 +161,15 @@ export type CitadelDaoArgs = {
        */
       proposalTitle: string
       /**
-       * Description
+       * Description with context documents
        */
       proposalDescription: string
       /**
-       * Number of votes required to pass
+       * Category of AI moderator
        */
-      requiredVotes: bigint | number
+      moderatorCategory: string
     }
-    'vote(string,bool,uint64)string': {
+    'vote_on_proposal(string,bool)string': {
       /**
        * ID of the proposal
        */
@@ -130,10 +178,6 @@ export type CitadelDaoArgs = {
        * True for yes, False for no
        */
       voteYes: boolean
-      /**
-       * Voter's voting power
-       */
-      votingPower: bigint | number
     }
     'execute_proposal(string,string)uint64': {
       /**
@@ -145,19 +189,15 @@ export type CitadelDaoArgs = {
        */
       moderatorName: string
     }
-    'distribute_revenue(string,uint64,uint64)string': {
+    'distribute_revenue(string,uint64)string': {
       /**
        * ID of the DAO
        */
       daoId: string
       /**
-       * Total revenue to distribute in microAlgos
+       * Revenue to distribute in microAlgos
        */
-      totalRevenue: bigint | number
-      /**
-       * Number of members
-       */
-      memberCount: bigint | number
+      revenueAmount: bigint | number
     }
     'get_dao_info(string)string': {
       /**
@@ -165,25 +205,43 @@ export type CitadelDaoArgs = {
        */
       daoId: string
     }
-    'get_proposal_status(string)string': {
+    'get_proposal_info(string)string': {
       /**
        * ID of the proposal
        */
       proposalId: string
+    }
+    'check_membership(string,account)bool': {
+      /**
+       * ID of the DAO
+       */
+      daoId: string
+      /**
+       * Address to check
+       */
+      memberAddress: Uint8Array | string
+    }
+    'get_treasury_balance(string)uint64': {
+      /**
+       * ID of the DAO
+       */
+      daoId: string
     }
   }
   /**
    * The tuple representation of the arguments for each method
    */
   tuple: {
-    'create_dao(string,uint64,uint64,uint64,uint64)string': [daoName: string, minMembers: bigint | number, minStake: bigint | number, votingPeriod: bigint | number, activationThreshold: bigint | number]
-    'join_dao(string,uint64)string': [daoId: string, stakeAmount: bigint | number]
-    'create_proposal(string,string,string,uint64)string': [daoId: string, proposalTitle: string, proposalDescription: string, requiredVotes: bigint | number]
-    'vote(string,bool,uint64)string': [proposalId: string, voteYes: boolean, votingPower: bigint | number]
+    'create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string': [daoName: string, description: string, category: string, minMembers: bigint | number, minStake: bigint | number, votingPeriod: bigint | number, activationThreshold: bigint | number, paymentTxn: AppMethodCallTransactionArgument]
+    'join_dao(string,pay)string': [daoId: string, paymentTxn: AppMethodCallTransactionArgument]
+    'create_proposal(string,string,string,string)string': [daoId: string, proposalTitle: string, proposalDescription: string, moderatorCategory: string]
+    'vote_on_proposal(string,bool)string': [proposalId: string, voteYes: boolean]
     'execute_proposal(string,string)uint64': [proposalId: string, moderatorName: string]
-    'distribute_revenue(string,uint64,uint64)string': [daoId: string, totalRevenue: bigint | number, memberCount: bigint | number]
+    'distribute_revenue(string,uint64)string': [daoId: string, revenueAmount: bigint | number]
     'get_dao_info(string)string': [daoId: string]
-    'get_proposal_status(string)string': [proposalId: string]
+    'get_proposal_info(string)string': [proposalId: string]
+    'check_membership(string,account)bool': [daoId: string, memberAddress: Uint8Array | string]
+    'get_treasury_balance(string)uint64': [daoId: string]
   }
 }
 
@@ -191,14 +249,16 @@ export type CitadelDaoArgs = {
  * The return type for each method
  */
 export type CitadelDaoReturns = {
-  'create_dao(string,uint64,uint64,uint64,uint64)string': string
-  'join_dao(string,uint64)string': string
-  'create_proposal(string,string,string,uint64)string': string
-  'vote(string,bool,uint64)string': string
+  'create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string': string
+  'join_dao(string,pay)string': string
+  'create_proposal(string,string,string,string)string': string
+  'vote_on_proposal(string,bool)string': string
   'execute_proposal(string,string)uint64': bigint
-  'distribute_revenue(string,uint64,uint64)string': string
+  'distribute_revenue(string,uint64)string': string
   'get_dao_info(string)string': string
-  'get_proposal_status(string)string': string
+  'get_proposal_info(string)string': string
+  'check_membership(string,account)bool': boolean
+  'get_treasury_balance(string)uint64': bigint
 }
 
 /**
@@ -209,70 +269,108 @@ export type CitadelDaoTypes = {
    * Maps method signatures / names to their argument and return types.
    */
   methods:
-    & Record<'create_dao(string,uint64,uint64,uint64,uint64)string' | 'create_dao', {
-      argsObj: CitadelDaoArgs['obj']['create_dao(string,uint64,uint64,uint64,uint64)string']
-      argsTuple: CitadelDaoArgs['tuple']['create_dao(string,uint64,uint64,uint64,uint64)string']
+    & Record<'create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string' | 'create_dao_proposal', {
+      argsObj: CitadelDaoArgs['obj']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']
+      argsTuple: CitadelDaoArgs['tuple']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']
       /**
-       * Success message with DAO ID
+       * DAO ID
        */
-      returns: CitadelDaoReturns['create_dao(string,uint64,uint64,uint64,uint64)string']
+      returns: CitadelDaoReturns['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']
     }>
-    & Record<'join_dao(string,uint64)string' | 'join_dao', {
-      argsObj: CitadelDaoArgs['obj']['join_dao(string,uint64)string']
-      argsTuple: CitadelDaoArgs['tuple']['join_dao(string,uint64)string']
+    & Record<'join_dao(string,pay)string' | 'join_dao', {
+      argsObj: CitadelDaoArgs['obj']['join_dao(string,pay)string']
+      argsTuple: CitadelDaoArgs['tuple']['join_dao(string,pay)string']
       /**
        * Success message
        */
-      returns: CitadelDaoReturns['join_dao(string,uint64)string']
+      returns: CitadelDaoReturns['join_dao(string,pay)string']
     }>
-    & Record<'create_proposal(string,string,string,uint64)string' | 'create_proposal', {
-      argsObj: CitadelDaoArgs['obj']['create_proposal(string,string,string,uint64)string']
-      argsTuple: CitadelDaoArgs['tuple']['create_proposal(string,string,string,uint64)string']
+    & Record<'create_proposal(string,string,string,string)string' | 'create_proposal', {
+      argsObj: CitadelDaoArgs['obj']['create_proposal(string,string,string,string)string']
+      argsTuple: CitadelDaoArgs['tuple']['create_proposal(string,string,string,string)string']
       /**
        * Proposal ID
        */
-      returns: CitadelDaoReturns['create_proposal(string,string,string,uint64)string']
+      returns: CitadelDaoReturns['create_proposal(string,string,string,string)string']
     }>
-    & Record<'vote(string,bool,uint64)string' | 'vote', {
-      argsObj: CitadelDaoArgs['obj']['vote(string,bool,uint64)string']
-      argsTuple: CitadelDaoArgs['tuple']['vote(string,bool,uint64)string']
+    & Record<'vote_on_proposal(string,bool)string' | 'vote_on_proposal', {
+      argsObj: CitadelDaoArgs['obj']['vote_on_proposal(string,bool)string']
+      argsTuple: CitadelDaoArgs['tuple']['vote_on_proposal(string,bool)string']
       /**
-       * Success message with vote count
+       * Success message with updated vote count
        */
-      returns: CitadelDaoReturns['vote(string,bool,uint64)string']
+      returns: CitadelDaoReturns['vote_on_proposal(string,bool)string']
     }>
     & Record<'execute_proposal(string,string)uint64' | 'execute_proposal', {
       argsObj: CitadelDaoArgs['obj']['execute_proposal(string,string)uint64']
       argsTuple: CitadelDaoArgs['tuple']['execute_proposal(string,string)uint64']
       /**
-       * NFT Asset ID
+       * NFT Asset ID (mock for now)
        */
       returns: CitadelDaoReturns['execute_proposal(string,string)uint64']
     }>
-    & Record<'distribute_revenue(string,uint64,uint64)string' | 'distribute_revenue', {
-      argsObj: CitadelDaoArgs['obj']['distribute_revenue(string,uint64,uint64)string']
-      argsTuple: CitadelDaoArgs['tuple']['distribute_revenue(string,uint64,uint64)string']
+    & Record<'distribute_revenue(string,uint64)string' | 'distribute_revenue', {
+      argsObj: CitadelDaoArgs['obj']['distribute_revenue(string,uint64)string']
+      argsTuple: CitadelDaoArgs['tuple']['distribute_revenue(string,uint64)string']
       /**
        * Success message
        */
-      returns: CitadelDaoReturns['distribute_revenue(string,uint64,uint64)string']
+      returns: CitadelDaoReturns['distribute_revenue(string,uint64)string']
     }>
     & Record<'get_dao_info(string)string' | 'get_dao_info', {
       argsObj: CitadelDaoArgs['obj']['get_dao_info(string)string']
       argsTuple: CitadelDaoArgs['tuple']['get_dao_info(string)string']
       /**
-       * DAO information as string
+       * DAO information as formatted string
        */
       returns: CitadelDaoReturns['get_dao_info(string)string']
     }>
-    & Record<'get_proposal_status(string)string' | 'get_proposal_status', {
-      argsObj: CitadelDaoArgs['obj']['get_proposal_status(string)string']
-      argsTuple: CitadelDaoArgs['tuple']['get_proposal_status(string)string']
+    & Record<'get_proposal_info(string)string' | 'get_proposal_info', {
+      argsObj: CitadelDaoArgs['obj']['get_proposal_info(string)string']
+      argsTuple: CitadelDaoArgs['tuple']['get_proposal_info(string)string']
       /**
-       * Proposal status
+       * Proposal information as formatted string
        */
-      returns: CitadelDaoReturns['get_proposal_status(string)string']
+      returns: CitadelDaoReturns['get_proposal_info(string)string']
     }>
+    & Record<'check_membership(string,account)bool' | 'check_membership', {
+      argsObj: CitadelDaoArgs['obj']['check_membership(string,account)bool']
+      argsTuple: CitadelDaoArgs['tuple']['check_membership(string,account)bool']
+      /**
+       * True if member, False otherwise
+       */
+      returns: CitadelDaoReturns['check_membership(string,account)bool']
+    }>
+    & Record<'get_treasury_balance(string)uint64' | 'get_treasury_balance', {
+      argsObj: CitadelDaoArgs['obj']['get_treasury_balance(string)uint64']
+      argsTuple: CitadelDaoArgs['tuple']['get_treasury_balance(string)uint64']
+      /**
+       * Treasury balance in microAlgos
+       */
+      returns: CitadelDaoReturns['get_treasury_balance(string)uint64']
+    }>
+  /**
+   * Defines the shape of the state of the application.
+   */
+  state: {
+    global: {
+      keys: {
+        daoCounter: bigint
+        proposalCounter: bigint
+      }
+      maps: {}
+    }
+    box: {
+      keys: {}
+      maps: {
+        daoConfigs: Map<Uint8Array | string, DaoConfig>
+        proposals: Map<Uint8Array | string, ProposalData>
+        memberStakes: Map<Uint8Array | string, bigint>
+        votes: Map<Uint8Array | string, bigint>
+        treasuryBalances: Map<Uint8Array | string, bigint>
+      }
+    }
+  }
 }
 
 /**
@@ -302,6 +400,16 @@ export type MethodArgs<TSignature extends CitadelDaoSignatures> = CitadelDaoType
  */
 export type MethodReturn<TSignature extends CitadelDaoSignatures> = CitadelDaoTypes['methods'][TSignature]['returns']
 
+/**
+ * Defines the shape of the keyed global state of the application.
+ */
+export type GlobalKeysState = CitadelDaoTypes['state']['global']['keys']
+
+/**
+ * Defines the shape of the keyed box state of the application.
+ */
+export type BoxKeysState = CitadelDaoTypes['state']['box']['keys']
+
 
 /**
  * Defines supported create method params for this smart contract
@@ -324,63 +432,63 @@ export type CitadelDaoDeployParams = Expand<Omit<AppFactoryDeployParams, 'create
  */
 export abstract class CitadelDaoParamsFactory {
   /**
-   * Constructs a no op call for the create_dao(string,uint64,uint64,uint64,uint64)string ABI method
+   * Constructs a no op call for the create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string ABI method
    *
-   * Initialize a new DAO
+   * Create a DAO proposal with initial treasury contribution
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static createDao(params: CallParams<CitadelDaoArgs['obj']['create_dao(string,uint64,uint64,uint64,uint64)string'] | CitadelDaoArgs['tuple']['create_dao(string,uint64,uint64,uint64,uint64)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static createDaoProposal(params: CallParams<CitadelDaoArgs['obj']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string'] | CitadelDaoArgs['tuple']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'create_dao(string,uint64,uint64,uint64,uint64)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.daoName, params.args.minMembers, params.args.minStake, params.args.votingPeriod, params.args.activationThreshold],
+      method: 'create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args.daoName, params.args.description, params.args.category, params.args.minMembers, params.args.minStake, params.args.votingPeriod, params.args.activationThreshold, params.args.paymentTxn],
     }
   }
   /**
-   * Constructs a no op call for the join_dao(string,uint64)string ABI method
+   * Constructs a no op call for the join_dao(string,pay)string ABI method
    *
-   * Join an existing DAO with required stake
+   * Join an existing DAO with required stake payment
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static joinDao(params: CallParams<CitadelDaoArgs['obj']['join_dao(string,uint64)string'] | CitadelDaoArgs['tuple']['join_dao(string,uint64)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static joinDao(params: CallParams<CitadelDaoArgs['obj']['join_dao(string,pay)string'] | CitadelDaoArgs['tuple']['join_dao(string,pay)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'join_dao(string,uint64)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.daoId, params.args.stakeAmount],
+      method: 'join_dao(string,pay)string' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args.daoId, params.args.paymentTxn],
     }
   }
   /**
-   * Constructs a no op call for the create_proposal(string,string,string,uint64)string ABI method
+   * Constructs a no op call for the create_proposal(string,string,string,string)string ABI method
    *
-   * Create a new proposal for voting
+   * Create a new proposal for DAO activation and AI moderator creation
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static createProposal(params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,uint64)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,uint64)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static createProposal(params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,string)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'create_proposal(string,string,string,uint64)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.daoId, params.args.proposalTitle, params.args.proposalDescription, params.args.requiredVotes],
+      method: 'create_proposal(string,string,string,string)string' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args.daoId, params.args.proposalTitle, params.args.proposalDescription, params.args.moderatorCategory],
     }
   }
   /**
-   * Constructs a no op call for the vote(string,bool,uint64)string ABI method
+   * Constructs a no op call for the vote_on_proposal(string,bool)string ABI method
    *
-   * Cast a vote on a proposal
+   * Cast a vote on a proposal (members can only vote once)
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static vote(params: CallParams<CitadelDaoArgs['obj']['vote(string,bool,uint64)string'] | CitadelDaoArgs['tuple']['vote(string,bool,uint64)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static voteOnProposal(params: CallParams<CitadelDaoArgs['obj']['vote_on_proposal(string,bool)string'] | CitadelDaoArgs['tuple']['vote_on_proposal(string,bool)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'vote(string,bool,uint64)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.proposalId, params.args.voteYes, params.args.votingPower],
+      method: 'vote_on_proposal(string,bool)string' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args.proposalId, params.args.voteYes],
     }
   }
   /**
@@ -399,24 +507,24 @@ export abstract class CitadelDaoParamsFactory {
     }
   }
   /**
-   * Constructs a no op call for the distribute_revenue(string,uint64,uint64)string ABI method
+   * Constructs a no op call for the distribute_revenue(string,uint64)string ABI method
    *
-   * Distribute revenue among DAO members
+   * Distribute revenue among DAO members proportionally
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static distributeRevenue(params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64,uint64)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static distributeRevenue(params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'distribute_revenue(string,uint64,uint64)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.daoId, params.args.totalRevenue, params.args.memberCount],
+      method: 'distribute_revenue(string,uint64)string' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args.daoId, params.args.revenueAmount],
     }
   }
   /**
    * Constructs a no op call for the get_dao_info(string)string ABI method
    *
-   * Get DAO information
+   * Get DAO configuration and status
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
@@ -429,18 +537,48 @@ export abstract class CitadelDaoParamsFactory {
     }
   }
   /**
-   * Constructs a no op call for the get_proposal_status(string)string ABI method
+   * Constructs a no op call for the get_proposal_info(string)string ABI method
    *
-   * Get proposal voting status
+   * Get proposal details and voting status
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static getProposalStatus(params: CallParams<CitadelDaoArgs['obj']['get_proposal_status(string)string'] | CitadelDaoArgs['tuple']['get_proposal_status(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static getProposalInfo(params: CallParams<CitadelDaoArgs['obj']['get_proposal_info(string)string'] | CitadelDaoArgs['tuple']['get_proposal_info(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'get_proposal_status(string)string' as const,
+      method: 'get_proposal_info(string)string' as const,
       args: Array.isArray(params.args) ? params.args : [params.args.proposalId],
+    }
+  }
+  /**
+   * Constructs a no op call for the check_membership(string,account)bool ABI method
+   *
+   * Check if an address is a member of a DAO
+   *
+   * @param params Parameters for the call
+   * @returns An `AppClientMethodCallParams` object for the call
+   */
+  static checkMembership(params: CallParams<CitadelDaoArgs['obj']['check_membership(string,account)bool'] | CitadelDaoArgs['tuple']['check_membership(string,account)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+    return {
+      ...params,
+      method: 'check_membership(string,account)bool' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args.daoId, params.args.memberAddress],
+    }
+  }
+  /**
+   * Constructs a no op call for the get_treasury_balance(string)uint64 ABI method
+   *
+   * Get DAO treasury balance
+   *
+   * @param params Parameters for the call
+   * @returns An `AppClientMethodCallParams` object for the call
+   */
+  static getTreasuryBalance(params: CallParams<CitadelDaoArgs['obj']['get_treasury_balance(string)uint64'] | CitadelDaoArgs['tuple']['get_treasury_balance(string)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+    return {
+      ...params,
+      method: 'get_treasury_balance(string)uint64' as const,
+      args: Array.isArray(params.args) ? params.args : [params.args.daoId],
     }
   }
 }
@@ -684,51 +822,51 @@ export class CitadelDaoClient {
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `create_dao(string,uint64,uint64,uint64,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string` ABI method.
      *
-     * Initialize a new DAO
+     * Create a DAO proposal with initial treasury contribution
      *
      * @param params The params for the smart contract call
-     * @returns The call params: Success message with DAO ID
+     * @returns The call params: DAO ID
      */
-    createDao: (params: CallParams<CitadelDaoArgs['obj']['create_dao(string,uint64,uint64,uint64,uint64)string'] | CitadelDaoArgs['tuple']['create_dao(string,uint64,uint64,uint64,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(CitadelDaoParamsFactory.createDao(params))
+    createDaoProposal: (params: CallParams<CitadelDaoArgs['obj']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string'] | CitadelDaoArgs['tuple']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(CitadelDaoParamsFactory.createDaoProposal(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `join_dao(string,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `join_dao(string,pay)string` ABI method.
      *
-     * Join an existing DAO with required stake
+     * Join an existing DAO with required stake payment
      *
      * @param params The params for the smart contract call
      * @returns The call params: Success message
      */
-    joinDao: (params: CallParams<CitadelDaoArgs['obj']['join_dao(string,uint64)string'] | CitadelDaoArgs['tuple']['join_dao(string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    joinDao: (params: CallParams<CitadelDaoArgs['obj']['join_dao(string,pay)string'] | CitadelDaoArgs['tuple']['join_dao(string,pay)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(CitadelDaoParamsFactory.joinDao(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `create_proposal(string,string,string,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `create_proposal(string,string,string,string)string` ABI method.
      *
-     * Create a new proposal for voting
+     * Create a new proposal for DAO activation and AI moderator creation
      *
      * @param params The params for the smart contract call
      * @returns The call params: Proposal ID
      */
-    createProposal: (params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,uint64)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    createProposal: (params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,string)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(CitadelDaoParamsFactory.createProposal(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `vote(string,bool,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `vote_on_proposal(string,bool)string` ABI method.
      *
-     * Cast a vote on a proposal
+     * Cast a vote on a proposal (members can only vote once)
      *
      * @param params The params for the smart contract call
-     * @returns The call params: Success message with vote count
+     * @returns The call params: Success message with updated vote count
      */
-    vote: (params: CallParams<CitadelDaoArgs['obj']['vote(string,bool,uint64)string'] | CitadelDaoArgs['tuple']['vote(string,bool,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(CitadelDaoParamsFactory.vote(params))
+    voteOnProposal: (params: CallParams<CitadelDaoArgs['obj']['vote_on_proposal(string,bool)string'] | CitadelDaoArgs['tuple']['vote_on_proposal(string,bool)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(CitadelDaoParamsFactory.voteOnProposal(params))
     },
 
     /**
@@ -737,46 +875,78 @@ export class CitadelDaoClient {
      * Execute a passed proposal and mint NFT for AI moderator
      *
      * @param params The params for the smart contract call
-     * @returns The call params: NFT Asset ID
+     * @returns The call params: NFT Asset ID (mock for now)
      */
     executeProposal: (params: CallParams<CitadelDaoArgs['obj']['execute_proposal(string,string)uint64'] | CitadelDaoArgs['tuple']['execute_proposal(string,string)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(CitadelDaoParamsFactory.executeProposal(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `distribute_revenue(string,uint64,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `distribute_revenue(string,uint64)string` ABI method.
      *
-     * Distribute revenue among DAO members
+     * Distribute revenue among DAO members proportionally
      *
      * @param params The params for the smart contract call
      * @returns The call params: Success message
      */
-    distributeRevenue: (params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    distributeRevenue: (params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(CitadelDaoParamsFactory.distributeRevenue(params))
     },
 
     /**
      * Makes a call to the CitadelDAO smart contract using the `get_dao_info(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-     * Get DAO information
+     * Get DAO configuration and status
      *
      * @param params The params for the smart contract call
-     * @returns The call params: DAO information as string
+     * @returns The call params: DAO information as formatted string
      */
     getDaoInfo: (params: CallParams<CitadelDaoArgs['obj']['get_dao_info(string)string'] | CitadelDaoArgs['tuple']['get_dao_info(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.params.call(CitadelDaoParamsFactory.getDaoInfo(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `get_proposal_status(string)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `get_proposal_info(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-     * Get proposal voting status
+     * Get proposal details and voting status
      *
      * @param params The params for the smart contract call
-     * @returns The call params: Proposal status
+     * @returns The call params: Proposal information as formatted string
      */
-    getProposalStatus: (params: CallParams<CitadelDaoArgs['obj']['get_proposal_status(string)string'] | CitadelDaoArgs['tuple']['get_proposal_status(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(CitadelDaoParamsFactory.getProposalStatus(params))
+    getProposalInfo: (params: CallParams<CitadelDaoArgs['obj']['get_proposal_info(string)string'] | CitadelDaoArgs['tuple']['get_proposal_info(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(CitadelDaoParamsFactory.getProposalInfo(params))
+    },
+
+    /**
+     * Makes a call to the CitadelDAO smart contract using the `check_membership(string,account)bool` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Check if an address is a member of a DAO
+     *
+     * @param params The params for the smart contract call
+     * @returns The call params: True if member, False otherwise
+     */
+    checkMembership: (params: CallParams<CitadelDaoArgs['obj']['check_membership(string,account)bool'] | CitadelDaoArgs['tuple']['check_membership(string,account)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(CitadelDaoParamsFactory.checkMembership(params))
+    },
+
+    /**
+     * Makes a call to the CitadelDAO smart contract using the `get_treasury_balance(string)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Get DAO treasury balance
+     *
+     * @param params The params for the smart contract call
+     * @returns The call params: Treasury balance in microAlgos
+     */
+    getTreasuryBalance: (params: CallParams<CitadelDaoArgs['obj']['get_treasury_balance(string)uint64'] | CitadelDaoArgs['tuple']['get_treasury_balance(string)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(CitadelDaoParamsFactory.getTreasuryBalance(params))
     },
 
   }
@@ -796,51 +966,51 @@ export class CitadelDaoClient {
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `create_dao(string,uint64,uint64,uint64,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string` ABI method.
      *
-     * Initialize a new DAO
+     * Create a DAO proposal with initial treasury contribution
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction: Success message with DAO ID
+     * @returns The call transaction: DAO ID
      */
-    createDao: (params: CallParams<CitadelDaoArgs['obj']['create_dao(string,uint64,uint64,uint64,uint64)string'] | CitadelDaoArgs['tuple']['create_dao(string,uint64,uint64,uint64,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(CitadelDaoParamsFactory.createDao(params))
+    createDaoProposal: (params: CallParams<CitadelDaoArgs['obj']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string'] | CitadelDaoArgs['tuple']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(CitadelDaoParamsFactory.createDaoProposal(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `join_dao(string,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `join_dao(string,pay)string` ABI method.
      *
-     * Join an existing DAO with required stake
+     * Join an existing DAO with required stake payment
      *
      * @param params The params for the smart contract call
      * @returns The call transaction: Success message
      */
-    joinDao: (params: CallParams<CitadelDaoArgs['obj']['join_dao(string,uint64)string'] | CitadelDaoArgs['tuple']['join_dao(string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    joinDao: (params: CallParams<CitadelDaoArgs['obj']['join_dao(string,pay)string'] | CitadelDaoArgs['tuple']['join_dao(string,pay)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(CitadelDaoParamsFactory.joinDao(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `create_proposal(string,string,string,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `create_proposal(string,string,string,string)string` ABI method.
      *
-     * Create a new proposal for voting
+     * Create a new proposal for DAO activation and AI moderator creation
      *
      * @param params The params for the smart contract call
      * @returns The call transaction: Proposal ID
      */
-    createProposal: (params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,uint64)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    createProposal: (params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,string)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(CitadelDaoParamsFactory.createProposal(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `vote(string,bool,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `vote_on_proposal(string,bool)string` ABI method.
      *
-     * Cast a vote on a proposal
+     * Cast a vote on a proposal (members can only vote once)
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction: Success message with vote count
+     * @returns The call transaction: Success message with updated vote count
      */
-    vote: (params: CallParams<CitadelDaoArgs['obj']['vote(string,bool,uint64)string'] | CitadelDaoArgs['tuple']['vote(string,bool,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(CitadelDaoParamsFactory.vote(params))
+    voteOnProposal: (params: CallParams<CitadelDaoArgs['obj']['vote_on_proposal(string,bool)string'] | CitadelDaoArgs['tuple']['vote_on_proposal(string,bool)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(CitadelDaoParamsFactory.voteOnProposal(params))
     },
 
     /**
@@ -849,46 +1019,78 @@ export class CitadelDaoClient {
      * Execute a passed proposal and mint NFT for AI moderator
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction: NFT Asset ID
+     * @returns The call transaction: NFT Asset ID (mock for now)
      */
     executeProposal: (params: CallParams<CitadelDaoArgs['obj']['execute_proposal(string,string)uint64'] | CitadelDaoArgs['tuple']['execute_proposal(string,string)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(CitadelDaoParamsFactory.executeProposal(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `distribute_revenue(string,uint64,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `distribute_revenue(string,uint64)string` ABI method.
      *
-     * Distribute revenue among DAO members
+     * Distribute revenue among DAO members proportionally
      *
      * @param params The params for the smart contract call
      * @returns The call transaction: Success message
      */
-    distributeRevenue: (params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    distributeRevenue: (params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(CitadelDaoParamsFactory.distributeRevenue(params))
     },
 
     /**
      * Makes a call to the CitadelDAO smart contract using the `get_dao_info(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-     * Get DAO information
+     * Get DAO configuration and status
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction: DAO information as string
+     * @returns The call transaction: DAO information as formatted string
      */
     getDaoInfo: (params: CallParams<CitadelDaoArgs['obj']['get_dao_info(string)string'] | CitadelDaoArgs['tuple']['get_dao_info(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       return this.appClient.createTransaction.call(CitadelDaoParamsFactory.getDaoInfo(params))
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `get_proposal_status(string)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `get_proposal_info(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-     * Get proposal voting status
+     * Get proposal details and voting status
      *
      * @param params The params for the smart contract call
-     * @returns The call transaction: Proposal status
+     * @returns The call transaction: Proposal information as formatted string
      */
-    getProposalStatus: (params: CallParams<CitadelDaoArgs['obj']['get_proposal_status(string)string'] | CitadelDaoArgs['tuple']['get_proposal_status(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(CitadelDaoParamsFactory.getProposalStatus(params))
+    getProposalInfo: (params: CallParams<CitadelDaoArgs['obj']['get_proposal_info(string)string'] | CitadelDaoArgs['tuple']['get_proposal_info(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(CitadelDaoParamsFactory.getProposalInfo(params))
+    },
+
+    /**
+     * Makes a call to the CitadelDAO smart contract using the `check_membership(string,account)bool` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Check if an address is a member of a DAO
+     *
+     * @param params The params for the smart contract call
+     * @returns The call transaction: True if member, False otherwise
+     */
+    checkMembership: (params: CallParams<CitadelDaoArgs['obj']['check_membership(string,account)bool'] | CitadelDaoArgs['tuple']['check_membership(string,account)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(CitadelDaoParamsFactory.checkMembership(params))
+    },
+
+    /**
+     * Makes a call to the CitadelDAO smart contract using the `get_treasury_balance(string)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Get DAO treasury balance
+     *
+     * @param params The params for the smart contract call
+     * @returns The call transaction: Treasury balance in microAlgos
+     */
+    getTreasuryBalance: (params: CallParams<CitadelDaoArgs['obj']['get_treasury_balance(string)uint64'] | CitadelDaoArgs['tuple']['get_treasury_balance(string)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(CitadelDaoParamsFactory.getTreasuryBalance(params))
     },
 
   }
@@ -908,55 +1110,55 @@ export class CitadelDaoClient {
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `create_dao(string,uint64,uint64,uint64,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string` ABI method.
      *
-     * Initialize a new DAO
+     * Create a DAO proposal with initial treasury contribution
      *
      * @param params The params for the smart contract call
-     * @returns The call result: Success message with DAO ID
+     * @returns The call result: DAO ID
      */
-    createDao: async (params: CallParams<CitadelDaoArgs['obj']['create_dao(string,uint64,uint64,uint64,uint64)string'] | CitadelDaoArgs['tuple']['create_dao(string,uint64,uint64,uint64,uint64)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(CitadelDaoParamsFactory.createDao(params))
-      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['create_dao(string,uint64,uint64,uint64,uint64)string'])}
+    createDaoProposal: async (params: CallParams<CitadelDaoArgs['obj']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string'] | CitadelDaoArgs['tuple']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(CitadelDaoParamsFactory.createDaoProposal(params))
+      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string'])}
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `join_dao(string,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `join_dao(string,pay)string` ABI method.
      *
-     * Join an existing DAO with required stake
+     * Join an existing DAO with required stake payment
      *
      * @param params The params for the smart contract call
      * @returns The call result: Success message
      */
-    joinDao: async (params: CallParams<CitadelDaoArgs['obj']['join_dao(string,uint64)string'] | CitadelDaoArgs['tuple']['join_dao(string,uint64)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    joinDao: async (params: CallParams<CitadelDaoArgs['obj']['join_dao(string,pay)string'] | CitadelDaoArgs['tuple']['join_dao(string,pay)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(CitadelDaoParamsFactory.joinDao(params))
-      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['join_dao(string,uint64)string'])}
+      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['join_dao(string,pay)string'])}
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `create_proposal(string,string,string,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `create_proposal(string,string,string,string)string` ABI method.
      *
-     * Create a new proposal for voting
+     * Create a new proposal for DAO activation and AI moderator creation
      *
      * @param params The params for the smart contract call
      * @returns The call result: Proposal ID
      */
-    createProposal: async (params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,uint64)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,uint64)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    createProposal: async (params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,string)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(CitadelDaoParamsFactory.createProposal(params))
-      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['create_proposal(string,string,string,uint64)string'])}
+      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['create_proposal(string,string,string,string)string'])}
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `vote(string,bool,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `vote_on_proposal(string,bool)string` ABI method.
      *
-     * Cast a vote on a proposal
+     * Cast a vote on a proposal (members can only vote once)
      *
      * @param params The params for the smart contract call
-     * @returns The call result: Success message with vote count
+     * @returns The call result: Success message with updated vote count
      */
-    vote: async (params: CallParams<CitadelDaoArgs['obj']['vote(string,bool,uint64)string'] | CitadelDaoArgs['tuple']['vote(string,bool,uint64)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(CitadelDaoParamsFactory.vote(params))
-      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['vote(string,bool,uint64)string'])}
+    voteOnProposal: async (params: CallParams<CitadelDaoArgs['obj']['vote_on_proposal(string,bool)string'] | CitadelDaoArgs['tuple']['vote_on_proposal(string,bool)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(CitadelDaoParamsFactory.voteOnProposal(params))
+      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['vote_on_proposal(string,bool)string'])}
     },
 
     /**
@@ -965,7 +1167,7 @@ export class CitadelDaoClient {
      * Execute a passed proposal and mint NFT for AI moderator
      *
      * @param params The params for the smart contract call
-     * @returns The call result: NFT Asset ID
+     * @returns The call result: NFT Asset ID (mock for now)
      */
     executeProposal: async (params: CallParams<CitadelDaoArgs['obj']['execute_proposal(string,string)uint64'] | CitadelDaoArgs['tuple']['execute_proposal(string,string)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(CitadelDaoParamsFactory.executeProposal(params))
@@ -973,25 +1175,27 @@ export class CitadelDaoClient {
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `distribute_revenue(string,uint64,uint64)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `distribute_revenue(string,uint64)string` ABI method.
      *
-     * Distribute revenue among DAO members
+     * Distribute revenue among DAO members proportionally
      *
      * @param params The params for the smart contract call
      * @returns The call result: Success message
      */
-    distributeRevenue: async (params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64,uint64)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+    distributeRevenue: async (params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(CitadelDaoParamsFactory.distributeRevenue(params))
-      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['distribute_revenue(string,uint64,uint64)string'])}
+      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['distribute_revenue(string,uint64)string'])}
     },
 
     /**
      * Makes a call to the CitadelDAO smart contract using the `get_dao_info(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-     * Get DAO information
+     * Get DAO configuration and status
      *
      * @param params The params for the smart contract call
-     * @returns The call result: DAO information as string
+     * @returns The call result: DAO information as formatted string
      */
     getDaoInfo: async (params: CallParams<CitadelDaoArgs['obj']['get_dao_info(string)string'] | CitadelDaoArgs['tuple']['get_dao_info(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
       const result = await this.appClient.send.call(CitadelDaoParamsFactory.getDaoInfo(params))
@@ -999,16 +1203,48 @@ export class CitadelDaoClient {
     },
 
     /**
-     * Makes a call to the CitadelDAO smart contract using the `get_proposal_status(string)string` ABI method.
+     * Makes a call to the CitadelDAO smart contract using the `get_proposal_info(string)string` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-     * Get proposal voting status
+     * Get proposal details and voting status
      *
      * @param params The params for the smart contract call
-     * @returns The call result: Proposal status
+     * @returns The call result: Proposal information as formatted string
      */
-    getProposalStatus: async (params: CallParams<CitadelDaoArgs['obj']['get_proposal_status(string)string'] | CitadelDaoArgs['tuple']['get_proposal_status(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(CitadelDaoParamsFactory.getProposalStatus(params))
-      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['get_proposal_status(string)string'])}
+    getProposalInfo: async (params: CallParams<CitadelDaoArgs['obj']['get_proposal_info(string)string'] | CitadelDaoArgs['tuple']['get_proposal_info(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(CitadelDaoParamsFactory.getProposalInfo(params))
+      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['get_proposal_info(string)string'])}
+    },
+
+    /**
+     * Makes a call to the CitadelDAO smart contract using the `check_membership(string,account)bool` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Check if an address is a member of a DAO
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result: True if member, False otherwise
+     */
+    checkMembership: async (params: CallParams<CitadelDaoArgs['obj']['check_membership(string,account)bool'] | CitadelDaoArgs['tuple']['check_membership(string,account)bool']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(CitadelDaoParamsFactory.checkMembership(params))
+      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['check_membership(string,account)bool'])}
+    },
+
+    /**
+     * Makes a call to the CitadelDAO smart contract using the `get_treasury_balance(string)uint64` ABI method.
+     * 
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Get DAO treasury balance
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result: Treasury balance in microAlgos
+     */
+    getTreasuryBalance: async (params: CallParams<CitadelDaoArgs['obj']['get_treasury_balance(string)uint64'] | CitadelDaoArgs['tuple']['get_treasury_balance(string)uint64']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(CitadelDaoParamsFactory.getTreasuryBalance(params))
+      return {...result, return: result.return as unknown as (undefined | CitadelDaoReturns['get_treasury_balance(string)uint64'])}
     },
 
   }
@@ -1024,9 +1260,170 @@ export class CitadelDaoClient {
   }
 
   /**
+   * Makes a readonly (simulated) call to the CitadelDAO smart contract using the `get_dao_info(string)string` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * Get DAO configuration and status
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result: DAO information as formatted string
+   */
+  async getDaoInfo(params: CallParams<CitadelDaoArgs['obj']['get_dao_info(string)string'] | CitadelDaoArgs['tuple']['get_dao_info(string)string']>) {
+    const result = await this.appClient.send.call(CitadelDaoParamsFactory.getDaoInfo(params))
+    return result.return as unknown as CitadelDaoReturns['get_dao_info(string)string']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the CitadelDAO smart contract using the `get_proposal_info(string)string` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * Get proposal details and voting status
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result: Proposal information as formatted string
+   */
+  async getProposalInfo(params: CallParams<CitadelDaoArgs['obj']['get_proposal_info(string)string'] | CitadelDaoArgs['tuple']['get_proposal_info(string)string']>) {
+    const result = await this.appClient.send.call(CitadelDaoParamsFactory.getProposalInfo(params))
+    return result.return as unknown as CitadelDaoReturns['get_proposal_info(string)string']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the CitadelDAO smart contract using the `check_membership(string,account)bool` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * Check if an address is a member of a DAO
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result: True if member, False otherwise
+   */
+  async checkMembership(params: CallParams<CitadelDaoArgs['obj']['check_membership(string,account)bool'] | CitadelDaoArgs['tuple']['check_membership(string,account)bool']>) {
+    const result = await this.appClient.send.call(CitadelDaoParamsFactory.checkMembership(params))
+    return result.return as unknown as CitadelDaoReturns['check_membership(string,account)bool']
+  }
+
+  /**
+   * Makes a readonly (simulated) call to the CitadelDAO smart contract using the `get_treasury_balance(string)uint64` ABI method.
+   * 
+   * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+   *
+   * Get DAO treasury balance
+   *
+   * @param params The params for the smart contract call
+   * @returns The call result: Treasury balance in microAlgos
+   */
+  async getTreasuryBalance(params: CallParams<CitadelDaoArgs['obj']['get_treasury_balance(string)uint64'] | CitadelDaoArgs['tuple']['get_treasury_balance(string)uint64']>) {
+    const result = await this.appClient.send.call(CitadelDaoParamsFactory.getTreasuryBalance(params))
+    return result.return as unknown as CitadelDaoReturns['get_treasury_balance(string)uint64']
+  }
+
+  /**
    * Methods to access state for the current CitadelDAO app
    */
   state = {
+    /**
+     * Methods to access global state for the current CitadelDAO app
+     */
+    global: {
+      /**
+       * Get all current keyed values from global state
+       */
+      getAll: async (): Promise<Partial<Expand<GlobalKeysState>>> => {
+        const result = await this.appClient.state.global.getAll()
+        return {
+          daoCounter: result.dao_counter,
+          proposalCounter: result.proposal_counter,
+        }
+      },
+      /**
+       * Get the current value of the dao_counter key in global state
+       */
+      daoCounter: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("dao_counter")) as bigint | undefined },
+      /**
+       * Get the current value of the proposal_counter key in global state
+       */
+      proposalCounter: async (): Promise<bigint | undefined> => { return (await this.appClient.state.global.getValue("proposal_counter")) as bigint | undefined },
+    },
+    /**
+     * Methods to access box state for the current CitadelDAO app
+     */
+    box: {
+      /**
+       * Get all current keyed values from box state
+       */
+      getAll: async (): Promise<Partial<Expand<BoxKeysState>>> => {
+        const result = await this.appClient.state.box.getAll()
+        return {
+        }
+      },
+      /**
+       * Get values from the dao_configs map in box state
+       */
+      daoConfigs: {
+        /**
+         * Get all current values of the dao_configs map in box state
+         */
+        getMap: async (): Promise<Map<Uint8Array, DaoConfig>> => { return (await this.appClient.state.box.getMap("dao_configs")) as Map<Uint8Array, DaoConfig> },
+        /**
+         * Get a current value of the dao_configs map by key from box state
+         */
+        value: async (key: Uint8Array | string): Promise<DaoConfig | undefined> => { return await this.appClient.state.box.getMapValue("dao_configs", key) as DaoConfig | undefined },
+      },
+      /**
+       * Get values from the proposals map in box state
+       */
+      proposals: {
+        /**
+         * Get all current values of the proposals map in box state
+         */
+        getMap: async (): Promise<Map<Uint8Array, ProposalData>> => { return (await this.appClient.state.box.getMap("proposals")) as Map<Uint8Array, ProposalData> },
+        /**
+         * Get a current value of the proposals map by key from box state
+         */
+        value: async (key: Uint8Array | string): Promise<ProposalData | undefined> => { return await this.appClient.state.box.getMapValue("proposals", key) as ProposalData | undefined },
+      },
+      /**
+       * Get values from the member_stakes map in box state
+       */
+      memberStakes: {
+        /**
+         * Get all current values of the member_stakes map in box state
+         */
+        getMap: async (): Promise<Map<Uint8Array, bigint>> => { return (await this.appClient.state.box.getMap("member_stakes")) as Map<Uint8Array, bigint> },
+        /**
+         * Get a current value of the member_stakes map by key from box state
+         */
+        value: async (key: Uint8Array | string): Promise<bigint | undefined> => { return await this.appClient.state.box.getMapValue("member_stakes", key) as bigint | undefined },
+      },
+      /**
+       * Get values from the votes map in box state
+       */
+      votes: {
+        /**
+         * Get all current values of the votes map in box state
+         */
+        getMap: async (): Promise<Map<Uint8Array, bigint>> => { return (await this.appClient.state.box.getMap("votes")) as Map<Uint8Array, bigint> },
+        /**
+         * Get a current value of the votes map by key from box state
+         */
+        value: async (key: Uint8Array | string): Promise<bigint | undefined> => { return await this.appClient.state.box.getMapValue("votes", key) as bigint | undefined },
+      },
+      /**
+       * Get values from the treasury_balances map in box state
+       */
+      treasuryBalances: {
+        /**
+         * Get all current values of the treasury_balances map in box state
+         */
+        getMap: async (): Promise<Map<Uint8Array, bigint>> => { return (await this.appClient.state.box.getMap("treasury_balances")) as Map<Uint8Array, bigint> },
+        /**
+         * Get a current value of the treasury_balances map by key from box state
+         */
+        value: async (key: Uint8Array | string): Promise<bigint | undefined> => { return await this.appClient.state.box.getMapValue("treasury_balances", key) as bigint | undefined },
+      },
+    },
   }
 
   public newGroup(): CitadelDaoComposer {
@@ -1036,35 +1433,35 @@ export class CitadelDaoClient {
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
-       * Add a create_dao(string,uint64,uint64,uint64,uint64)string method call against the CitadelDAO contract
+       * Add a create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string method call against the CitadelDAO contract
        */
-      createDao(params: CallParams<CitadelDaoArgs['obj']['create_dao(string,uint64,uint64,uint64,uint64)string'] | CitadelDaoArgs['tuple']['create_dao(string,uint64,uint64,uint64,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.createDao(params)))
-        resultMappers.push((v) => client.decodeReturnValue('create_dao(string,uint64,uint64,uint64,uint64)string', v))
+      createDaoProposal(params: CallParams<CitadelDaoArgs['obj']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string'] | CitadelDaoArgs['tuple']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.createDaoProposal(params)))
+        resultMappers.push((v) => client.decodeReturnValue('create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string', v))
         return this
       },
       /**
-       * Add a join_dao(string,uint64)string method call against the CitadelDAO contract
+       * Add a join_dao(string,pay)string method call against the CitadelDAO contract
        */
-      joinDao(params: CallParams<CitadelDaoArgs['obj']['join_dao(string,uint64)string'] | CitadelDaoArgs['tuple']['join_dao(string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      joinDao(params: CallParams<CitadelDaoArgs['obj']['join_dao(string,pay)string'] | CitadelDaoArgs['tuple']['join_dao(string,pay)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.joinDao(params)))
-        resultMappers.push((v) => client.decodeReturnValue('join_dao(string,uint64)string', v))
+        resultMappers.push((v) => client.decodeReturnValue('join_dao(string,pay)string', v))
         return this
       },
       /**
-       * Add a create_proposal(string,string,string,uint64)string method call against the CitadelDAO contract
+       * Add a create_proposal(string,string,string,string)string method call against the CitadelDAO contract
        */
-      createProposal(params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,uint64)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      createProposal(params: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,string)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.createProposal(params)))
-        resultMappers.push((v) => client.decodeReturnValue('create_proposal(string,string,string,uint64)string', v))
+        resultMappers.push((v) => client.decodeReturnValue('create_proposal(string,string,string,string)string', v))
         return this
       },
       /**
-       * Add a vote(string,bool,uint64)string method call against the CitadelDAO contract
+       * Add a vote_on_proposal(string,bool)string method call against the CitadelDAO contract
        */
-      vote(params: CallParams<CitadelDaoArgs['obj']['vote(string,bool,uint64)string'] | CitadelDaoArgs['tuple']['vote(string,bool,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.vote(params)))
-        resultMappers.push((v) => client.decodeReturnValue('vote(string,bool,uint64)string', v))
+      voteOnProposal(params: CallParams<CitadelDaoArgs['obj']['vote_on_proposal(string,bool)string'] | CitadelDaoArgs['tuple']['vote_on_proposal(string,bool)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.voteOnProposal(params)))
+        resultMappers.push((v) => client.decodeReturnValue('vote_on_proposal(string,bool)string', v))
         return this
       },
       /**
@@ -1076,11 +1473,11 @@ export class CitadelDaoClient {
         return this
       },
       /**
-       * Add a distribute_revenue(string,uint64,uint64)string method call against the CitadelDAO contract
+       * Add a distribute_revenue(string,uint64)string method call against the CitadelDAO contract
        */
-      distributeRevenue(params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      distributeRevenue(params: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.distributeRevenue(params)))
-        resultMappers.push((v) => client.decodeReturnValue('distribute_revenue(string,uint64,uint64)string', v))
+        resultMappers.push((v) => client.decodeReturnValue('distribute_revenue(string,uint64)string', v))
         return this
       },
       /**
@@ -1092,11 +1489,27 @@ export class CitadelDaoClient {
         return this
       },
       /**
-       * Add a get_proposal_status(string)string method call against the CitadelDAO contract
+       * Add a get_proposal_info(string)string method call against the CitadelDAO contract
        */
-      getProposalStatus(params: CallParams<CitadelDaoArgs['obj']['get_proposal_status(string)string'] | CitadelDaoArgs['tuple']['get_proposal_status(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getProposalStatus(params)))
-        resultMappers.push((v) => client.decodeReturnValue('get_proposal_status(string)string', v))
+      getProposalInfo(params: CallParams<CitadelDaoArgs['obj']['get_proposal_info(string)string'] | CitadelDaoArgs['tuple']['get_proposal_info(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getProposalInfo(params)))
+        resultMappers.push((v) => client.decodeReturnValue('get_proposal_info(string)string', v))
+        return this
+      },
+      /**
+       * Add a check_membership(string,account)bool method call against the CitadelDAO contract
+       */
+      checkMembership(params: CallParams<CitadelDaoArgs['obj']['check_membership(string,account)bool'] | CitadelDaoArgs['tuple']['check_membership(string,account)bool']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.checkMembership(params)))
+        resultMappers.push((v) => client.decodeReturnValue('check_membership(string,account)bool', v))
+        return this
+      },
+      /**
+       * Add a get_treasury_balance(string)uint64 method call against the CitadelDAO contract
+       */
+      getTreasuryBalance(params: CallParams<CitadelDaoArgs['obj']['get_treasury_balance(string)uint64'] | CitadelDaoArgs['tuple']['get_treasury_balance(string)uint64']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.getTreasuryBalance(params)))
+        resultMappers.push((v) => client.decodeReturnValue('get_treasury_balance(string)uint64', v))
         return this
       },
       /**
@@ -1135,48 +1548,48 @@ export class CitadelDaoClient {
 }
 export type CitadelDaoComposer<TReturns extends [...any[]] = []> = {
   /**
-   * Calls the create_dao(string,uint64,uint64,uint64,uint64)string ABI method.
+   * Calls the create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string ABI method.
    *
-   * Initialize a new DAO
+   * Create a DAO proposal with initial treasury contribution
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  createDao(params?: CallParams<CitadelDaoArgs['obj']['create_dao(string,uint64,uint64,uint64,uint64)string'] | CitadelDaoArgs['tuple']['create_dao(string,uint64,uint64,uint64,uint64)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['create_dao(string,uint64,uint64,uint64,uint64)string'] | undefined]>
+  createDaoProposal(params?: CallParams<CitadelDaoArgs['obj']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string'] | CitadelDaoArgs['tuple']['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['create_dao_proposal(string,string,string,uint64,uint64,uint64,uint64,pay)string'] | undefined]>
 
   /**
-   * Calls the join_dao(string,uint64)string ABI method.
+   * Calls the join_dao(string,pay)string ABI method.
    *
-   * Join an existing DAO with required stake
+   * Join an existing DAO with required stake payment
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  joinDao(params?: CallParams<CitadelDaoArgs['obj']['join_dao(string,uint64)string'] | CitadelDaoArgs['tuple']['join_dao(string,uint64)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['join_dao(string,uint64)string'] | undefined]>
+  joinDao(params?: CallParams<CitadelDaoArgs['obj']['join_dao(string,pay)string'] | CitadelDaoArgs['tuple']['join_dao(string,pay)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['join_dao(string,pay)string'] | undefined]>
 
   /**
-   * Calls the create_proposal(string,string,string,uint64)string ABI method.
+   * Calls the create_proposal(string,string,string,string)string ABI method.
    *
-   * Create a new proposal for voting
+   * Create a new proposal for DAO activation and AI moderator creation
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  createProposal(params?: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,uint64)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,uint64)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['create_proposal(string,string,string,uint64)string'] | undefined]>
+  createProposal(params?: CallParams<CitadelDaoArgs['obj']['create_proposal(string,string,string,string)string'] | CitadelDaoArgs['tuple']['create_proposal(string,string,string,string)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['create_proposal(string,string,string,string)string'] | undefined]>
 
   /**
-   * Calls the vote(string,bool,uint64)string ABI method.
+   * Calls the vote_on_proposal(string,bool)string ABI method.
    *
-   * Cast a vote on a proposal
+   * Cast a vote on a proposal (members can only vote once)
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  vote(params?: CallParams<CitadelDaoArgs['obj']['vote(string,bool,uint64)string'] | CitadelDaoArgs['tuple']['vote(string,bool,uint64)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['vote(string,bool,uint64)string'] | undefined]>
+  voteOnProposal(params?: CallParams<CitadelDaoArgs['obj']['vote_on_proposal(string,bool)string'] | CitadelDaoArgs['tuple']['vote_on_proposal(string,bool)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['vote_on_proposal(string,bool)string'] | undefined]>
 
   /**
    * Calls the execute_proposal(string,string)uint64 ABI method.
@@ -1190,20 +1603,20 @@ export type CitadelDaoComposer<TReturns extends [...any[]] = []> = {
   executeProposal(params?: CallParams<CitadelDaoArgs['obj']['execute_proposal(string,string)uint64'] | CitadelDaoArgs['tuple']['execute_proposal(string,string)uint64']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['execute_proposal(string,string)uint64'] | undefined]>
 
   /**
-   * Calls the distribute_revenue(string,uint64,uint64)string ABI method.
+   * Calls the distribute_revenue(string,uint64)string ABI method.
    *
-   * Distribute revenue among DAO members
+   * Distribute revenue among DAO members proportionally
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  distributeRevenue(params?: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64,uint64)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['distribute_revenue(string,uint64,uint64)string'] | undefined]>
+  distributeRevenue(params?: CallParams<CitadelDaoArgs['obj']['distribute_revenue(string,uint64)string'] | CitadelDaoArgs['tuple']['distribute_revenue(string,uint64)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['distribute_revenue(string,uint64)string'] | undefined]>
 
   /**
    * Calls the get_dao_info(string)string ABI method.
    *
-   * Get DAO information
+   * Get DAO configuration and status
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
@@ -1212,15 +1625,37 @@ export type CitadelDaoComposer<TReturns extends [...any[]] = []> = {
   getDaoInfo(params?: CallParams<CitadelDaoArgs['obj']['get_dao_info(string)string'] | CitadelDaoArgs['tuple']['get_dao_info(string)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['get_dao_info(string)string'] | undefined]>
 
   /**
-   * Calls the get_proposal_status(string)string ABI method.
+   * Calls the get_proposal_info(string)string ABI method.
    *
-   * Get proposal voting status
+   * Get proposal details and voting status
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  getProposalStatus(params?: CallParams<CitadelDaoArgs['obj']['get_proposal_status(string)string'] | CitadelDaoArgs['tuple']['get_proposal_status(string)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['get_proposal_status(string)string'] | undefined]>
+  getProposalInfo(params?: CallParams<CitadelDaoArgs['obj']['get_proposal_info(string)string'] | CitadelDaoArgs['tuple']['get_proposal_info(string)string']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['get_proposal_info(string)string'] | undefined]>
+
+  /**
+   * Calls the check_membership(string,account)bool ABI method.
+   *
+   * Check if an address is a member of a DAO
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  checkMembership(params?: CallParams<CitadelDaoArgs['obj']['check_membership(string,account)bool'] | CitadelDaoArgs['tuple']['check_membership(string,account)bool']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['check_membership(string,account)bool'] | undefined]>
+
+  /**
+   * Calls the get_treasury_balance(string)uint64 ABI method.
+   *
+   * Get DAO treasury balance
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  getTreasuryBalance(params?: CallParams<CitadelDaoArgs['obj']['get_treasury_balance(string)uint64'] | CitadelDaoArgs['tuple']['get_treasury_balance(string)uint64']>): CitadelDaoComposer<[...TReturns, CitadelDaoReturns['get_treasury_balance(string)uint64'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the CitadelDAO smart contract.
@@ -1244,9 +1679,9 @@ export type CitadelDaoComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<CitadelDaoComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<CitadelDaoComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<CitadelDaoComposerResults<TReturns> & { simulateResponse: SimulateResponse }>
+  simulate(): Promise<CitadelDaoComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<CitadelDaoComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<CitadelDaoComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
