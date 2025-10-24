@@ -14,6 +14,7 @@ The creator economy faces bottlenecks from expensive and unscalable human chat m
 - **NFT-Based Ownership**: Each AI moderator is represented by an Algorand ASA (NFT)
 - **YouTube Integration**: Seamlessly connect channels for live chat moderation
 - **Revenue Sharing**: Automatic distribution of earnings among DAO members
+- **Enhanced Wallet Connection**: Robust wallet integration with comprehensive error handling
 
 ## Project Structure
 
@@ -23,6 +24,11 @@ This is a full-stack AlgoKit project with:
 - **Database** (Supabase): Dynamic data storage and user management
 
 ## Setup
+
+### Quick Start (TestNet)
+For running on Algorand TestNet with enhanced wallet connection:
+1. See [TESTNET_SETUP.md](./TESTNET_SETUP.md) for detailed TestNet setup instructions
+2. The project now includes improved wallet connection handling and error resolution
 
 ### Initial setup
 1. Clone this repository to your local machine.

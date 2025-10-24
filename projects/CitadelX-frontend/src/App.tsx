@@ -1,61 +1,23 @@
-import { SupportedWallet, WalletId, WalletManager, WalletProvider } from '@txnlab/use-wallet-react'
+import { WalletProvider } from '@txnlab/use-wallet-react'
 import { SnackbarProvider } from 'notistack'
 import { ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { theme } from './theme/theme'
 import { UserProvider } from './contexts/UserContext'
-import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
+import { citadelWalletManager } from './utils/walletManager'
 import ProtectedRoute from './components/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import Marketplace from './pages/Marketplace'
 import ActiveDAOs from './pages/ActiveDAOs'
-import CreateDAOProposal from './pages/CreateDAOProposal'
+import CreateDAO from './pages/CreateDAO'
 import DAODetail from './pages/DAODetail'
 import ModeratorDetail from './pages/ModeratorDetail'
 import Profile from './pages/Profile'
 
-let supportedWallets: SupportedWallet[]
-if (import.meta.env.VITE_ALGOD_NETWORK === 'localnet') {
-  const kmdConfig = getKmdConfigFromViteEnvironment()
-  supportedWallets = [
-    {
-      id: WalletId.KMD,
-      options: {
-        baseServer: kmdConfig.server,
-        token: String(kmdConfig.token),
-        port: String(kmdConfig.port),
-      },
-    },
-  ]
-} else {
-  supportedWallets = [
-    { id: WalletId.DEFLY },
-    { id: WalletId.PERA },
-    { id: WalletId.EXODUS },
-  ]
-}
-
 export default function App() {
-  const algodConfig = getAlgodConfigFromViteEnvironment()
-
-  const walletManager = new WalletManager({
-    wallets: supportedWallets,
-    defaultNetwork: algodConfig.network,
-    networks: {
-      [algodConfig.network]: {
-        algod: {
-          baseServer: algodConfig.server,
-          port: algodConfig.port,
-          token: String(algodConfig.token),
-        },
-      },
-    },
-    options: {
-      resetNetwork: true,
-    },
-  })
+  const walletManager = citadelWalletManager.getManager()
 
   return (
     <ThemeProvider theme={theme}>
@@ -94,7 +56,7 @@ export default function App() {
                   path="/dao/create"
                   element={
                     <ProtectedRoute>
-                      <CreateDAOProposal />
+                      <CreateDAO />
                     </ProtectedRoute>
                   }
                 />

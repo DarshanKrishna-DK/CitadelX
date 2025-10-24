@@ -3,10 +3,13 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Card,
   CardContent,
+  CardActions,
   Button,
+  Grid,
+  Alert,
+  CircularProgress,
   Chip,
   TextField,
   InputAdornment,
@@ -14,429 +17,436 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress,
-  Fab,
   Paper,
-  LinearProgress,
+  Avatar,
 } from '@mui/material'
-import { Search, Add, HowToVote, People, AccountBalance, Timer } from '@mui/icons-material'
+import {
+  Search,
+  Add,
+  People,
+  AccountBalance,
+  TrendingUp,
+  FilterList,
+} from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { useWallet } from '@txnlab/use-wallet-react'
 import Navbar from '../components/Navbar'
-import { supabase, DAO, Proposal, MODERATOR_CATEGORIES, ModeratorCategoryId } from '../utils/supabase'
+import { supabase, MODERATOR_CATEGORIES } from '../utils/supabase'
 
-interface DAOWithProposal extends DAO {
-  active_proposal?: Proposal
-  user_is_member?: boolean
-  user_has_voted?: boolean
+interface DAO {
+  id: string
+  name: string
+  description: string
+  category: string
+  creator_id: string
+  min_stake: number
+  voting_period: number
+  activation_threshold: number
+  status: string
+  created_at: string
+  wallet_address: string
+  member_count?: number
+  total_stake?: number
+}
+
+interface DAOWithStats extends DAO {
+  member_count: number
+  total_stake: number
+  is_member: boolean
 }
 
 const ActiveDAOs: React.FC = () => {
   const navigate = useNavigate()
   const { activeAddress } = useWallet()
+  
+  const [daos, setDaos] = useState<DAOWithStats[]>([])
   const [loading, setLoading] = useState(true)
-  const [daos, setDAOs] = useState<DAOWithProposal[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('all')
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [error, setError] = useState('')
+  
+  // Filter and search state
+  const [searchTerm, setSearchTerm] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('active')
+  const [sortBy, setSortBy] = useState('created_at')
 
   useEffect(() => {
-    fetchActiveDAOs()
+    fetchDAOs()
   }, [activeAddress])
 
-  const fetchActiveDAOs = async () => {
+  const fetchDAOs = async () => {
     try {
       setLoading(true)
-
-      // Fetch all DAOs with their active proposals
+      
+      // Fetch DAOs with member statistics
       const { data: daosData, error: daosError } = await supabase
         .from('daos')
         .select(`
           *,
-          proposals!inner(*)
+          dao_members!inner(
+            id,
+            wallet_address,
+            stake_amount,
+            is_active
+          )
         `)
-        .eq('proposals.status', 'active')
+        .eq('status', 'active')
         .order('created_at', { ascending: false })
 
       if (daosError) throw daosError
 
-      // Get user membership and voting status if logged in
-      let userMemberships: any[] = []
-      let userVotes: any[] = []
+      // Process DAO data and calculate statistics
+      const processedDAOs: DAOWithStats[] = []
       
-      if (activeAddress) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('id')
-          .eq('wallet_address', activeAddress)
-          .single()
+      for (const dao of daosData || []) {
+        const activeMembers = dao.dao_members?.filter((m: any) => m.is_active) || []
+        const totalStake = activeMembers.reduce((sum: number, member: any) => sum + member.stake_amount, 0)
+        const isMember = activeAddress ? activeMembers.some((m: any) => m.wallet_address === activeAddress) : false
 
-        if (userData) {
-          // Get user's DAO memberships
-          const { data: memberships } = await supabase
-            .from('dao_members')
-            .select('dao_id')
-            .eq('user_id', userData.id)
-
-          userMemberships = memberships || []
-
-          // Get user's votes on active proposals
-          const proposalIds = daosData?.map(dao => dao.proposals[0]?.id).filter(Boolean) || []
-          if (proposalIds.length > 0) {
-            const { data: votes } = await supabase
-              .from('proposal_votes')
-              .select('proposal_id')
-              .eq('user_id', userData.id)
-              .in('proposal_id', proposalIds)
-
-            userVotes = votes || []
-          }
-        }
+        processedDAOs.push({
+          ...dao,
+          member_count: activeMembers.length,
+          total_stake: totalStake,
+          is_member: isMember,
+        })
       }
 
-      // Process DAOs with additional info
-      const processedDAOs: DAOWithProposal[] = (daosData || []).map(dao => {
-        const activeProposal = dao.proposals?.[0]
-        const userIsMember = userMemberships.some(m => m.dao_id === dao.id)
-        const userHasVoted = activeProposal ? userVotes.some(v => v.proposal_id === activeProposal.id) : false
-
-        return {
-          ...dao,
-          active_proposal: activeProposal,
-          user_is_member: userIsMember,
-          user_has_voted: userHasVoted,
-        }
-      })
-
-      setDAOs(processedDAOs)
-    } catch (error) {
-      console.error('Error fetching active DAOs:', error)
+      setDaos(processedDAOs)
+      
+    } catch (error: any) {
+      console.error('Error fetching DAOs:', error)
+      setError(error.message || 'Failed to load DAOs')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleJoinDAO = async (daoId: string) => {
-    // This would trigger the join DAO flow with payment
-    navigate(`/dao/${daoId}`)
-  }
-
-  const handleVote = async (daoId: string) => {
-    navigate(`/dao/${daoId}`)
-  }
-
   const filteredDAOs = daos.filter(dao => {
-    // Search filter
-    const matchesSearch = 
-      dao.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dao.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (dao.active_proposal?.title.toLowerCase().includes(searchQuery.toLowerCase()))
-
-    // Category filter
-    const matchesCategory = categoryFilter === 'all' || dao.category === categoryFilter
-
-    // Status filter
-    let matchesStatus = true
-    if (statusFilter === 'can_join') {
-      matchesStatus = !dao.user_is_member
-    } else if (statusFilter === 'can_vote') {
-      matchesStatus = dao.user_is_member && !dao.user_has_voted
-    } else if (statusFilter === 'member') {
-      matchesStatus = dao.user_is_member === true
-    }
-
+    const matchesSearch = dao.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         dao.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesCategory = !categoryFilter || dao.category === categoryFilter
+    const matchesStatus = !statusFilter || dao.status === statusFilter
+    
     return matchesSearch && matchesCategory && matchesStatus
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name)
+      case 'members':
+        return b.member_count - a.member_count
+      case 'stake':
+        return b.total_stake - a.total_stake
+      case 'created_at':
+      default:
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    }
   })
 
-  const getProgressPercentage = (proposal: Proposal) => {
-    return Math.min((proposal.current_votes / proposal.required_votes) * 100, 100)
-  }
-
-  const getDaysRemaining = (proposal: Proposal) => {
-    const createdAt = new Date(proposal.created_at)
-    const votingPeriod = 7 // Default voting period in days
-    const endDate = new Date(createdAt.getTime() + votingPeriod * 24 * 60 * 60 * 1000)
-    const now = new Date()
-    const daysLeft = Math.ceil((endDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
-    return Math.max(0, daysLeft)
-  }
-
-  if (loading) {
-    return (
-      <>
-        <Navbar />
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: 'calc(100vh - 64px)',
-          }}
-        >
-          <CircularProgress sx={{ color: 'primary.main' }} />
-        </Box>
-      </>
-    )
-  }
+  const renderDAOCard = (dao: DAOWithStats) => (
+    <Grid item xs={12} md={6} lg={4} key={dao.id}>
+      <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <CardContent sx={{ flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+            <Avatar sx={{ bgcolor: 'primary.main', width: 48, height: 48 }}>
+              {dao.name.charAt(0).toUpperCase()}
+            </Avatar>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Chip 
+                label={dao.status} 
+                color={dao.status === 'active' ? 'success' : 'default'}
+                size="small"
+              />
+              {dao.is_member && (
+                <Chip 
+                  label="Member" 
+                  color="primary" 
+                  size="small"
+                />
+              )}
+            </Box>
+          </Box>
+          
+          <Typography variant="h6" gutterBottom>
+            {dao.name}
+          </Typography>
+          
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40 }}>
+            {dao.description.length > 100 
+              ? `${dao.description.substring(0, 100)}...` 
+              : dao.description
+            }
+          </Typography>
+          
+          <Box sx={{ mb: 2 }}>
+            <Chip 
+              label={MODERATOR_CATEGORIES[dao.category as keyof typeof MODERATOR_CATEGORIES]?.name || dao.category}
+              variant="outlined"
+              size="small"
+            />
+          </Box>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <People sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+              <Typography variant="body2" color="text.secondary">
+                {dao.member_count} member{dao.member_count !== 1 ? 's' : ''}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <AccountBalance sx={{ fontSize: 16, mr: 0.5, color: 'text.secondary' }} />
+              <Typography variant="body2" color="text.secondary">
+                {dao.total_stake.toFixed(2)} ALGO
+              </Typography>
+            </Box>
+          </Box>
+          
+          <Typography variant="caption" color="text.secondary">
+            Min Stake: {dao.min_stake} ALGO • Activation: {dao.activation_threshold}%
+          </Typography>
+        </CardContent>
+        
+        <CardActions>
+          <Button
+            size="small"
+            onClick={() => navigate(`/dao/${dao.id}`)}
+          >
+            View Details
+          </Button>
+          {!dao.is_member && activeAddress && (
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => navigate(`/dao/${dao.id}`)}
+            >
+              Join DAO
+            </Button>
+          )}
+        </CardActions>
+      </Card>
+    </Grid>
+  )
 
   return (
-    <>
+    <Box>
       <Navbar />
-      <Box sx={{ backgroundColor: 'background.default', minHeight: 'calc(100vh - 64px)', py: 4 }}>
-        <Container maxWidth="xl">
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              Active DAO Proposals
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h4" gutterBottom>
+              Active DAOs
             </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Join DAOs and vote on AI moderator creation proposals
-            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => navigate('/dao/create')}
+              disabled={!activeAddress}
+            >
+              Create DAO
+            </Button>
           </Box>
+          
+          {!activeAddress && (
+            <Alert severity="info" sx={{ mb: 3 }}>
+              Connect your wallet to create or join DAOs
+            </Alert>
+          )}
+        </Box>
 
-          {/* Filters */}
-          <Paper sx={{ p: 3, mb: 4 }}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  placeholder="Search DAOs and proposals..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Search />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Category</InputLabel>
-                  <Select
-                    value={categoryFilter}
-                    label="Category"
-                    onChange={(e) => setCategoryFilter(e.target.value)}
-                  >
-                    <MenuItem value="all">All Categories</MenuItem>
-                    {Object.values(MODERATOR_CATEGORIES).map((category) => (
-                      <MenuItem key={category.id} value={category.id}>
-                        {category.icon} {category.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <FormControl fullWidth>
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    value={statusFilter}
-                    label="Status"
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                  >
-                    <MenuItem value="all">All DAOs</MenuItem>
-                    <MenuItem value="can_join">Can Join</MenuItem>
-                    <MenuItem value="can_vote">Can Vote</MenuItem>
-                    <MenuItem value="member">My DAOs</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  onClick={() => navigate('/dao/create')}
-                  startIcon={<Add />}
+        {/* Filters and Search */}
+        <Paper sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+            <FilterList sx={{ mr: 1 }} />
+            Filters & Search
+          </Typography>
+          
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                placeholder="Search DAOs..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+            
+            <Grid item xs={12} md={2}>
+              <FormControl fullWidth>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  label="Category"
                 >
-                  Create DAO
-                </Button>
+                  <MenuItem value="">All Categories</MenuItem>
+                  {Object.entries(MODERATOR_CATEGORIES).map(([key, category]) => (
+                    <MenuItem key={key} value={key}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} md={2}>
+              <FormControl fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  label="Status"
+                >
+                  <MenuItem value="">All Status</MenuItem>
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="creating">Creating</MenuItem>
+                  <MenuItem value="paused">Paused</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} md={2}>
+              <FormControl fullWidth>
+                <InputLabel>Sort By</InputLabel>
+                <Select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  label="Sort By"
+                >
+                  <MenuItem value="created_at">Newest</MenuItem>
+                  <MenuItem value="name">Name</MenuItem>
+                  <MenuItem value="members">Members</MenuItem>
+                  <MenuItem value="stake">Total Stake</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} md={2}>
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={() => {
+                  setSearchTerm('')
+                  setCategoryFilter('')
+                  setStatusFilter('active')
+                  setSortBy('created_at')
+                }}
+                sx={{ height: '56px' }}
+              >
+                Clear Filters
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
+
+        {/* Error Display */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
+
+        {/* DAOs Grid */}
+        {!loading && (
+          <>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6">
+                {filteredDAOs.length} DAO{filteredDAOs.length !== 1 ? 's' : ''} found
+              </Typography>
+            </Box>
+            
+            <Grid container spacing={3}>
+              {filteredDAOs.map(renderDAOCard)}
+            </Grid>
+            
+            {filteredDAOs.length === 0 && !loading && (
+              <Paper sx={{ p: 6, textAlign: 'center' }}>
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  No DAOs found
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  {searchTerm || categoryFilter 
+                    ? 'Try adjusting your search criteria or filters'
+                    : 'Be the first to create a DAO!'
+                  }
+                </Typography>
+                {activeAddress && (
+                  <Button
+                    variant="contained"
+                    startIcon={<Add />}
+                    onClick={() => navigate('/dao/create')}
+                  >
+                    Create First DAO
+                  </Button>
+                )}
+              </Paper>
+            )}
+          </>
+        )}
+
+        {/* Statistics Summary */}
+        {!loading && filteredDAOs.length > 0 && (
+          <Paper sx={{ p: 3, mt: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Network Statistics
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={3}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" color="primary">
+                    {daos.length}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total DAOs
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" color="primary">
+                    {daos.reduce((sum, dao) => sum + dao.member_count, 0)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Members
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" color="primary">
+                    {daos.reduce((sum, dao) => sum + dao.total_stake, 0).toFixed(1)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Total ALGO Staked
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" color="primary">
+                    {activeAddress ? daos.filter(dao => dao.is_member).length : 0}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Your Memberships
+                  </Typography>
+                </Box>
               </Grid>
             </Grid>
           </Paper>
-
-          {/* DAOs Grid */}
-          {filteredDAOs.length > 0 ? (
-            <Grid container spacing={3}>
-              {filteredDAOs.map((dao) => (
-                <Grid item xs={12} md={6} lg={4} key={dao.id}>
-                  <Card
-                    sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                      },
-                    }}
-                    onClick={() => navigate(`/dao/${dao.id}`)}
-                  >
-                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                      {/* Header */}
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography sx={{ fontSize: '1.5rem' }}>
-                            {MODERATOR_CATEGORIES[dao.category as ModeratorCategoryId]?.icon || '🤖'}
-                          </Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                            {dao.name}
-                          </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
-                          {dao.user_is_member && (
-                            <Chip label="Member" color="primary" size="small" />
-                          )}
-                          {dao.user_has_voted && (
-                            <Chip label="Voted" color="success" size="small" />
-                          )}
-                        </Box>
-                      </Box>
-
-                      {/* Category */}
-                      <Typography variant="caption" color="primary.main" sx={{ fontWeight: 600, mb: 1, display: 'block' }}>
-                        {MODERATOR_CATEGORIES[dao.category as ModeratorCategoryId]?.name || 'AI Moderator'}
-                      </Typography>
-
-                      {/* Description */}
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 3, minHeight: 60 }}>
-                        {dao.description.length > 120 ? `${dao.description.substring(0, 120)}...` : dao.description}
-                      </Typography>
-
-                      {/* Stats */}
-                      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <People sx={{ fontSize: 18, color: 'primary.main' }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {dao.member_count}/{dao.min_members} members
-                          </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <AccountBalance sx={{ fontSize: 18, color: 'primary.main' }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {dao.treasury_balance.toFixed(1)} ALGO
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      {/* Proposal Progress */}
-                      {dao.active_proposal && (
-                        <Box sx={{ mb: 3 }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                              Voting Progress
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                              <Timer sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography variant="caption" color="text.secondary">
-                                {getDaysRemaining(dao.active_proposal)} days left
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={getProgressPercentage(dao.active_proposal)}
-                            sx={{
-                              height: 8,
-                              borderRadius: 4,
-                              backgroundColor: 'rgba(255, 107, 0, 0.1)',
-                              '& .MuiLinearProgress-bar': {
-                                backgroundColor: 'primary.main',
-                              },
-                            }}
-                          />
-                          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                            {dao.active_proposal.current_votes} / {dao.active_proposal.required_votes} votes needed
-                          </Typography>
-                        </Box>
-                      )}
-
-                      {/* Action Buttons */}
-                      <Box sx={{ display: 'flex', gap: 1, mt: 'auto' }}>
-                        {!dao.user_is_member ? (
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleJoinDAO(dao.id)
-                            }}
-                            sx={{ fontWeight: 600 }}
-                          >
-                            Join DAO ({dao.min_stake} ALGO)
-                          </Button>
-                        ) : !dao.user_has_voted ? (
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            startIcon={<HowToVote />}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleVote(dao.id)
-                            }}
-                            sx={{ fontWeight: 600 }}
-                          >
-                            Vote Now
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="outlined"
-                            fullWidth
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              navigate(`/dao/${dao.id}`)
-                            }}
-                          >
-                            View Details
-                          </Button>
-                        )}
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <Card>
-              <CardContent sx={{ textAlign: 'center', py: 8 }}>
-                <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                  {searchQuery || categoryFilter !== 'all' || statusFilter !== 'all'
-                    ? 'No DAOs found matching your filters'
-                    : 'No active DAO proposals yet'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  {searchQuery || categoryFilter !== 'all' || statusFilter !== 'all'
-                    ? 'Try adjusting your search filters'
-                    : 'Be the first to create an AI moderator DAO!'}
-                </Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<Add />}
-                  onClick={() => navigate('/dao/create')}
-                >
-                  Create First DAO
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </Container>
-
-        {/* Floating Action Button */}
-        <Fab
-          color="primary"
-          sx={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-          }}
-          onClick={() => navigate('/dao/create')}
-        >
-          <Add />
-        </Fab>
-      </Box>
-    </>
+        )}
+      </Container>
+    </Box>
   )
 }
 

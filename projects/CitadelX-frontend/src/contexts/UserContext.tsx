@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { supabase, User } from '../utils/supabase'
+import { CitadelWalletManager } from '../utils/walletManager'
 
 interface UserContextType {
   user: User | null
@@ -32,6 +33,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     try {
       setLoading(true)
       
+      // Validate wallet address format first
+      if (!CitadelWalletManager.validateAddress(walletAddress)) {
+        console.error('Invalid wallet address format:', walletAddress)
+        setUser(null)
+        return
+      }
+      
       // First, try to find existing user
       const { data, error } = await supabase
         .from('users')
@@ -44,10 +52,11 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         console.log('User found:', data)
         setUser(data)
       } else if (!data && !error) {
-        // User doesn't exist, create new user
-        console.log('User not found, creating new user...')
+        // User doesn't exist, create new user automatically
+        console.log('User not found, creating new user for wallet:', walletAddress)
         const newUser = {
           wallet_address: walletAddress,
+          created_at: new Date().toISOString(),
         }
         
         const { data: createdUser, error: createError } = await supabase
@@ -58,12 +67,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         if (createError) {
           console.error('Error creating user:', createError)
-          console.error('Create error details:', {
-            message: createError.message,
-            details: createError.details,
-            hint: createError.hint,
-            code: createError.code
-          })
           
           // If it's a duplicate key error, try to fetch the user again
           if (createError.code === '23505') {
@@ -77,10 +80,21 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             if (existingUser) {
               setUser(existingUser)
             } else {
-              setUser(null)
+              // Create a local user object if database operations fail
+              setUser({
+                id: walletAddress, // Use wallet address as temporary ID
+                wallet_address: walletAddress,
+                created_at: new Date().toISOString(),
+              } as User)
             }
           } else {
-            setUser(null)
+            // Create a local user object if database operations fail
+            console.warn('Database user creation failed, using local user object')
+            setUser({
+              id: walletAddress, // Use wallet address as temporary ID
+              wallet_address: walletAddress,
+              created_at: new Date().toISOString(),
+            } as User)
           }
         } else {
           console.log('User created successfully:', createdUser)
@@ -88,17 +102,27 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         }
       } else if (error) {
         console.error('Error fetching user:', error)
-        console.error('Fetch error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        })
-        setUser(null)
+        // Create a local user object if database operations fail
+        console.warn('Database fetch failed, using local user object')
+        setUser({
+          id: walletAddress, // Use wallet address as temporary ID
+          wallet_address: walletAddress,
+          created_at: new Date().toISOString(),
+        } as User)
       }
     } catch (error) {
       console.error('Error in fetchUser:', error)
-      setUser(null)
+      // Always provide a user object for valid wallet addresses
+      if (CitadelWalletManager.validateAddress(walletAddress)) {
+        console.warn('Using fallback local user object')
+        setUser({
+          id: walletAddress, // Use wallet address as temporary ID
+          wallet_address: walletAddress,
+          created_at: new Date().toISOString(),
+        } as User)
+      } else {
+        setUser(null)
+      }
     } finally {
       setLoading(false)
     }

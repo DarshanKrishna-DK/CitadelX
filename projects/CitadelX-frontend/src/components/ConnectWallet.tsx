@@ -1,5 +1,7 @@
 import { useWallet, Wallet, WalletId } from '@txnlab/use-wallet-react'
+import { useState } from 'react'
 import Account from './Account'
+import { CitadelWalletManager } from '../utils/walletManager'
 
 interface ConnectWalletInterface {
   openModal: boolean
@@ -7,7 +9,9 @@ interface ConnectWalletInterface {
 }
 
 const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
-  const { wallets, activeAddress } = useWallet()
+  const { wallets, activeAddress, isReady } = useWallet()
+  const [connectionError, setConnectionError] = useState<string | null>(null)
+  const [isConnecting, setIsConnecting] = useState(false)
 
   const isKmd = (wallet: Wallet) => wallet.id === WalletId.KMD
 
@@ -17,6 +21,12 @@ const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
         <h3 className="font-bold text-2xl">Select wallet provider</h3>
 
         <div className="grid m-2 pt-5">
+          {connectionError && (
+            <div className="alert alert-error mb-4">
+              <span>{connectionError}</span>
+            </div>
+          )}
+          
           {activeAddress && (
             <>
               <Account />
@@ -32,12 +42,28 @@ const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
                 key={`provider-${wallet.id}`}
                 onClick={async () => {
                   try {
+                    setIsConnecting(true)
+                    setConnectionError(null)
+                    
                     if (!wallet.isActive) {
                       await wallet.connect()
+                      
+                      // Validate connection after successful connect
+                      setTimeout(() => {
+                        const connectionState = CitadelWalletManager.getConnectionState(activeAddress, isReady)
+                        if (!connectionState.isConnected) {
+                          setConnectionError('Wallet connected but address validation failed')
+                        } else {
+                          closeModal()
+                        }
+                      }, 1000)
                     }
                   } catch (err: any) {
+                    const errorMessage = CitadelWalletManager.handleConnectionError(err)
+                    setConnectionError(errorMessage)
                     console.error('Wallet connection error:', err)
-                    alert(err.message || 'Failed to connect wallet')
+                  } finally {
+                    setIsConnecting(false)
                   }
                 }}
               >
