@@ -44,12 +44,7 @@ const LandingPage: React.FC = () => {
   const [loginOpen, setLoginOpen] = useState(false)
   const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 50 })
 
-  // Redirect to dashboard if wallet is already connected (from localStorage)
-  React.useEffect(() => {
-    if (isReady && activeAddress) {
-      navigate('/dashboard')
-    }
-  }, [activeAddress, isReady, navigate])
+  // Note: Removed automatic redirect to allow users to visit landing page when logged in
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
@@ -316,49 +311,6 @@ const LandingPage: React.FC = () => {
                 Empower creators to form DAOs, train custom AI moderators, and generate sustainable revenue
                 through a decentralized marketplace ecosystem.
             </Typography>
-              <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<Rocket />}
-                onClick={() => setSignUpOpen(true)}
-                sx={{
-                  px: 5,
-                  py: 2,
-                  fontSize: '1.2rem',
-                  fontWeight: 700,
-                  boxShadow: '0 8px 32px rgba(255, 107, 0, 0.4)',
-                  '&:hover': {
-                    boxShadow: '0 12px 48px rgba(255, 107, 0, 0.6)',
-                    transform: 'translateY(-2px)',
-                  },
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                Sign Up
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                  onClick={() => scrollToSection('features')}
-                sx={{
-                    px: 5,
-                    py: 2,
-                    fontSize: '1.2rem',
-                    fontWeight: 600,
-                  borderColor: 'primary.main',
-                  color: 'primary.main',
-                    borderWidth: 2,
-                  '&:hover': {
-                      borderWidth: 2,
-                    borderColor: 'primary.light',
-                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                  },
-                }}
-              >
-                  Learn More
-              </Button>
-            </Box>
           </Box>
           </Fade>
           <IconButton

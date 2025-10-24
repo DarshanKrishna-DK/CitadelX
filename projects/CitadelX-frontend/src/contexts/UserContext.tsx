@@ -31,17 +31,23 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const fetchUser = async (walletAddress: string) => {
     try {
       setLoading(true)
+      
+      // First, try to find existing user
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('wallet_address', walletAddress)
-        .single()
+        .maybeSingle() // Use maybeSingle instead of single to avoid errors when no user found
 
-      if (error && error.code === 'PGRST116') {
+      if (data) {
+        // User exists
+        console.log('User found:', data)
+        setUser(data)
+      } else if (!data && !error) {
         // User doesn't exist, create new user
-        const newUser: Partial<User> = {
+        console.log('User not found, creating new user...')
+        const newUser = {
           wallet_address: walletAddress,
-          created_at: new Date().toISOString(),
         }
         
         const { data: createdUser, error: createError } = await supabase
@@ -52,16 +58,47 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
         if (createError) {
           console.error('Error creating user:', createError)
+          console.error('Create error details:', {
+            message: createError.message,
+            details: createError.details,
+            hint: createError.hint,
+            code: createError.code
+          })
+          
+          // If it's a duplicate key error, try to fetch the user again
+          if (createError.code === '23505') {
+            console.log('User already exists, fetching existing user...')
+            const { data: existingUser } = await supabase
+              .from('users')
+              .select('*')
+              .eq('wallet_address', walletAddress)
+              .single()
+            
+            if (existingUser) {
+              setUser(existingUser)
+            } else {
+              setUser(null)
+            }
+          } else {
+            setUser(null)
+          }
         } else {
+          console.log('User created successfully:', createdUser)
           setUser(createdUser)
         }
       } else if (error) {
         console.error('Error fetching user:', error)
-      } else {
-        setUser(data)
+        console.error('Fetch error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        setUser(null)
       }
     } catch (error) {
       console.error('Error in fetchUser:', error)
+      setUser(null)
     } finally {
       setLoading(false)
     }

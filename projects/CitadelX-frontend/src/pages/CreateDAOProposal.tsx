@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { AlgorandClient, microAlgos } from '@algorandfoundation/algokit-utils'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
+import algosdk from 'algosdk'
 import Navbar from '../components/Navbar'
 import { supabase, MODERATOR_CATEGORIES, ModeratorCategoryId } from '../utils/supabase'
 import { CitadelDAOClient } from '../contracts/CitadelDAO'
@@ -34,7 +35,7 @@ import { uploadContextDocuments } from '../utils/ipfs'
 
 const CreateDAOProposal: React.FC = () => {
   const navigate = useNavigate()
-  const { activeAddress } = useWallet()
+  const { activeAddress, signTransactions, sendTransactions } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -46,9 +47,11 @@ const CreateDAOProposal: React.FC = () => {
     minMembers: 3,
     minStake: 0.5, // ALGO
     votingPeriod: 7, // days
-    activationThreshold: 66,
     treasuryContribution: 1, // ALGO
   })
+
+  // Activation threshold is always 100% (set by platform)
+  const activationThreshold = 100
 
   const [contextDocuments, setContextDocuments] = useState<File[]>([])
   const [documentTexts, setDocumentTexts] = useState<string[]>([])
@@ -59,12 +62,12 @@ const CreateDAOProposal: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  // Calculate platform fee (1% of minimum stake amount)
-  const calculatePlatformFee = (minStake: number) => {
-    return Math.max(0.01, minStake * 0.01) // Minimum 0.01 ALGO platform fee
+  // Calculate platform fee (1% of treasury contribution amount)
+  const calculatePlatformFee = (treasuryContribution: number) => {
+    return Math.max(0.01, treasuryContribution * 0.01) // Minimum 0.01 ALGO platform fee
   }
 
-  const platformFee = calculatePlatformFee(formData.minStake)
+  const platformFee = calculatePlatformFee(formData.treasuryContribution)
   const totalCost = formData.treasuryContribution + platformFee
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,13 +164,14 @@ const CreateDAOProposal: React.FC = () => {
 
       // Create blockchain transaction for DAO creation with payment
       const algodConfig = getAlgodConfigFromViteEnvironment()
-      const algorand = AlgorandClient.fromConfig({
-        algodConfig: {
-          server: algodConfig.server,
-          port: algodConfig.port,
-          token: String(algodConfig.token),
-        },
-      })
+      const algodClient = new algosdk.Algodv2(
+        String(algodConfig.token),
+        algodConfig.server,
+        algodConfig.port
+      )
+
+      // Get suggested transaction parameters
+      const suggestedParams = await algodClient.getTransactionParams().do()
 
       // Convert ALGO to microAlgos
       const minStakeMicroAlgos = Math.floor(formData.minStake * 1_000_000)
@@ -176,22 +180,48 @@ const CreateDAOProposal: React.FC = () => {
       const totalPaymentMicroAlgos = treasuryMicroAlgos + platformFeeMicroAlgos
       const votingPeriodSeconds = formData.votingPeriod * 24 * 60 * 60
 
-      // Create payment transaction for treasury contribution + platform fee
-      // In production, this would go to the smart contract address or treasury
-      const treasuryAddress = algodConfig.server.includes('localhost') 
-        ? 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' // LocalNet treasury
-        : 'CITADELX_TREASURY_MAINNET_ADDRESS' // MainNet treasury
+      // Platform treasury address from environment
+      const treasuryAddress = import.meta.env.VITE_TREASURY_ADDRESS || 'RLUKWBU2COUQXFBMVR5Z4GRQERL3QDSBSGFECZYDTIUW4DH4LPSGCKDD7I'
       
-      const paymentResult = await algorand.send.payment({
-        sender: activeAddress!,
-        receiver: treasuryAddress,
-        amount: microAlgos(totalPaymentMicroAlgos),
-        note: `CitadelX DAO Creation: ${formData.name}`,
+      // Debug the actual values
+      console.log('DEBUG - Transaction creation:', {
+        activeAddress: activeAddress,
+        treasuryAddress: treasuryAddress,
+        amount: totalPaymentMicroAlgos,
+        suggestedParams: suggestedParams
+      })
+      
+      // Ensure activeAddress is available
+      if (!activeAddress) {
+        throw new Error('Wallet not connected. Please connect your wallet first.')
+      }
+      
+      // Ensure all required parameters are present
+      if (!treasuryAddress) {
+        throw new Error('Treasury address not configured')
+      }
+      
+      if (!suggestedParams) {
+        throw new Error('Transaction parameters not available')
+      }
+      
+      // Create payment transaction
+      const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: activeAddress,
+        to: treasuryAddress,
+        amount: totalPaymentMicroAlgos,
+        note: new Uint8Array(Buffer.from(`CitadelX DAO Creation: ${formData.name}`)),
+        suggestedParams: suggestedParams,
       })
 
-      console.log('Payment transaction sent:', paymentResult.txIds[0])
+      // Sign and send transaction using wallet
+      const signedTxns = await signTransactions([paymentTxn])
+      const { txId } = await sendTransactions(signedTxns)
 
-      // Transaction is already confirmed by algorand.send.payment
+      console.log('Payment transaction sent:', txId)
+
+      // Wait for transaction confirmation
+      await algosdk.waitForConfirmation(algodClient, txId, 4)
 
       // Create DAO in database with blockchain transaction reference
       const { data: daoData, error: daoError } = await supabase
@@ -207,9 +237,9 @@ const CreateDAOProposal: React.FC = () => {
             min_members: formData.minMembers,
             min_stake: formData.minStake,
             voting_period: formData.votingPeriod,
-            activation_threshold: formData.activationThreshold,
+            activation_threshold: activationThreshold,
             status: 'pending',
-            blockchain_tx_id: paymentResult.txIds[0],
+            blockchain_tx_id: txId,
             ipfs_hash: ipfsHash,
           },
         ])
@@ -226,7 +256,6 @@ const CreateDAOProposal: React.FC = () => {
             dao_id: daoData.id,
             user_id: userData.id,
             stake_amount: formData.treasuryContribution,
-            voting_power: 100,
           },
         ])
 
@@ -242,7 +271,7 @@ const CreateDAOProposal: React.FC = () => {
             description: formData.description,
             category: formData.category,
             context_documents: [ipfsHash], // Store IPFS hash instead of raw text
-            required_votes: Math.ceil((formData.minMembers * formData.activationThreshold) / 100),
+            required_votes: Math.ceil((formData.minMembers * activationThreshold) / 100),
             current_votes: 1, // Creator's vote
             status: 'active',
           },
@@ -252,13 +281,8 @@ const CreateDAOProposal: React.FC = () => {
 
       if (proposalError) throw proposalError
 
-      // Initialize DAO revenue tracking
-      await supabase.from('dao_revenue').insert([
-        {
-          dao_id: daoData.id,
-          total_revenue: 0,
-        },
-      ])
+      // Note: DAO revenue will be tracked when moderators generate income
+      // No need to initialize revenue tracking here
 
       // Record creator's vote
       await supabase.from('proposal_votes').insert([
@@ -269,10 +293,17 @@ const CreateDAOProposal: React.FC = () => {
         },
       ])
 
+      console.log('DAO created successfully:', {
+        daoId: daoData.id,
+        proposalId: proposalData.id,
+        transactionId: txId,
+        ipfsHash: ipfsHash
+      })
+      
       setSuccess(true)
       setTimeout(() => {
         navigate('/active-daos')
-      }, 2000)
+      }, 3000)
     } catch (err: any) {
       console.error('Error creating DAO:', err)
       setError(err.message || 'Failed to create DAO proposal')
@@ -362,17 +393,17 @@ const CreateDAOProposal: React.FC = () => {
                   </FormControl>
                 </Grid>
 
-                {formData.category && (
+                {formData.category && MODERATOR_CATEGORIES[formData.category as ModeratorCategoryId] && (
                   <Grid item xs={12}>
                     <Paper sx={{ p: 2, backgroundColor: 'rgba(255, 107, 0, 0.05)', border: '1px solid rgba(255, 107, 0, 0.2)' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         <Info sx={{ color: 'primary.main', fontSize: 20 }} />
                         <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          Selected Category: {MODERATOR_CATEGORIES[formData.category as ModeratorCategoryId].name}
+                          Selected Category: {MODERATOR_CATEGORIES[formData.category as ModeratorCategoryId]?.name || 'Unknown Category'}
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="text.secondary">
-                        {MODERATOR_CATEGORIES[formData.category as ModeratorCategoryId].description}
+                        {MODERATOR_CATEGORIES[formData.category as ModeratorCategoryId]?.description || 'No description available'}
                       </Typography>
                     </Paper>
                   </Grid>
@@ -498,12 +529,16 @@ const CreateDAOProposal: React.FC = () => {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    type="number"
                     label="Activation Threshold (%)"
-                    value={formData.activationThreshold}
-                    onChange={(e) => handleChange('activationThreshold', parseInt(e.target.value))}
-                    helperText="Percentage of votes needed to pass"
-                    inputProps={{ min: 51, max: 100 }}
+                    value="100%"
+                    disabled
+                    helperText="Set by platform - requires unanimous approval"
+                    sx={{
+                      '& .MuiInputBase-input.Mui-disabled': {
+                        WebkitTextFillColor: 'rgba(255, 107, 0, 0.8)',
+                        fontWeight: 600,
+                      },
+                    }}
                   />
                 </Grid>
 
@@ -530,21 +565,13 @@ const CreateDAOProposal: React.FC = () => {
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>{formData.treasuryContribution.toFixed(2)} ALGO</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="body2">Platform Fee (1% of min stake):</Typography>
+                        <Typography variant="body2">Platform Fee (1% of treasury contribution):</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>{platformFee.toFixed(3)} ALGO</Typography>
                       </Box>
                       {uploadingToIPFS && (
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="body2">IPFS Upload:</Typography>
                           <CircularProgress size={16} />
-                        </Box>
-                      )}
-                      {ipfsHash && (
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="body2">IPFS Hash:</Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'monospace', fontSize: '0.75rem' }}>
-                            {ipfsHash.slice(0, 8)}...{ipfsHash.slice(-8)}
-                          </Typography>
                         </Box>
                       )}
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1, borderTop: '1px solid rgba(255, 107, 0, 0.2)' }}>
@@ -567,7 +594,7 @@ const CreateDAOProposal: React.FC = () => {
                       <li>You create a DAO proposal with your initial stake contribution</li>
                       <li>Other creators can join by staking the minimum amount</li>
                       <li>Once minimum members join, members vote on the proposal</li>
-                      <li>If the proposal passes (≥{formData.activationThreshold}% yes votes), the AI moderator is created as an NFT</li>
+                      <li>If the proposal passes (≥{activationThreshold}% yes votes), the AI moderator is created as an NFT</li>
                       <li>The DAO can then list the moderator in the marketplace</li>
                       <li>Revenue from sales/subscriptions is distributed among DAO members</li>
                       <li>All decisions are made through transparent on-chain voting</li>

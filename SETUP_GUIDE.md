@@ -27,11 +27,118 @@
 - **Better Navigation**: Active DAOs page, back to landing page
 - **Improved UI**: Clear explanations, better forms, progress indicators
 
-## 🗄️ Database Schema Updates
+## 🗄️ Complete Database Schema
 
-Run this SQL in your Supabase SQL Editor:
+Run this SQL in your Supabase SQL Editor to create all required tables:
 
 ```sql
+-- ================================
+-- CREATE TABLES (Run this first if tables don't exist)
+-- ================================
+
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  wallet_address TEXT UNIQUE NOT NULL,
+  name TEXT,
+  youtube_channel_id TEXT,
+  youtube_channel_name TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- DAOs table
+CREATE TABLE IF NOT EXISTS daos (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'general',
+  creator_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  member_count INTEGER DEFAULT 1,
+  treasury_balance NUMERIC DEFAULT 0,
+  min_members INTEGER NOT NULL DEFAULT 3,
+  min_stake NUMERIC NOT NULL DEFAULT 0.5,
+  voting_period INTEGER NOT NULL DEFAULT 7,
+  activation_threshold INTEGER NOT NULL DEFAULT 66,
+  status TEXT CHECK (status IN ('pending', 'active', 'inactive')) DEFAULT 'pending',
+  blockchain_dao_id TEXT,
+  blockchain_tx_id TEXT,
+  ipfs_hash TEXT,
+  nft_asset_id BIGINT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- DAO Members table
+CREATE TABLE IF NOT EXISTS dao_members (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  dao_id UUID REFERENCES daos(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  stake_amount NUMERIC NOT NULL DEFAULT 0,
+  joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(dao_id, user_id)
+);
+
+-- Proposals table
+CREATE TABLE IF NOT EXISTS proposals (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  dao_id UUID REFERENCES daos(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'general',
+  context_documents TEXT[] DEFAULT '{}',
+  creator_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  current_votes INTEGER DEFAULT 1,
+  required_votes INTEGER NOT NULL,
+  yes_votes INTEGER DEFAULT 1,
+  no_votes INTEGER DEFAULT 0,
+  abstain_votes INTEGER DEFAULT 0,
+  status TEXT CHECK (status IN ('pending', 'active', 'passed', 'rejected', 'executed')) DEFAULT 'active',
+  blockchain_proposal_id TEXT,
+  ipfs_hash TEXT,
+  expires_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Proposal Votes table
+CREATE TABLE IF NOT EXISTS proposal_votes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  proposal_id UUID REFERENCES proposals(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  vote_type TEXT CHECK (vote_type IN ('yes', 'no', 'abstain')) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(proposal_id, user_id)
+);
+
+-- AI Moderators table
+CREATE TABLE IF NOT EXISTS ai_moderators (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  dao_id UUID REFERENCES daos(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL,
+  nft_asset_id BIGINT,
+  price_model TEXT CHECK (price_model IN ('subscription', 'one_time', 'pay_per_use')) DEFAULT 'subscription',
+  price NUMERIC DEFAULT 0,
+  status TEXT CHECK (status IN ('training', 'active', 'inactive')) DEFAULT 'training',
+  total_revenue NUMERIC DEFAULT 0,
+  subscriber_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- DAO Revenue table
+CREATE TABLE IF NOT EXISTS dao_revenue (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  dao_id UUID REFERENCES daos(id) ON DELETE CASCADE,
+  moderator_id UUID REFERENCES ai_moderators(id) ON DELETE CASCADE,
+  amount NUMERIC NOT NULL,
+  source TEXT NOT NULL,
+  transaction_id TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ================================
+-- UPDATE EXISTING TABLES (Run this if tables already exist)
+-- ================================
+
 -- Update users table to include name
 ALTER TABLE users ADD COLUMN IF NOT EXISTS name TEXT;
 
@@ -74,12 +181,113 @@ CREATE INDEX IF NOT EXISTS idx_proposals_category ON proposals(category);
 CREATE INDEX IF NOT EXISTS idx_proposals_status ON proposals(status);
 CREATE INDEX IF NOT EXISTS idx_dao_members_dao_user ON dao_members(dao_id, user_id);
 
--- Update RLS policies to allow reading by category
+-- ⚠️ DATABASE RESET (Use with caution - this will delete ALL data)
+-- Uncomment and run these commands if you want to refresh all data:
+
+/*
+-- Delete all data from tables (in correct order to avoid foreign key constraints)
+DELETE FROM proposal_votes;
+DELETE FROM dao_revenue;
+DELETE FROM ai_moderators;
+DELETE FROM proposals;
+DELETE FROM dao_members;
+DELETE FROM daos;
+DELETE FROM users;
+
+-- Reset any sequences if needed
+-- ALTER SEQUENCE IF EXISTS users_id_seq RESTART WITH 1;
+-- ALTER SEQUENCE IF EXISTS daos_id_seq RESTART WITH 1;
+-- ALTER SEQUENCE IF EXISTS proposals_id_seq RESTART WITH 1;
+
+-- Verify all tables are empty
+SELECT 'users' as table_name, COUNT(*) as count FROM users
+UNION ALL
+SELECT 'daos', COUNT(*) FROM daos
+UNION ALL
+SELECT 'dao_members', COUNT(*) FROM dao_members
+UNION ALL
+SELECT 'proposals', COUNT(*) FROM proposals
+UNION ALL
+SELECT 'proposal_votes', COUNT(*) FROM proposal_votes
+UNION ALL
+SELECT 'ai_moderators', COUNT(*) FROM ai_moderators
+UNION ALL
+SELECT 'dao_revenue', COUNT(*) FROM dao_revenue;
+*/
+
+-- ================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- ================================
+
+-- Enable RLS on all tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE daos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dao_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE proposals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE proposal_votes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ai_moderators ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dao_revenue ENABLE ROW LEVEL SECURITY;
+
+-- Users policies
+DROP POLICY IF EXISTS "Users can view all users" ON users;
+CREATE POLICY "Users can view all users" ON users FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can insert themselves" ON users;
+CREATE POLICY "Users can insert themselves" ON users FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Users can update themselves" ON users;
+CREATE POLICY "Users can update themselves" ON users FOR UPDATE USING (true);
+
+-- DAOs policies
 DROP POLICY IF EXISTS "DAOs are viewable by everyone" ON daos;
 CREATE POLICY "DAOs are viewable by everyone" ON daos FOR SELECT USING (true);
 
-DROP POLICY IF EXISTS "Proposals are viewable by everyone" ON proposals;  
+DROP POLICY IF EXISTS "Users can create DAOs" ON daos;
+CREATE POLICY "Users can create DAOs" ON daos FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "DAO creators can update their DAOs" ON daos;
+CREATE POLICY "DAO creators can update their DAOs" ON daos FOR UPDATE USING (true);
+
+-- DAO Members policies
+DROP POLICY IF EXISTS "DAO members are viewable by everyone" ON dao_members;
+CREATE POLICY "DAO members are viewable by everyone" ON dao_members FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can join DAOs" ON dao_members;
+CREATE POLICY "Users can join DAOs" ON dao_members FOR INSERT WITH CHECK (true);
+
+-- Proposals policies
+DROP POLICY IF EXISTS "Proposals are viewable by everyone" ON proposals;
 CREATE POLICY "Proposals are viewable by everyone" ON proposals FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "DAO members can create proposals" ON proposals;
+CREATE POLICY "DAO members can create proposals" ON proposals FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Proposals can be updated" ON proposals;
+CREATE POLICY "Proposals can be updated" ON proposals FOR UPDATE USING (true);
+
+-- Proposal Votes policies
+DROP POLICY IF EXISTS "Votes are viewable by everyone" ON proposal_votes;
+CREATE POLICY "Votes are viewable by everyone" ON proposal_votes FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Users can vote on proposals" ON proposal_votes;
+CREATE POLICY "Users can vote on proposals" ON proposal_votes FOR INSERT WITH CHECK (true);
+
+-- AI Moderators policies
+DROP POLICY IF EXISTS "AI Moderators are viewable by everyone" ON ai_moderators;
+CREATE POLICY "AI Moderators are viewable by everyone" ON ai_moderators FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "AI Moderators can be created" ON ai_moderators;
+CREATE POLICY "AI Moderators can be created" ON ai_moderators FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "AI Moderators can be updated" ON ai_moderators;
+CREATE POLICY "AI Moderators can be updated" ON ai_moderators FOR UPDATE USING (true);
+
+-- DAO Revenue policies
+DROP POLICY IF EXISTS "DAO Revenue is viewable by everyone" ON dao_revenue;
+CREATE POLICY "DAO Revenue is viewable by everyone" ON dao_revenue FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "DAO Revenue can be created" ON dao_revenue;
+CREATE POLICY "DAO Revenue can be created" ON dao_revenue FOR INSERT WITH CHECK (true);
 ```
 
 ## 🔧 Environment Setup
@@ -99,10 +307,27 @@ VITE_ALGOD_TOKEN=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
+# Platform Treasury Address (Required for payments)
+VITE_TREASURY_ADDRESS=RLUKWBU2COUQXFBMVR5Z4GRQERL3QDSBSGFECZYDTIUW4DH4LPSGCKDD7I
+
 # YouTube OAuth (Optional)
 VITE_YOUTUBE_CLIENT_ID=your_google_oauth_client_id
 VITE_YOUTUBE_CLIENT_SECRET=your_google_oauth_client_secret
 VITE_YOUTUBE_REDIRECT_URI=http://localhost:5173/auth/callback
+
+# IPFS Configuration (Required for document storage)
+VITE_IPFS_GATEWAY_URL=https://gateway.pinata.cloud/ipfs/
+VITE_PINATA_API_KEY=your_pinata_api_key
+VITE_PINATA_SECRET_API_KEY=your_pinata_secret_api_key
+
+# Alternative IPFS providers (choose one):
+# For Infura IPFS:
+# VITE_IPFS_GATEWAY_URL=https://ipfs.infura.io:5001
+# VITE_INFURA_PROJECT_ID=your_infura_project_id
+# VITE_INFURA_PROJECT_SECRET=your_infura_project_secret
+
+# For Web3.Storage:
+# VITE_WEB3_STORAGE_TOKEN=your_web3_storage_token
 ```
 
 ## 🚀 Quick Start
@@ -263,9 +488,9 @@ cd CitadelX/projects/CitadelX-frontend
 npm run dev                    # Start development server
 npm run build                  # Production build
 
-# Smart Contracts
+# Smart Contracts (HelloWorld removed - only CitadelDAO and ModeratorNFT)
 cd CitadelX/projects/CitadelX-contracts
-algokit project run build     # Compile contracts
+algokit project run build     # Compile CitadelDAO and ModeratorNFT contracts
 algokit project deploy localnet  # Deploy to LocalNet
 
 # AlgoKit LocalNet
@@ -273,6 +498,60 @@ algokit localnet start        # Start blockchain
 algokit localnet stop         # Stop blockchain
 algokit localnet reset        # Reset blockchain state
 ```
+
+## 🔧 Troubleshooting Common Issues
+
+### Supabase 406/409 Errors
+If you see 406 or 409 errors in the browser console:
+
+1. **Run the complete database schema** from the section above
+2. **Check your Supabase URL and API key** in the `.env` file
+3. **Verify RLS policies** are properly set up
+4. **Clear browser cache** and refresh the page
+
+### "Cannot read properties of undefined" Errors
+If you see undefined property errors:
+
+1. **Check browser console** for detailed error logs
+2. **Verify database tables exist** and have proper structure
+3. **Ensure user is properly authenticated** before accessing protected routes
+4. **Check network tab** for failed API requests
+
+### User Creation Failures
+If user creation fails:
+
+1. **Check Supabase logs** in your project dashboard
+2. **Verify the users table exists** with proper columns
+3. **Check RLS policies** allow user insertion
+4. **Ensure wallet address is valid** and not already in use
+
+### IPFS Upload Failures
+If you see "Failed to upload documents to IPFS" errors:
+
+1. **Get Pinata API Keys**:
+   - Sign up at [pinata.cloud](https://pinata.cloud)
+   - Go to API Keys section
+   - Create new API key with pinning permissions
+   - Add keys to your `.env` file:
+     ```env
+     VITE_PINATA_API_KEY=your_pinata_api_key
+     VITE_PINATA_SECRET_API_KEY=your_pinata_secret_api_key
+     ```
+
+2. **Alternative IPFS Providers**:
+   - **Infura IPFS**: Sign up at [infura.io](https://infura.io)
+   - **Web3.Storage**: Sign up at [web3.storage](https://web3.storage)
+   - **NFT.Storage**: Sign up at [nft.storage](https://nft.storage)
+
+3. **Check Network Connection**: Ensure you can access IPFS gateways
+
+### Smart Contract Deployment Issues
+If contracts fail to deploy:
+
+1. **Start LocalNet**: `algokit localnet start`
+2. **Check LocalNet status**: `algokit localnet status`
+3. **Reset if needed**: `algokit localnet reset`
+4. **Rebuild contracts**: `algokit project run build`
 
 ## 🎉 Success Metrics
 
