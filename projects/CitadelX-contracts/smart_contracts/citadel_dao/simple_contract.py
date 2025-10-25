@@ -9,11 +9,9 @@ from algopy import (
     arc4,
     gtxn,
     itxn,
+    Address,
     Account,
 )
-
-# Address is an alias for Bytes in algopy
-Address = Bytes
 
 
 class SimpleCitadelDAO(ARC4Contract):
@@ -31,7 +29,7 @@ class SimpleCitadelDAO(ARC4Contract):
         # Basic DAO information
         self.dao_name = GlobalState(Bytes)
         self.dao_description = GlobalState(Bytes)
-        self.creator = GlobalState(Bytes)
+        self.creator = GlobalState(Address)
         
         # DAO parameters
         self.min_stake = GlobalState(UInt64)
@@ -75,7 +73,7 @@ class SimpleCitadelDAO(ARC4Contract):
         # Initialize DAO
         self.dao_name.value = name.bytes
         self.dao_description.value = description.bytes
-        self.creator.value = Txn.sender.bytes
+        self.creator.value = Address(Txn.sender)
         self.min_stake.value = min_stake
         self.voting_period.value = voting_period
         self.quorum_threshold.value = quorum_threshold
@@ -154,7 +152,7 @@ class SimpleCitadelDAO(ARC4Contract):
         Returns:
             Success message
         """
-        assert Txn.sender.bytes == self.creator.value, "Only creator can pause DAO"
+        assert Txn.sender == self.creator.value, "Only creator can pause DAO"
         
         self.is_active.value = UInt64(0)
         
@@ -168,7 +166,7 @@ class SimpleCitadelDAO(ARC4Contract):
         Returns:
             Success message
         """
-        assert Txn.sender.bytes == self.creator.value, "Only creator can unpause DAO"
+        assert Txn.sender == self.creator.value, "Only creator can unpause DAO"
         
         self.is_active.value = UInt64(1)
         
@@ -196,7 +194,7 @@ class SimpleCitadelDAO(ARC4Contract):
         return arc4.Tuple((
             arc4.String.from_bytes(self.dao_name.value),
             arc4.String.from_bytes(self.dao_description.value),
-            arc4.Address.from_bytes(self.creator.value),
+            arc4.Address(self.creator.value),
             arc4.UInt64(self.min_stake.value),
             arc4.UInt64(self.voting_period.value),
             arc4.UInt64(self.quorum_threshold.value),
@@ -207,7 +205,7 @@ class SimpleCitadelDAO(ARC4Contract):
         ))
 
     @arc4.abimethod
-    def withdraw_treasury(self, amount: UInt64, recipient: Account) -> String:
+    def withdraw_treasury(self, amount: UInt64, recipient: Address) -> String:
         """
         Withdraw from treasury - only creator can call
         
@@ -218,7 +216,7 @@ class SimpleCitadelDAO(ARC4Contract):
         Returns:
             Success message
         """
-        assert Txn.sender.bytes == self.creator.value, "Only creator can withdraw"
+        assert Txn.sender == self.creator.value, "Only creator can withdraw"
         assert amount <= self.treasury_balance.value, "Insufficient treasury balance"
         
         # Send payment

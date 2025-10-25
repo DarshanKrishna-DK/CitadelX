@@ -31,6 +31,7 @@ import algosdk from 'algosdk'
 import Navbar from '../components/Navbar'
 import { supabase, MODERATOR_CATEGORIES, ModeratorCategoryId } from '../utils/supabase'
 import { uploadContextDocuments } from '../utils/ipfs'
+import { checkDAOActivationCriteria, activateDAO } from '../utils/daoActivation'
 
 interface DAOFormData {
   name: string
@@ -40,6 +41,10 @@ interface DAOFormData {
   votingPeriod: number
   activationThreshold: number
   initialStake: number
+  // Moderator pricing (set by DAO creator)
+  hourlyPrice: number
+  monthlyPrice: number
+  buyoutPrice: number
 }
 
 const steps = ['Basic Information', 'Governance Settings', 'Initial Stake', 'Review & Create']
@@ -61,10 +66,16 @@ const CreateDAO: React.FC = () => {
     votingPeriod: 7, // days
     activationThreshold: 51, // percentage
     initialStake: 1.0, // ALGO
+    // Default moderator pricing (creator can customize)
+    hourlyPrice: 0.1, // ALGO per hour
+    monthlyPrice: 1.0, // ALGO per month
+    buyoutPrice: 5.0, // ALGO for permanent ownership
   })
 
   const [contextDocuments, setContextDocuments] = useState<File[]>([])
-  const [ipfsHash, setIpfsHash] = useState('')
+  const [daoImage, setDaoImage] = useState<File | null>(null)
+  const [contextIpfsHash, setContextIpfsHash] = useState('')
+  const [imageIpfsHash, setImageIpfsHash] = useState('')
 
   const handleInputChange = (field: keyof DAOFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -76,17 +87,41 @@ const CreateDAO: React.FC = () => {
     setContextDocuments(files)
   }
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      setDaoImage(file)
+    }
+  }
+
   const uploadDocuments = async () => {
     if (contextDocuments.length === 0) return ''
 
     try {
       setLoading(true)
       const result = await uploadContextDocuments(contextDocuments)
-      setIpfsHash(result.ipfsHash)
+      setContextIpfsHash(result.ipfsHash)
       return result.ipfsHash
     } catch (error) {
       console.error('Failed to upload documents:', error)
       setError('Failed to upload context documents. Please try again.')
+      return ''
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const uploadImage = async () => {
+    if (!daoImage) return ''
+
+    try {
+      setLoading(true)
+      const result = await uploadContextDocuments([daoImage]) // Reuse same upload function
+      setImageIpfsHash(result.ipfsHash)
+      return result.ipfsHash
+    } catch (error) {
+      console.error('Failed to upload DAO image:', error)
+      setError('Failed to upload DAO image. Please try again.')
       return ''
     } finally {
       setLoading(false)
@@ -108,6 +143,14 @@ const CreateDAO: React.FC = () => {
           setError('AI Moderator category is required')
           return false
         }
+        if (!daoImage) {
+          setError('DAO image is required for the AI moderator NFT')
+          return false
+        }
+        if (contextDocuments.length === 0) {
+          setError('Context documents are required for AI training')
+          return false
+        }
         break
       case 1: // Governance Settings
         if (formData.minStake < 0.1) {
@@ -122,10 +165,41 @@ const CreateDAO: React.FC = () => {
           setError('Activation threshold must be between 1% and 100%')
           return false
         }
+        // Validate moderator pricing (allow 0 values for now, will validate on final submit)
+        if (formData.hourlyPrice < 0) {
+          setError('Hourly price cannot be negative')
+          return false
+        }
+        if (formData.monthlyPrice < 0) {
+          setError('Monthly price cannot be negative')
+          return false
+        }
+        if (formData.buyoutPrice < 0) {
+          setError('Buyout price cannot be negative')
+          return false
+        }
         break
       case 2: // Initial Stake
         if (formData.initialStake < formData.minStake) {
           setError('Initial stake must be at least the minimum stake amount')
+          return false
+        }
+        break
+      case 3: // Review & Create - Final validation
+        if (formData.hourlyPrice < 0.01) {
+          setError('Hourly price must be at least 0.01 ALGO')
+          return false
+        }
+        if (formData.monthlyPrice < 0.1) {
+          setError('Monthly price must be at least 0.1 ALGO')
+          return false
+        }
+        if (formData.buyoutPrice < 1.0) {
+          setError('Buyout price must be at least 1.0 ALGO')
+          return false
+        }
+        if (formData.buyoutPrice <= formData.monthlyPrice) {
+          setError('Buyout price should be higher than monthly price')
           return false
         }
         break
@@ -152,14 +226,44 @@ const CreateDAO: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!validateStep(activeStep)) return
+    
+    // Simple wallet check - the wallet debugger shows it's working fine
     if (!activeAddress) {
       setError('Please connect your wallet first')
       return
     }
 
+    console.log('✅ Wallet validation passed - proceeding with DAO creation')
+    console.log('Active address:', activeAddress)
+    console.log('Address length:', activeAddress.length)
+
     try {
       setLoading(true)
       setError('')
+      
+      // Get configuration
+      const config = getTestnetConfig()
+
+      // Upload both image and context documents to IPFS first
+      console.log('📤 Uploading DAO image and context documents...')
+      
+      const [imageHash, contextHash] = await Promise.all([
+        uploadImage(),
+        uploadDocuments()
+      ])
+      
+      if (!imageHash) {
+        setError('Failed to upload DAO image')
+        return
+      }
+      
+      if (!contextHash) {
+        setError('Failed to upload context documents')
+        return
+      }
+
+      console.log('✅ DAO image uploaded to IPFS:', imageHash)
+      console.log('✅ Context documents uploaded to IPFS:', contextHash)
 
       // Get user ID from database
       const { data: userData } = await supabase
@@ -187,7 +291,11 @@ const CreateDAO: React.FC = () => {
             min_stake: formData.minStake,
             voting_period: formData.votingPeriod,
             activation_threshold: formData.activationThreshold,
-            ipfs_hash: ipfsHash,
+            context_ipfs_hash: contextHash,
+            dao_image_ipfs_hash: imageHash,
+            activation_criteria: 'automatic',
+            auto_activation_enabled: true,
+            activation_threshold_met: false,
             status: 'pending',
           }
         ])
@@ -205,16 +313,25 @@ const CreateDAO: React.FC = () => {
       )
 
       const suggestedParams = await algodClient.getTransactionParams().do()
-      const config = getTestnetConfig()
+
+      console.log('Creating transaction:', {
+        from: activeAddress,
+        to: config.treasury.address,
+        amount: formData.initialStake,
+        daoId: daoData.id
+      })
 
       // Convert ALGO to microAlgos
       const initialStakeMicroAlgos = Math.floor(formData.initialStake * 1_000_000)
       const votingPeriodSeconds = formData.votingPeriod * 24 * 60 * 60
 
-      // Create payment transaction for initial stake
+      // Create payment transaction for initial stake to the SimpleCitadelDAO smart contract
+      const contractAppId = 748514129 // SimpleCitadelDAO deployed contract
+      const contractAddress = algosdk.getApplicationAddress(contractAppId)
+      
       const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: activeAddress,
-        to: config.treasury.address, // Temporary - will be DAO contract address
+        to: contractAddress, // Send to smart contract instead of treasury
         amount: initialStakeMicroAlgos,
         suggestedParams: suggestedParams,
         note: new Uint8Array(Buffer.from(`DAO:${daoData.id}:initial_stake`)),
@@ -247,6 +364,50 @@ const CreateDAO: React.FC = () => {
         .eq('id', daoData.id)
 
       setTxId(transactionId)
+
+      // Check if DAO can be activated immediately
+      console.log('🔍 Checking DAO activation criteria...')
+      try {
+        const criteriaCheck = await checkDAOActivationCriteria(daoData.id)
+        console.log('Activation criteria check:', criteriaCheck)
+        
+        if (criteriaCheck.canActivate) {
+          console.log('✅ DAO meets activation criteria - activating now...')
+          
+          // Create Algorand client for NFT creation
+          const algorand = AlgorandClient.fromClients({
+            algod: new algosdk.Algodv2(
+              String(algodConfig.token),
+              algodConfig.server,
+              algodConfig.port
+            ),
+            indexer: undefined // Not needed for NFT creation
+          })
+          
+          const activationResult = await activateDAO(
+            daoData.id,
+            algorand,
+            activeAddress,
+            {
+              hourlyPrice: formData.hourlyPrice,
+              monthlyPrice: formData.monthlyPrice,
+              buyoutPrice: formData.buyoutPrice
+            }
+          )
+          
+          if (activationResult.success) {
+            console.log('🎉 DAO activated successfully! NFT Asset ID:', activationResult.nftAssetId)
+          } else {
+            console.warn('⚠️ DAO created but activation failed:', activationResult.error)
+          }
+        } else {
+          console.log('⏳ DAO created but does not meet activation criteria yet')
+        }
+      } catch (activationError) {
+        console.error('Error checking/activating DAO:', activationError)
+        // Don't fail the whole process - DAO was created successfully
+      }
+
       setSuccess(true)
       
       // Navigate to DAO detail page after a delay
@@ -256,7 +417,23 @@ const CreateDAO: React.FC = () => {
 
     } catch (error: any) {
       console.error('Error creating DAO:', error)
-      setError(error.message || 'Failed to create DAO. Please try again.')
+      
+      // Provide specific error messages based on error type
+      let errorMessage = 'Failed to create DAO. Please try again.'
+      
+      if (error.message?.includes('Address must not be null')) {
+        errorMessage = 'Invalid wallet address. Please disconnect and reconnect your wallet.'
+      } else if (error.message?.includes('Treasury address not configured')) {
+        errorMessage = 'Treasury configuration error. Please check your network settings.'
+      } else if (error.message?.includes('User not found')) {
+        errorMessage = 'User account not found. Please ensure your wallet is properly connected.'
+      } else if (error.message?.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds. Please ensure you have enough TestNet ALGO.'
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -307,10 +484,29 @@ const CreateDAO: React.FC = () => {
             </Grid>
             <Grid item xs={12}>
               <Typography variant="h6" gutterBottom>
-                Context Documents (Optional)
+                DAO Image *
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Upload documents to train your AI moderator (PDF, TXT, DOC)
+                Upload an image for your AI moderator NFT (JPG, PNG, GIF, WEBP)
+              </Typography>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.gif,.webp"
+                onChange={handleImageUpload}
+                style={{ marginTop: 8 }}
+              />
+              {daoImage && (
+                <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
+                  ✓ Selected: {daoImage.name}
+                </Typography>
+              )}
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom>
+                Context Documents *
+              </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Upload documents to train your AI moderator (PDF, TXT, DOC) - Required
               </Typography>
               <input
                 type="file"
@@ -370,6 +566,55 @@ const CreateDAO: React.FC = () => {
                 inputProps={{ min: 1, max: 100 }}
                 helperText="Percentage of total stake required for proposal to pass"
               />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="h6" gutterBottom sx={{ mt: 3, mb: 2 }}>
+                Moderator Pricing (Set by You)
+              </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Configure how users can purchase access to your AI moderator
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Hourly Price (ALGO)"
+                value={formData.hourlyPrice}
+                onChange={(e) => handleInputChange('hourlyPrice', parseFloat(e.target.value) || 0)}
+                inputProps={{ min: 0.01, step: 0.01 }}
+                helperText="Price per hour of access (min: 0.01)"
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Monthly Price (ALGO)"
+                value={formData.monthlyPrice}
+                onChange={(e) => handleInputChange('monthlyPrice', parseFloat(e.target.value) || 0)}
+                inputProps={{ min: 0.1, step: 0.1 }}
+                helperText="Price per month subscription (min: 0.1)"
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Buyout Price (ALGO)"
+                value={formData.buyoutPrice}
+                onChange={(e) => handleInputChange('buyoutPrice', parseFloat(e.target.value) || 0)}
+                inputProps={{ min: 1.0, step: 0.5 }}
+                helperText="Permanent ownership price (min: 1.0)"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Alert severity="info">
+                <Typography variant="body2">
+                  <strong>Revenue Split:</strong> You'll receive 90% of all purchases, with 10% going to platform fees.
+                  You can update these prices later as the moderator owner.
+                </Typography>
+              </Alert>
             </Grid>
             <Grid item xs={12}>
               <Alert severity="info">
@@ -435,6 +680,19 @@ const CreateDAO: React.FC = () => {
                 <Typography>Voting Period: {formData.votingPeriod} days</Typography>
                 <Typography>Activation Threshold: {formData.activationThreshold}%</Typography>
                 <Typography>Minimum Members: 1 (testing mode)</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12}>
+              <Paper elevation={1} sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  <strong>Moderator Pricing</strong>
+                </Typography>
+                <Typography>Hourly Access: {formData.hourlyPrice} ALGO/hour</Typography>
+                <Typography>Monthly License: {formData.monthlyPrice} ALGO/month</Typography>
+                <Typography>Permanent Buyout: {formData.buyoutPrice} ALGO</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Revenue split: 90% to you, 10% platform fee
+                </Typography>
               </Paper>
             </Grid>
             <Grid item xs={12}>

@@ -176,28 +176,53 @@ def main(action: str, contract_name: str | None = None) -> None:
                 logger.info(f"Building app at {contract.path}")
                 build(artifact_path / contract.name, contract.path)
         case "deploy":
-            for contract in filtered_contracts:
-                output_dir = artifact_path / contract.name
-                app_spec_file_name = next(
-                    (
-                        file.name
-                        for file in output_dir.iterdir()
-                        if file.is_file() and file.suffixes == [".arc56", ".json"]
-                    ),
-                    None,
-                )
-                if app_spec_file_name is None:
-                    raise Exception("Could not deploy app, .arc56.json file not found")
-                if contract.deploy:
-                    logger.info(f"Deploying app {contract.name}")
-                    contract.deploy()
+            # Explicitly deploy each contract to ensure they all get deployed
+            contracts_to_deploy = [
+                ("citadel_dao", "smart_contracts.citadel_dao.deploy_config"),
+                ("moderator_nft", "smart_contracts.moderator_nft.deploy_config"),
+                ("moderator_purchase", "smart_contracts.moderator_purchase.deploy_config"),
+            ]
+            
+            for contract_name, module_name in contracts_to_deploy:
+                if contract_name is None or filtered_contracts is None or any(c.name == contract_name for c in filtered_contracts):
+                    logger.info(f"Deploying {contract_name}...")
+                    try:
+                        deploy_module = importlib.import_module(module_name)
+                        if hasattr(deploy_module, 'deploy'):
+                            result = deploy_module.deploy()
+                            logger.info(f"✅ {contract_name} deployment result: {result}")
+                        else:
+                            logger.warning(f"⚠️ No deploy function found in {module_name}")
+                    except Exception as e:
+                        logger.error(f"❌ Failed to deploy {contract_name}: {e}")
+                        import traceback
+                        traceback.print_exc()
         case "all":
             for contract in filtered_contracts:
                 logger.info(f"Building app at {contract.path}")
                 build(artifact_path / contract.name, contract.path)
-                if contract.deploy:
-                    logger.info(f"Deploying {contract.name}")
-                    contract.deploy()
+            
+            # Explicitly deploy each contract to ensure they all get deployed
+            contracts_to_deploy = [
+                ("citadel_dao", "smart_contracts.citadel_dao.deploy_config"),
+                ("moderator_nft", "smart_contracts.moderator_nft.deploy_config"),
+                ("moderator_purchase", "smart_contracts.moderator_purchase.deploy_config"),
+            ]
+            
+            for contract_name, module_name in contracts_to_deploy:
+                if contract_name is None or filtered_contracts is None or any(c.name == contract_name for c in filtered_contracts):
+                    logger.info(f"Deploying {contract_name}...")
+                    try:
+                        deploy_module = importlib.import_module(module_name)
+                        if hasattr(deploy_module, 'deploy'):
+                            result = deploy_module.deploy()
+                            logger.info(f"✅ {contract_name} deployment result: {result}")
+                        else:
+                            logger.warning(f"⚠️ No deploy function found in {module_name}")
+                    except Exception as e:
+                        logger.error(f"❌ Failed to deploy {contract_name}: {e}")
+                        import traceback
+                        traceback.print_exc()
         case _:
             logger.error(f"Unknown action: {action}")
 

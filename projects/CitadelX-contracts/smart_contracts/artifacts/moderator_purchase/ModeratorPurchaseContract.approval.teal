@@ -1,0 +1,1262 @@
+#pragma version 10
+#pragma typetrack false
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.__algopy_entrypoint_with_init() -> uint64:
+main:
+    intcblock 0 1 1000000 90
+    bytecblock 0x151f7c75 "total_transactions" "total_revenue" "total_users" "moderator_owner" "hours_remaining" "total_spent" "user_access_type" "access_expiry" "moderator_exists" "hourly_price" "monthly_price" "buyout_price" 0x00 "moderator_creator"
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txn NumAppArgs
+    bz main_after_if_else@15
+    pushbytess 0x11d2da2f 0x9c09e3c1 0xa7e67c20 0x7b2ef5c2 0xbc80cc40 0x81042ba0 0x6b1ffe9e 0xb8405594 0xcb45b5d5 0x49d27aeb // method "create_moderator(account,uint64,uint64,uint64)void", method "purchase_hourly_access(pay,uint64)string", method "purchase_monthly_license(pay,uint64)string", method "buyout_moderator(pay)string", method "update_pricing(uint64,uint64,uint64)string", method "use_hourly_access(uint64)string", method "get_moderator_info()(uint64,uint64,uint64,address,address)", method "get_user_access(account)(uint64,uint64,uint64,uint64)", method "get_contract_stats()(uint64,uint64,uint64)", method "has_valid_access(account)bool"
+    txna ApplicationArgs 0
+    match main_create_moderator_route@5 main_purchase_hourly_access_route@6 main_purchase_monthly_license_route@7 main_buyout_moderator_route@8 main_update_pricing_route@9 main_use_hourly_access_route@10 main_get_moderator_info_route@11 main_get_user_access_route@12 main_get_contract_stats_route@13 main_has_valid_access_route@14
+
+main_after_if_else@15:
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    intc_0 // 0
+    return
+
+main_has_valid_access_route@14:
+    // smart_contracts/moderator_purchase/contract.py:299
+    // @arc4.abimethod(readonly=True)
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    // smart_contracts/moderator_purchase/contract.py:299
+    // @arc4.abimethod(readonly=True)
+    callsub has_valid_access
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_get_contract_stats_route@13:
+    // smart_contracts/moderator_purchase/contract.py:286
+    // @arc4.abimethod(readonly=True)
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub get_contract_stats
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_get_user_access_route@12:
+    // smart_contracts/moderator_purchase/contract.py:271
+    // @arc4.abimethod(readonly=True)
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    // smart_contracts/moderator_purchase/contract.py:271
+    // @arc4.abimethod(readonly=True)
+    callsub get_user_access
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_get_moderator_info_route@11:
+    // smart_contracts/moderator_purchase/contract.py:254
+    // @arc4.abimethod(readonly=True)
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub get_moderator_info
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_use_hourly_access_route@10:
+    // smart_contracts/moderator_purchase/contract.py:242
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txna ApplicationArgs 1
+    // smart_contracts/moderator_purchase/contract.py:242
+    // @arc4.abimethod
+    callsub use_hourly_access
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_update_pricing_route@9:
+    // smart_contracts/moderator_purchase/contract.py:226
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txna ApplicationArgs 1
+    txna ApplicationArgs 2
+    txna ApplicationArgs 3
+    // smart_contracts/moderator_purchase/contract.py:226
+    // @arc4.abimethod
+    callsub update_pricing
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_buyout_moderator_route@8:
+    // smart_contracts/moderator_purchase/contract.py:182
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    // smart_contracts/moderator_purchase/contract.py:182
+    // @arc4.abimethod
+    callsub buyout_moderator
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_purchase_monthly_license_route@7:
+    // smart_contracts/moderator_purchase/contract.py:122
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    // smart_contracts/moderator_purchase/contract.py:122
+    // @arc4.abimethod
+    callsub purchase_monthly_license
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_purchase_hourly_access_route@6:
+    // smart_contracts/moderator_purchase/contract.py:73
+    // @arc4.abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    // smart_contracts/moderator_purchase/contract.py:73
+    // @arc4.abimethod
+    callsub purchase_hourly_access
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_create_moderator_route@5:
+    // smart_contracts/moderator_purchase/contract.py:49
+    // @arc4.abimethod(create="require")
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    // smart_contracts/moderator_purchase/contract.py:16
+    // class ModeratorPurchaseContract(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txnas Accounts
+    txna ApplicationArgs 2
+    txna ApplicationArgs 3
+    txna ApplicationArgs 4
+    // smart_contracts/moderator_purchase/contract.py:49
+    // @arc4.abimethod(create="require")
+    callsub create_moderator
+    intc_1 // 1
+    return
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.create_moderator(creator: bytes, hourly_price_algo: bytes, monthly_price_algo: bytes, buyout_price_algo: bytes) -> void:
+create_moderator:
+    // smart_contracts/moderator_purchase/contract.py:49-56
+    // @arc4.abimethod(create="require")
+    // def create_moderator(
+    //     self,
+    //     creator: Account,
+    //     hourly_price_algo: arc4.UInt64,
+    //     monthly_price_algo: arc4.UInt64,
+    //     buyout_price_algo: arc4.UInt64,
+    // ) -> None:
+    proto 4 0
+    // smart_contracts/moderator_purchase/contract.py:58
+    // self.contract_owner.value = Txn.sender
+    pushbytes "contract_owner"
+    txn Sender
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:59
+    // self.moderator_creator.value = creator
+    bytec 14 // "moderator_creator"
+    frame_dig -4
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:60
+    // self.moderator_owner.value = creator
+    bytec 4 // "moderator_owner"
+    frame_dig -4
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:61
+    // self.moderator_exists.value = UInt64(1)
+    bytec 9 // "moderator_exists"
+    intc_1 // 1
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:63-64
+    // # Convert ALGO to microAlgos (1 ALGO = 1,000,000 microAlgos)
+    // self.hourly_price.value = hourly_price_algo.native * UInt64(1_000_000)
+    frame_dig -3
+    btoi
+    intc_2 // 1000000
+    *
+    bytec 10 // "hourly_price"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:65
+    // self.monthly_price.value = monthly_price_algo.native * UInt64(1_000_000)
+    frame_dig -2
+    btoi
+    intc_2 // 1000000
+    *
+    bytec 11 // "monthly_price"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:66
+    // self.buyout_price.value = buyout_price_algo.native * UInt64(1_000_000)
+    frame_dig -1
+    btoi
+    intc_2 // 1000000
+    *
+    bytec 12 // "buyout_price"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:68-69
+    // # Initialize statistics
+    // self.total_transactions.value = UInt64(0)
+    bytec_1 // "total_transactions"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:70
+    // self.total_revenue.value = UInt64(0)
+    bytec_2 // "total_revenue"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:71
+    // self.total_users.value = UInt64(0)
+    bytec_3 // "total_users"
+    intc_0 // 0
+    app_global_put
+    retsub
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.purchase_hourly_access(payment: uint64, hours: bytes) -> bytes:
+purchase_hourly_access:
+    // smart_contracts/moderator_purchase/contract.py:73-78
+    // @arc4.abimethod
+    // def purchase_hourly_access(
+    //     self,
+    //     payment: gtxn.PaymentTransaction,
+    //     hours: arc4.UInt64
+    // ) -> arc4.String:
+    proto 2 1
+    // smart_contracts/moderator_purchase/contract.py:80-81
+    // # Verify moderator exists
+    // assert self.moderator_exists.value == UInt64(1), "Moderator does not exist"
+    intc_0 // 0
+    bytec 9 // "moderator_exists"
+    app_global_get_ex
+    assert // check self.moderator_exists exists
+    intc_1 // 1
+    ==
+    assert // Moderator does not exist
+    // smart_contracts/moderator_purchase/contract.py:83-84
+    // # Calculate required payment
+    // required_payment = self.hourly_price.value * hours.native
+    intc_0 // 0
+    bytec 10 // "hourly_price"
+    app_global_get_ex
+    assert // check self.hourly_price exists
+    frame_dig -1
+    btoi
+    swap
+    dig 1
+    *
+    // smart_contracts/moderator_purchase/contract.py:86-87
+    // # Verify payment
+    // assert payment.receiver == Global.current_application_address
+    frame_dig -2
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // smart_contracts/moderator_purchase/contract.py:88
+    // assert payment.amount >= required_payment
+    frame_dig -2
+    gtxns Amount
+    dup
+    uncover 2
+    >=
+    assert
+    // smart_contracts/moderator_purchase/contract.py:89
+    // assert payment.sender == Txn.sender
+    frame_dig -2
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // smart_contracts/moderator_purchase/contract.py:93
+    // owner_share = (total_payment * UInt64(90)) // UInt64(100)
+    dup
+    intc_3 // 90
+    *
+    pushint 100 // 100
+    /
+    // smart_contracts/moderator_purchase/contract.py:94
+    // contract_fee = total_payment - owner_share
+    dup2
+    -
+    // smart_contracts/moderator_purchase/contract.py:96-101
+    // # Send 90% to current owner
+    // itxn.Payment(
+    //     receiver=self.moderator_owner.value,
+    //     amount=owner_share,
+    //     note=b"Hourly access payment"
+    // ).submit()
+    itxn_begin
+    // smart_contracts/moderator_purchase/contract.py:98
+    // receiver=self.moderator_owner.value,
+    intc_0 // 0
+    bytec 4 // "moderator_owner"
+    app_global_get_ex
+    assert // check self.moderator_owner exists
+    // smart_contracts/moderator_purchase/contract.py:100
+    // note=b"Hourly access payment"
+    pushbytes 0x486f75726c7920616363657373207061796d656e74
+    itxn_field Note
+    uncover 2
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/moderator_purchase/contract.py:96-97
+    // # Send 90% to current owner
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/moderator_purchase/contract.py:96-101
+    // # Send 90% to current owner
+    // itxn.Payment(
+    //     receiver=self.moderator_owner.value,
+    //     amount=owner_share,
+    //     note=b"Hourly access payment"
+    // ).submit()
+    itxn_submit
+    // smart_contracts/moderator_purchase/contract.py:103-104
+    // # Update user access
+    // current_hours = self.hours_remaining[Txn.sender]
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "hours_remaining"
+    app_local_get_ex
+    assert // check self.hours_remaining exists for account
+    // smart_contracts/moderator_purchase/contract.py:105
+    // self.hours_remaining[Txn.sender] = current_hours + hours.native
+    uncover 3
+    +
+    txn Sender
+    bytec 5 // "hours_remaining"
+    uncover 2
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:106
+    // self.user_access_type[Txn.sender] = UInt64(1)  # Hourly access
+    txn Sender
+    bytec 7 // "user_access_type"
+    intc_1 // 1
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:108-109
+    // # Update user total spent
+    // current_spent = self.total_spent[Txn.sender]
+    txn Sender
+    intc_0 // 0
+    bytec 6 // "total_spent"
+    app_local_get_ex
+    assert // check self.total_spent exists for account
+    // smart_contracts/moderator_purchase/contract.py:110
+    // self.total_spent[Txn.sender] = current_spent + total_payment
+    dup
+    uncover 3
+    +
+    txn Sender
+    bytec 6 // "total_spent"
+    uncover 2
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:112-113
+    // # Update contract stats
+    // self.total_transactions.value += UInt64(1)
+    intc_0 // 0
+    bytec_1 // "total_transactions"
+    app_global_get_ex
+    assert // check self.total_transactions exists
+    intc_1 // 1
+    +
+    bytec_1 // "total_transactions"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:114
+    // self.total_revenue.value += contract_fee
+    intc_0 // 0
+    bytec_2 // "total_revenue"
+    app_global_get_ex
+    assert // check self.total_revenue exists
+    uncover 2
+    +
+    bytec_2 // "total_revenue"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:116-117
+    // # Increment user count if first purchase
+    // if current_spent == UInt64(0):
+    bnz purchase_hourly_access_after_if_else@3
+    // smart_contracts/moderator_purchase/contract.py:118
+    // self.total_users.value += UInt64(1)
+    intc_0 // 0
+    bytec_3 // "total_users"
+    app_global_get_ex
+    assert // check self.total_users exists
+    intc_1 // 1
+    +
+    bytec_3 // "total_users"
+    swap
+    app_global_put
+
+purchase_hourly_access_after_if_else@3:
+    // smart_contracts/moderator_purchase/contract.py:120
+    // return arc4.String("Successfully purchased hours of access")
+    pushbytes 0x00265375636365737366756c6c792070757263686173656420686f757273206f6620616363657373
+    retsub
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.purchase_monthly_license(payment: uint64, months: bytes) -> bytes:
+purchase_monthly_license:
+    // smart_contracts/moderator_purchase/contract.py:122-127
+    // @arc4.abimethod
+    // def purchase_monthly_license(
+    //     self,
+    //     payment: gtxn.PaymentTransaction,
+    //     months: arc4.UInt64
+    // ) -> arc4.String:
+    proto 2 1
+    // smart_contracts/moderator_purchase/contract.py:129-130
+    // # Verify moderator exists
+    // assert self.moderator_exists.value == UInt64(1), "Moderator does not exist"
+    intc_0 // 0
+    bytec 9 // "moderator_exists"
+    app_global_get_ex
+    assert // check self.moderator_exists exists
+    intc_1 // 1
+    ==
+    assert // Moderator does not exist
+    // smart_contracts/moderator_purchase/contract.py:132-133
+    // # Calculate required payment
+    // required_payment = self.monthly_price.value * months.native
+    intc_0 // 0
+    bytec 11 // "monthly_price"
+    app_global_get_ex
+    assert // check self.monthly_price exists
+    frame_dig -1
+    btoi
+    swap
+    dig 1
+    *
+    // smart_contracts/moderator_purchase/contract.py:135-136
+    // # Verify payment
+    // assert payment.receiver == Global.current_application_address
+    frame_dig -2
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // smart_contracts/moderator_purchase/contract.py:137
+    // assert payment.amount >= required_payment
+    frame_dig -2
+    gtxns Amount
+    dup
+    cover 3
+    dup
+    uncover 2
+    >=
+    assert
+    // smart_contracts/moderator_purchase/contract.py:138
+    // assert payment.sender == Txn.sender
+    frame_dig -2
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // smart_contracts/moderator_purchase/contract.py:142
+    // owner_share = (total_payment * UInt64(90)) // UInt64(100)
+    dup
+    intc_3 // 90
+    *
+    pushint 100 // 100
+    /
+    // smart_contracts/moderator_purchase/contract.py:143
+    // contract_fee = total_payment - owner_share
+    swap
+    dig 1
+    -
+    cover 2
+    // smart_contracts/moderator_purchase/contract.py:145-150
+    // # Send 90% to current owner
+    // itxn.Payment(
+    //     receiver=self.moderator_owner.value,
+    //     amount=owner_share,
+    //     note=b"Monthly license payment"
+    // ).submit()
+    itxn_begin
+    // smart_contracts/moderator_purchase/contract.py:147
+    // receiver=self.moderator_owner.value,
+    intc_0 // 0
+    bytec 4 // "moderator_owner"
+    app_global_get_ex
+    assert // check self.moderator_owner exists
+    // smart_contracts/moderator_purchase/contract.py:149
+    // note=b"Monthly license payment"
+    pushbytes 0x4d6f6e74686c79206c6963656e7365207061796d656e74
+    itxn_field Note
+    itxn_field Receiver
+    itxn_field Amount
+    // smart_contracts/moderator_purchase/contract.py:145-146
+    // # Send 90% to current owner
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/moderator_purchase/contract.py:145-150
+    // # Send 90% to current owner
+    // itxn.Payment(
+    //     receiver=self.moderator_owner.value,
+    //     amount=owner_share,
+    //     note=b"Monthly license payment"
+    // ).submit()
+    itxn_submit
+    // smart_contracts/moderator_purchase/contract.py:152-153
+    // # Calculate expiry (approximate: 30 days per month)
+    // current_time = Global.latest_timestamp
+    global LatestTimestamp
+    dup
+    cover 2
+    // smart_contracts/moderator_purchase/contract.py:154
+    // seconds_per_month = UInt64(30 * 24 * 60 * 60)  # 30 days
+    pushint 2592000 // 2592000
+    // smart_contracts/moderator_purchase/contract.py:155
+    // additional_time = seconds_per_month * months.native
+    uncover 2
+    *
+    swap
+    // smart_contracts/moderator_purchase/contract.py:157-158
+    // # Extend existing license or start new one
+    // current_expiry = self.access_expiry[Txn.sender]
+    txn Sender
+    intc_0 // 0
+    bytec 8 // "access_expiry"
+    app_local_get_ex
+    swap
+    dup
+    cover 2
+    cover 4
+    assert // check self.access_expiry exists for account
+    // smart_contracts/moderator_purchase/contract.py:159
+    // if current_expiry > current_time:
+    <
+    bz purchase_monthly_license_else_body@3
+    // smart_contracts/moderator_purchase/contract.py:160-161
+    // # Extend existing license
+    // self.access_expiry[Txn.sender] = current_expiry + additional_time
+    frame_dig 3
+    +
+    txn Sender
+    bytec 8 // "access_expiry"
+    uncover 2
+    app_local_put
+
+purchase_monthly_license_after_if_else@4:
+    // smart_contracts/moderator_purchase/contract.py:166
+    // self.user_access_type[Txn.sender] = UInt64(2)  # Monthly license
+    txn Sender
+    bytec 7 // "user_access_type"
+    pushint 2 // 2
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:168-169
+    // # Update user total spent
+    // current_spent = self.total_spent[Txn.sender]
+    txn Sender
+    intc_0 // 0
+    bytec 6 // "total_spent"
+    app_local_get_ex
+    assert // check self.total_spent exists for account
+    // smart_contracts/moderator_purchase/contract.py:170
+    // self.total_spent[Txn.sender] = current_spent + total_payment
+    dup
+    frame_dig 0
+    +
+    txn Sender
+    bytec 6 // "total_spent"
+    uncover 2
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:172-173
+    // # Update contract stats
+    // self.total_transactions.value += UInt64(1)
+    intc_0 // 0
+    bytec_1 // "total_transactions"
+    app_global_get_ex
+    assert // check self.total_transactions exists
+    intc_1 // 1
+    +
+    bytec_1 // "total_transactions"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:174
+    // self.total_revenue.value += contract_fee
+    intc_0 // 0
+    bytec_2 // "total_revenue"
+    app_global_get_ex
+    assert // check self.total_revenue exists
+    frame_dig 1
+    +
+    bytec_2 // "total_revenue"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:176-177
+    // # Increment user count if first purchase
+    // if current_spent == UInt64(0):
+    bnz purchase_monthly_license_after_if_else@6
+    // smart_contracts/moderator_purchase/contract.py:178
+    // self.total_users.value += UInt64(1)
+    intc_0 // 0
+    bytec_3 // "total_users"
+    app_global_get_ex
+    assert // check self.total_users exists
+    intc_1 // 1
+    +
+    bytec_3 // "total_users"
+    swap
+    app_global_put
+
+purchase_monthly_license_after_if_else@6:
+    // smart_contracts/moderator_purchase/contract.py:180
+    // return arc4.String("Successfully purchased monthly license")
+    pushbytes 0x00265375636365737366756c6c7920707572636861736564206d6f6e74686c79206c6963656e7365
+    frame_bury 0
+    retsub
+
+purchase_monthly_license_else_body@3:
+    // smart_contracts/moderator_purchase/contract.py:163-164
+    // # Start new license
+    // self.access_expiry[Txn.sender] = current_time + additional_time
+    frame_dig 2
+    +
+    txn Sender
+    bytec 8 // "access_expiry"
+    uncover 2
+    app_local_put
+    b purchase_monthly_license_after_if_else@4
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.buyout_moderator(payment: uint64) -> bytes:
+buyout_moderator:
+    // smart_contracts/moderator_purchase/contract.py:182-183
+    // @arc4.abimethod
+    // def buyout_moderator(self, payment: gtxn.PaymentTransaction) -> arc4.String:
+    proto 1 1
+    // smart_contracts/moderator_purchase/contract.py:185-186
+    // # Verify moderator exists and buyer doesn't already own it
+    // assert self.moderator_exists.value == UInt64(1), "Moderator does not exist"
+    intc_0 // 0
+    bytec 9 // "moderator_exists"
+    app_global_get_ex
+    assert // check self.moderator_exists exists
+    intc_1 // 1
+    ==
+    assert // Moderator does not exist
+    // smart_contracts/moderator_purchase/contract.py:187
+    // assert self.moderator_owner.value != Txn.sender, "You already own this moderator"
+    intc_0 // 0
+    bytec 4 // "moderator_owner"
+    app_global_get_ex
+    assert // check self.moderator_owner exists
+    dup
+    txn Sender
+    !=
+    assert // You already own this moderator
+    // smart_contracts/moderator_purchase/contract.py:189-190
+    // # Verify payment
+    // assert payment.receiver == Global.current_application_address
+    frame_dig -1
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    assert
+    // smart_contracts/moderator_purchase/contract.py:191
+    // assert payment.amount >= self.buyout_price.value
+    frame_dig -1
+    gtxns Amount
+    intc_0 // 0
+    bytec 12 // "buyout_price"
+    app_global_get_ex
+    assert // check self.buyout_price exists
+    dig 1
+    <=
+    assert
+    // smart_contracts/moderator_purchase/contract.py:192
+    // assert payment.sender == Txn.sender
+    frame_dig -1
+    gtxns Sender
+    txn Sender
+    ==
+    assert
+    // smart_contracts/moderator_purchase/contract.py:196
+    // owner_share = (total_payment * UInt64(90)) // UInt64(100)
+    dup
+    intc_3 // 90
+    *
+    pushint 100 // 100
+    /
+    // smart_contracts/moderator_purchase/contract.py:197
+    // contract_fee = total_payment - owner_share
+    dup2
+    -
+    // smart_contracts/moderator_purchase/contract.py:199-204
+    // # Send 90% to current owner
+    // itxn.Payment(
+    //     receiver=self.moderator_owner.value,
+    //     amount=owner_share,
+    //     note=b"Moderator buyout payment"
+    // ).submit()
+    itxn_begin
+    // smart_contracts/moderator_purchase/contract.py:203
+    // note=b"Moderator buyout payment"
+    pushbytes 0x4d6f64657261746f72206275796f7574207061796d656e74
+    itxn_field Note
+    swap
+    itxn_field Amount
+    uncover 2
+    itxn_field Receiver
+    // smart_contracts/moderator_purchase/contract.py:199-200
+    // # Send 90% to current owner
+    // itxn.Payment(
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/moderator_purchase/contract.py:199-204
+    // # Send 90% to current owner
+    // itxn.Payment(
+    //     receiver=self.moderator_owner.value,
+    //     amount=owner_share,
+    //     note=b"Moderator buyout payment"
+    // ).submit()
+    itxn_submit
+    // smart_contracts/moderator_purchase/contract.py:206-207
+    // # Transfer ownership to buyer
+    // self.moderator_owner.value = Txn.sender
+    bytec 4 // "moderator_owner"
+    txn Sender
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:208
+    // self.user_access_type[Txn.sender] = UInt64(3)  # Permanent ownership
+    txn Sender
+    bytec 7 // "user_access_type"
+    pushint 3 // 3
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:209
+    // self.access_expiry[Txn.sender] = UInt64(0)  # No expiry
+    txn Sender
+    bytec 8 // "access_expiry"
+    intc_0 // 0
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:210
+    // self.hours_remaining[Txn.sender] = UInt64(0)  # Not applicable
+    txn Sender
+    bytec 5 // "hours_remaining"
+    intc_0 // 0
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:212-213
+    // # Update user total spent
+    // current_spent = self.total_spent[Txn.sender]
+    txn Sender
+    intc_0 // 0
+    bytec 6 // "total_spent"
+    app_local_get_ex
+    assert // check self.total_spent exists for account
+    // smart_contracts/moderator_purchase/contract.py:214
+    // self.total_spent[Txn.sender] = current_spent + total_payment
+    dup
+    uncover 3
+    +
+    txn Sender
+    bytec 6 // "total_spent"
+    uncover 2
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:216-217
+    // # Update contract stats
+    // self.total_transactions.value += UInt64(1)
+    intc_0 // 0
+    bytec_1 // "total_transactions"
+    app_global_get_ex
+    assert // check self.total_transactions exists
+    intc_1 // 1
+    +
+    bytec_1 // "total_transactions"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:218
+    // self.total_revenue.value += contract_fee
+    intc_0 // 0
+    bytec_2 // "total_revenue"
+    app_global_get_ex
+    assert // check self.total_revenue exists
+    uncover 2
+    +
+    bytec_2 // "total_revenue"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:220-221
+    // # Increment user count if first purchase
+    // if current_spent == UInt64(0):
+    bnz buyout_moderator_after_if_else@3
+    // smart_contracts/moderator_purchase/contract.py:222
+    // self.total_users.value += UInt64(1)
+    intc_0 // 0
+    bytec_3 // "total_users"
+    app_global_get_ex
+    assert // check self.total_users exists
+    intc_1 // 1
+    +
+    bytec_3 // "total_users"
+    swap
+    app_global_put
+
+buyout_moderator_after_if_else@3:
+    // smart_contracts/moderator_purchase/contract.py:224
+    // return arc4.String("Successfully purchased moderator ownership")
+    pushbytes 0x002a5375636365737366756c6c7920707572636861736564206d6f64657261746f72206f776e657273686970
+    retsub
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.update_pricing(new_hourly_price: bytes, new_monthly_price: bytes, new_buyout_price: bytes) -> bytes:
+update_pricing:
+    // smart_contracts/moderator_purchase/contract.py:226-232
+    // @arc4.abimethod
+    // def update_pricing(
+    //     self,
+    //     new_hourly_price: arc4.UInt64,
+    //     new_monthly_price: arc4.UInt64,
+    //     new_buyout_price: arc4.UInt64,
+    // ) -> arc4.String:
+    proto 3 1
+    // smart_contracts/moderator_purchase/contract.py:234
+    // assert Txn.sender == self.moderator_owner.value, "Only owner can update pricing"
+    txn Sender
+    intc_0 // 0
+    bytec 4 // "moderator_owner"
+    app_global_get_ex
+    assert // check self.moderator_owner exists
+    ==
+    assert // Only owner can update pricing
+    // smart_contracts/moderator_purchase/contract.py:236
+    // self.hourly_price.value = new_hourly_price.native * UInt64(1_000_000)
+    frame_dig -3
+    btoi
+    intc_2 // 1000000
+    *
+    bytec 10 // "hourly_price"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:237
+    // self.monthly_price.value = new_monthly_price.native * UInt64(1_000_000)
+    frame_dig -2
+    btoi
+    intc_2 // 1000000
+    *
+    bytec 11 // "monthly_price"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:238
+    // self.buyout_price.value = new_buyout_price.native * UInt64(1_000_000)
+    frame_dig -1
+    btoi
+    intc_2 // 1000000
+    *
+    bytec 12 // "buyout_price"
+    swap
+    app_global_put
+    // smart_contracts/moderator_purchase/contract.py:240
+    // return arc4.String("Pricing updated successfully")
+    pushbytes 0x001c50726963696e672075706461746564207375636365737366756c6c79
+    retsub
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.use_hourly_access(hours_used: bytes) -> bytes:
+use_hourly_access:
+    // smart_contracts/moderator_purchase/contract.py:242-243
+    // @arc4.abimethod
+    // def use_hourly_access(self, hours_used: arc4.UInt64) -> arc4.String:
+    proto 1 1
+    // smart_contracts/moderator_purchase/contract.py:245
+    // assert self.user_access_type[Txn.sender] == UInt64(1), "No hourly access found"
+    txn Sender
+    intc_0 // 0
+    bytec 7 // "user_access_type"
+    app_local_get_ex
+    assert // check self.user_access_type exists for account
+    intc_1 // 1
+    ==
+    assert // No hourly access found
+    // smart_contracts/moderator_purchase/contract.py:247
+    // current_hours = self.hours_remaining[Txn.sender]
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "hours_remaining"
+    app_local_get_ex
+    assert // check self.hours_remaining exists for account
+    // smart_contracts/moderator_purchase/contract.py:248
+    // assert current_hours >= hours_used.native, "Insufficient hours remaining"
+    frame_dig -1
+    btoi
+    dup2
+    >=
+    assert // Insufficient hours remaining
+    // smart_contracts/moderator_purchase/contract.py:250
+    // self.hours_remaining[Txn.sender] = current_hours - hours_used.native
+    -
+    txn Sender
+    bytec 5 // "hours_remaining"
+    uncover 2
+    app_local_put
+    // smart_contracts/moderator_purchase/contract.py:252
+    // return arc4.String("Used hours successfully")
+    pushbytes 0x00175573656420686f757273207375636365737366756c6c79
+    retsub
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.get_moderator_info() -> bytes:
+get_moderator_info:
+    // smart_contracts/moderator_purchase/contract.py:264
+    // arc4.UInt64(self.hourly_price.value // UInt64(1_000_000)),
+    intc_0 // 0
+    bytec 10 // "hourly_price"
+    app_global_get_ex
+    assert // check self.hourly_price exists
+    intc_2 // 1000000
+    /
+    itob
+    // smart_contracts/moderator_purchase/contract.py:265
+    // arc4.UInt64(self.monthly_price.value // UInt64(1_000_000)),
+    intc_0 // 0
+    bytec 11 // "monthly_price"
+    app_global_get_ex
+    assert // check self.monthly_price exists
+    intc_2 // 1000000
+    /
+    itob
+    // smart_contracts/moderator_purchase/contract.py:266
+    // arc4.UInt64(self.buyout_price.value // UInt64(1_000_000)),
+    intc_0 // 0
+    bytec 12 // "buyout_price"
+    app_global_get_ex
+    assert // check self.buyout_price exists
+    intc_2 // 1000000
+    /
+    itob
+    // smart_contracts/moderator_purchase/contract.py:267
+    // arc4.Address(self.moderator_owner.value),
+    intc_0 // 0
+    bytec 4 // "moderator_owner"
+    app_global_get_ex
+    assert // check self.moderator_owner exists
+    // smart_contracts/moderator_purchase/contract.py:268
+    // arc4.Address(self.moderator_creator.value),
+    intc_0 // 0
+    bytec 14 // "moderator_creator"
+    app_global_get_ex
+    assert // check self.moderator_creator exists
+    // smart_contracts/moderator_purchase/contract.py:263-269
+    // return arc4.Tuple((
+    //     arc4.UInt64(self.hourly_price.value // UInt64(1_000_000)),
+    //     arc4.UInt64(self.monthly_price.value // UInt64(1_000_000)),
+    //     arc4.UInt64(self.buyout_price.value // UInt64(1_000_000)),
+    //     arc4.Address(self.moderator_owner.value),
+    //     arc4.Address(self.moderator_creator.value),
+    // ))
+    uncover 4
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    retsub
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.get_user_access(user: bytes) -> bytes:
+get_user_access:
+    // smart_contracts/moderator_purchase/contract.py:271-277
+    // @arc4.abimethod(readonly=True)
+    // def get_user_access(self, user: Account) -> arc4.Tuple[
+    //     arc4.UInt64,  # access_type
+    //     arc4.UInt64,  # hours_remaining
+    //     arc4.UInt64,  # access_expiry
+    //     arc4.UInt64,  # total_spent
+    // ]:
+    proto 1 1
+    // smart_contracts/moderator_purchase/contract.py:280
+    // arc4.UInt64(self.user_access_type[user]),
+    frame_dig -1
+    intc_0 // 0
+    bytec 7 // "user_access_type"
+    app_local_get_ex
+    assert // check self.user_access_type exists for account
+    itob
+    // smart_contracts/moderator_purchase/contract.py:281
+    // arc4.UInt64(self.hours_remaining[user]),
+    frame_dig -1
+    intc_0 // 0
+    bytec 5 // "hours_remaining"
+    app_local_get_ex
+    assert // check self.hours_remaining exists for account
+    itob
+    // smart_contracts/moderator_purchase/contract.py:282
+    // arc4.UInt64(self.access_expiry[user]),
+    frame_dig -1
+    intc_0 // 0
+    bytec 8 // "access_expiry"
+    app_local_get_ex
+    assert // check self.access_expiry exists for account
+    itob
+    // smart_contracts/moderator_purchase/contract.py:283
+    // arc4.UInt64(self.total_spent[user]),
+    frame_dig -1
+    intc_0 // 0
+    bytec 6 // "total_spent"
+    app_local_get_ex
+    assert // check self.total_spent exists for account
+    itob
+    // smart_contracts/moderator_purchase/contract.py:279-284
+    // return arc4.Tuple((
+    //     arc4.UInt64(self.user_access_type[user]),
+    //     arc4.UInt64(self.hours_remaining[user]),
+    //     arc4.UInt64(self.access_expiry[user]),
+    //     arc4.UInt64(self.total_spent[user]),
+    // ))
+    uncover 3
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    retsub
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.get_contract_stats() -> bytes:
+get_contract_stats:
+    // smart_contracts/moderator_purchase/contract.py:294
+    // arc4.UInt64(self.total_transactions.value),
+    intc_0 // 0
+    bytec_1 // "total_transactions"
+    app_global_get_ex
+    assert // check self.total_transactions exists
+    itob
+    // smart_contracts/moderator_purchase/contract.py:295
+    // arc4.UInt64(self.total_revenue.value),
+    intc_0 // 0
+    bytec_2 // "total_revenue"
+    app_global_get_ex
+    assert // check self.total_revenue exists
+    itob
+    // smart_contracts/moderator_purchase/contract.py:296
+    // arc4.UInt64(self.total_users.value),
+    intc_0 // 0
+    bytec_3 // "total_users"
+    app_global_get_ex
+    assert // check self.total_users exists
+    itob
+    // smart_contracts/moderator_purchase/contract.py:293-297
+    // return arc4.Tuple((
+    //     arc4.UInt64(self.total_transactions.value),
+    //     arc4.UInt64(self.total_revenue.value),
+    //     arc4.UInt64(self.total_users.value),
+    // ))
+    cover 2
+    concat
+    swap
+    concat
+    retsub
+
+
+// smart_contracts.moderator_purchase.contract.ModeratorPurchaseContract.has_valid_access(user: bytes) -> bytes:
+has_valid_access:
+    // smart_contracts/moderator_purchase/contract.py:299-300
+    // @arc4.abimethod(readonly=True)
+    // def has_valid_access(self, user: Account) -> arc4.Bool:
+    proto 1 1
+    // smart_contracts/moderator_purchase/contract.py:302
+    // access_type = self.user_access_type[user]
+    frame_dig -1
+    intc_0 // 0
+    bytec 7 // "user_access_type"
+    app_local_get_ex
+    swap
+    dup
+    uncover 2
+    assert // check self.user_access_type exists for account
+    // smart_contracts/moderator_purchase/contract.py:303
+    // current_time = Global.latest_timestamp
+    global LatestTimestamp
+    swap
+    // smart_contracts/moderator_purchase/contract.py:305
+    // if access_type == UInt64(1):  # Hourly
+    intc_1 // 1
+    ==
+    bz has_valid_access_else_body@2
+    // smart_contracts/moderator_purchase/contract.py:306
+    // return arc4.Bool(self.hours_remaining[user] > UInt64(0))
+    frame_dig -1
+    intc_0 // 0
+    bytec 5 // "hours_remaining"
+    app_local_get_ex
+    assert // check self.hours_remaining exists for account
+    bytec 13 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    frame_bury 0
+    retsub
+
+has_valid_access_else_body@2:
+    // smart_contracts/moderator_purchase/contract.py:307
+    // elif access_type == UInt64(2):  # Monthly
+    frame_dig 0
+    pushint 2 // 2
+    ==
+    bz has_valid_access_else_body@4
+    // smart_contracts/moderator_purchase/contract.py:308
+    // return arc4.Bool(self.access_expiry[user] > current_time)
+    frame_dig -1
+    intc_0 // 0
+    bytec 8 // "access_expiry"
+    app_local_get_ex
+    assert // check self.access_expiry exists for account
+    frame_dig 1
+    >
+    bytec 13 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    frame_bury 0
+    retsub
+
+has_valid_access_else_body@4:
+    // smart_contracts/moderator_purchase/contract.py:309
+    // elif access_type == UInt64(3):  # Buyout
+    frame_dig 0
+    pushint 3 // 3
+    ==
+    bz has_valid_access_else_body@6
+    // smart_contracts/moderator_purchase/contract.py:310
+    // return arc4.Bool(True)
+    pushbytes 0x80
+    frame_bury 0
+    retsub
+
+has_valid_access_else_body@6:
+    // smart_contracts/moderator_purchase/contract.py:312
+    // return arc4.Bool(False)
+    bytec 13 // 0x00
+    frame_bury 0
+    retsub

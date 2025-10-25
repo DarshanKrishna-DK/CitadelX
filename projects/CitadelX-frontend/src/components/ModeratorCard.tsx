@@ -1,15 +1,18 @@
 import React from 'react'
-import { Card, CardContent, Typography, Box, Chip, Button, Stack } from '@mui/material'
-import { SmartToy, Payments, Group } from '@mui/icons-material'
+import { Card, CardContent, Typography, Box, Chip, Button, Stack, ButtonGroup } from '@mui/material'
+import { SmartToy, Payments, Group, Schedule, CalendarMonth, Star } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { AIModerator } from '../utils/supabase'
+import { PurchaseType } from '../services/moderatorPurchaseService'
 
 interface ModeratorCardProps {
   moderator: AIModerator
   daoName?: string
+  onPurchase?: (moderator: AIModerator, purchaseType: PurchaseType, amount?: number) => void
+  purchasing?: boolean
 }
 
-const ModeratorCard: React.FC<ModeratorCardProps> = ({ moderator, daoName }) => {
+const ModeratorCard: React.FC<ModeratorCardProps> = ({ moderator, daoName, onPurchase, purchasing }) => {
   const navigate = useNavigate()
 
   const getStatusColor = (status: string) => {
@@ -92,8 +95,67 @@ const ModeratorCard: React.FC<ModeratorCardProps> = ({ moderator, daoName }) => 
           )}
         </Stack>
 
+        {onPurchase && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+              Purchase Options:
+            </Typography>
+            <Stack spacing={1}>
+              {/* Hourly Purchase */}
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<Schedule />}
+                disabled={purchasing}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const hours = parseInt(prompt('How many hours?') || '1')
+                  if (hours > 0) onPurchase(moderator, PurchaseType.HOURLY, hours)
+                }}
+                sx={{ justifyContent: 'flex-start' }}
+              >
+                Hourly ({moderator.creator_set_hourly_price || 0.1} ALGO/hr)
+              </Button>
+
+              {/* Monthly Purchase */}
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<CalendarMonth />}
+                disabled={purchasing}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const months = parseInt(prompt('How many months?') || '1')
+                  if (months > 0) onPurchase(moderator, PurchaseType.MONTHLY, months)
+                }}
+                sx={{ justifyContent: 'flex-start' }}
+              >
+                Monthly ({moderator.creator_set_monthly_price || 1.0} ALGO/mo)
+              </Button>
+
+              {/* Buyout Purchase */}
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<Star />}
+                disabled={purchasing}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  const price = moderator.creator_set_buyout_price || 5.0
+                  if (confirm(`Buy permanent ownership for ${price} ALGO?`)) {
+                    onPurchase(moderator, PurchaseType.BUYOUT, 1)
+                  }
+                }}
+                sx={{ justifyContent: 'flex-start', bgcolor: 'warning.main', '&:hover': { bgcolor: 'warning.dark' } }}
+              >
+                Buy Out ({moderator.creator_set_buyout_price || 5.0} ALGO)
+              </Button>
+            </Stack>
+          </Box>
+        )}
+
         <Button
-          variant="contained"
+          variant="outlined"
           fullWidth
           sx={{ mt: 2 }}
           onClick={(e) => {

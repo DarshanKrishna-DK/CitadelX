@@ -77,12 +77,12 @@ const ActiveDAOs: React.FC = () => {
     try {
       setLoading(true)
       
-      // Fetch DAOs with member statistics
+      // Fetch DAOs with member statistics (left join to include DAOs without members)
       const { data: daosData, error: daosError } = await supabase
         .from('daos')
         .select(`
           *,
-          dao_members!inner(
+          dao_members(
             id,
             wallet_address,
             stake_amount,

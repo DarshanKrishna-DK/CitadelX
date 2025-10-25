@@ -32,11 +32,23 @@ export interface DAO {
   voting_period: number
   activation_threshold: number
   status: 'pending' | 'active' | 'inactive'
+  
+  // Blockchain references
   blockchain_dao_id?: string
   blockchain_tx_id?: string
-  ipfs_hash?: string
-  nft_asset_id?: string
+  nft_asset_id?: number          // Changed to number (ASA ID)
+  
+  // IPFS content (REQUIRED for workflow)
+  context_ipfs_hash: string      // Context documents hash
+  dao_image_ipfs_hash: string    // DAO/moderator image hash
+  
+  // Activation criteria
+  activation_criteria: 'automatic' | 'manual' | 'voting'
+  auto_activation_enabled: boolean
+  activation_threshold_met: boolean
+  
   created_at: string
+  activated_at?: string          // When DAO became active
 }
 
 export interface DAOMember {
@@ -74,15 +86,30 @@ export interface AIModerator {
   name: string
   description: string
   category: string
-  context_documents: string[]
-  nft_asset_id?: number
-  nft_metadata_url?: string
+  
+  // IPFS content references
+  context_ipfs_hash: string      // Context documents hash
+  image_ipfs_hash: string        // Moderator image hash (same as DAO image)
+  nft_metadata_ipfs_hash: string // Complete NFT metadata hash
+  
+  // Blockchain references
+  nft_asset_id: number           // Algorand ASA ID
+  nft_creator_address: string    // NFT creator address
+  
+  // Creator-set pricing (configurable by DAO creator/owner)
+  creator_set_hourly_price: number    // ALGO per hour
+  creator_set_monthly_price: number   // ALGO per month
+  creator_set_buyout_price: number    // ALGO for permanent ownership
+  
+  // Legacy pricing fields (for backward compatibility)
   price_model: string[]
   monthly_price?: number
   pay_per_use_price?: number
   outright_price?: number
   status: 'training' | 'active' | 'inactive'
+  
   created_at: string
+  activated_at?: string
 }
 
 export interface ModeratorPurchase {
@@ -99,6 +126,28 @@ export interface DAORevenue {
   dao_id: string
   total_revenue: number
   last_distribution?: string
+  created_at: string
+}
+
+export interface DAOActivationCriteria {
+  id: string
+  dao_id: string
+  criteria_type: 'member_count' | 'treasury_balance' | 'time_based' | 'manual'
+  criteria_value: number         // e.g., min members, min balance
+  is_met: boolean
+  checked_at: string
+  created_at: string
+}
+
+export interface IPFSContent {
+  id: string
+  ipfs_hash: string
+  content_type: 'context_documents' | 'dao_image' | 'nft_metadata'
+  file_names: string[]           // Original file names
+  file_sizes: number[]           // File sizes in bytes
+  upload_status: 'uploading' | 'completed' | 'failed'
+  dao_id?: string               // Associated DAO
+  moderator_id?: string         // Associated moderator
   created_at: string
 }
 

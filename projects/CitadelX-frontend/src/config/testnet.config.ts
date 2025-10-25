@@ -17,7 +17,7 @@ export const testnetConfig = {
   
   // Treasury Configuration for TestNet
   treasury: {
-    address: 'RLUKWBU2COUQXFBMVR5Z4GRQERL3QDSBSGFECZYDTIUW4DH4LPSGCKDD7I',
+    address: 'UCYPEDAIIVZXARWTZHECQXK5MBDBTJGG7HIX4R7QBY23YISO2QKFPD2G5Y',
   },
   
   // Supported Wallets for TestNet
@@ -42,7 +42,7 @@ export const getTestnetConfig = () => {
       token: import.meta.env.VITE_INDEXER_TOKEN || testnetConfig.indexer.token,
     },
     treasury: {
-      address: import.meta.env.VITE_TREASURY_ADDRESS || testnetConfig.treasury.address,
+      address: import.meta.env.VITE_TREASURY_ADDRESS || 'UCYPEDAIIVZXARWTZHECQXK5MBDBTJGG7HIX4R7QBY23YISO2QKFPD2G5Y',
     }
   }
 }

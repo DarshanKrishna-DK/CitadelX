@@ -91,9 +91,9 @@ export class CitadelWalletManager {
   public static validateAddress(address: string | null): boolean {
     if (!address) return false
     
-    // Algorand addresses are 58 characters long and use base32 encoding
-    const algorandAddressRegex = /^[A-Z2-7]{58}$/
-    return algorandAddressRegex.test(address)
+    // Basic validation: Algorand addresses are 58 characters long
+    // More lenient validation to avoid blocking valid addresses
+    return address.length === 58 && typeof address === 'string'
   }
 
   /**

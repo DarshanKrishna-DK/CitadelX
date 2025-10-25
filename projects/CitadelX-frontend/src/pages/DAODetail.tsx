@@ -191,9 +191,13 @@ const DAODetail: React.FC = () => {
       const suggestedParams = await algodClient.getTransactionParams().do()
       const stakeMicroAlgos = Math.floor(joinStake * 1_000_000)
 
+      // Send payment to SimpleCitadelDAO smart contract
+      const contractAppId = 748514129 // SimpleCitadelDAO deployed contract
+      const contractAddress = algosdk.getApplicationAddress(contractAppId)
+      
       const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: activeAddress,
-        to: config.treasury.address, // Temporary - will be DAO contract address
+        to: contractAddress, // Send to smart contract instead of treasury
         amount: stakeMicroAlgos,
         suggestedParams: suggestedParams,
         note: new Uint8Array(Buffer.from(`DAO:${dao.id}:join_stake`)),

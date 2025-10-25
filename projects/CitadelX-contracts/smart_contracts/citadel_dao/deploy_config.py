@@ -10,11 +10,8 @@ from algopy.arc4 import abimethod
 logger = logging.getLogger(__name__)
 
 
-# Import all contracts
-from .contract import CitadelDAO
-from .governance import CitadelGovernance  
-from .treasury import CitadelTreasury
-from .nft_moderator import CitadelModeratorNFT
+# Import contracts
+from .contract import SimpleCitadelDAO
 
 
 def get_deploy_config() -> dict:
@@ -26,16 +23,16 @@ def get_deploy_config() -> dict:
     """
     return {
         "dao": {
-            "contract": CitadelDAO,
-            "name": "CitadelDAO",
-            "description": "Core DAO management contract",
+            "contract": SimpleCitadelDAO,
+            "name": "SimpleCitadelDAO",
+            "description": "Simplified DAO management contract",
             "schema": {
-                "global_ints": 8,
+                "global_ints": 10,
                 "global_bytes": 2,
                 "local_ints": 0,
                 "local_bytes": 0,
             },
-            "boxes": True,
+            "boxes": False,
         },
         "governance": {
             "contract": CitadelGovernance,
@@ -234,6 +231,73 @@ def test_deploy_config():
         assert "local_bytes" in schema
     
     print("✅ Deployment configuration is valid")
+
+
+# Main deploy function expected by AlgoKit
+def deploy():
+    """
+    AlgoKit deployment function using the template pattern
+    """
+    import algokit_utils
+    from smart_contracts.artifacts.citadel_dao.simple_citadel_dao_client import (
+        SimpleCitadelDaoFactory,
+        SimpleCitadelDaoMethodCallCreateParams,
+        CreateDaoArgs,
+    )
+    
+    logger.info("Deploying SimpleCitadelDAO contract...")
+    
+    # Use AlgoKit's standard environment setup
+    algorand = algokit_utils.AlgorandClient.from_environment()
+    deployer = algorand.account.from_environment("DEPLOYER")
+    
+    # Get typed app factory
+    factory = algorand.client.get_typed_app_factory(
+        SimpleCitadelDaoFactory, 
+        default_sender=deployer.address
+    )
+    
+    # Deploy with create parameters
+    create_params = SimpleCitadelDaoMethodCallCreateParams(
+        args=CreateDaoArgs(
+            name="Test DAO",
+            description="Test DAO for development",
+            min_stake=500_000,  # 0.5 ALGO
+            voting_period=604800,  # 1 week
+            quorum_threshold=51,  # 51%
+        )
+    )
+    
+    app_client, result = factory.deploy(
+        on_update=algokit_utils.OnUpdate.AppendApp,
+        on_schema_break=algokit_utils.OnSchemaBreak.AppendApp,
+        create_params=create_params,
+    )
+    
+    logger.info(f"✅ SimpleCitadelDAO deployed!")
+    logger.info(f"   App ID: {app_client.app_id}")
+    logger.info(f"   App Address: {app_client.app_address}")
+    logger.info(f"   Operation: {result.operation_performed}")
+    
+    # Fund the contract for operations
+    if result.operation_performed in [
+        algokit_utils.OperationPerformed.Create,
+        algokit_utils.OperationPerformed.Replace,
+    ]:
+        algorand.send.payment(
+            algokit_utils.PaymentParams(
+                amount=algokit_utils.AlgoAmount(algo=0.2),
+                sender=deployer.address,
+                receiver=app_client.app_address,
+            )
+        )
+        logger.info(f"💰 Contract funded with 0.2 ALGO")
+    
+    return {
+        "app_id": app_client.app_id,
+        "app_address": app_client.app_address,
+        "operation": result.operation_performed.value
+    }
 
 
 if __name__ == "__main__":
