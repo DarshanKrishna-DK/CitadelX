@@ -699,7 +699,23 @@ const CreateDAO: React.FC = () => {
                 <Typography>Name: {formData.name}</Typography>
                 <Typography>Description: {formData.description}</Typography>
                 <Typography>Category: {formData.category && MODERATOR_CATEGORIES[formData.category]?.name}</Typography>
-                {ipfsHash && <Typography>Documents: Uploaded to IPFS</Typography>}
+                {contextDocuments.length > 0 && (
+                  <Typography>
+                    Context Documents: {contextDocuments.length} file(s) 
+                    {contextIpfsHash ? ` - Uploaded to IPFS (${contextIpfsHash.substring(0, 8)}...)` : ' - Ready to upload'}
+                  </Typography>
+                )}
+                {daoImage && (
+                  <Typography>
+                    DAO Image: {daoImage.name} 
+                    {imageIpfsHash ? ` - Uploaded to IPFS (${imageIpfsHash.substring(0, 8)}...)` : ' - Ready to upload'}
+                  </Typography>
+                )}
+                {!contextDocuments.length && !daoImage && (
+                  <Typography color="text.secondary">
+                    No files uploaded (optional)
+                  </Typography>
+                )}
               </Paper>
             </Grid>
             <Grid item xs={12}>
