@@ -69,6 +69,9 @@ export class CitadelWalletManager {
       },
       options: {
         resetNetwork: true,
+        // Disable persistent storage to prevent auto-reconnection
+        storage: 'session', // Use sessionStorage instead of localStorage
+        reconnectOnPageLoad: false, // Disable automatic reconnection
       },
     })
   }
@@ -83,6 +86,30 @@ export class CitadelWalletManager {
 
   public getManager(): WalletManager {
     return this.walletManager
+  }
+
+  /**
+   * Disconnect all wallets and clear session
+   */
+  public async disconnectAll(): Promise<void> {
+    try {
+      // Disconnect all active wallets
+      const wallets = this.walletManager.wallets
+      for (const wallet of wallets) {
+        if (wallet.isActive) {
+          await wallet.disconnect()
+        }
+      }
+      
+      // Clear session storage
+      CitadelWalletManager.clearWalletSession()
+      
+      console.log('All wallets disconnected and session cleared')
+    } catch (error) {
+      console.error('Error disconnecting wallets:', error)
+      // Still clear session even if disconnect fails
+      CitadelWalletManager.clearWalletSession()
+    }
   }
 
   /**
@@ -127,6 +154,54 @@ export class CitadelWalletManager {
     }
     
     return 'Failed to connect wallet. Please try again.'
+  }
+
+  /**
+   * Clear wallet session data to ensure clean logout
+   */
+  public static clearWalletSession(): void {
+    try {
+      // Clear sessionStorage
+      sessionStorage.removeItem('use-wallet')
+      sessionStorage.removeItem('walletconnect')
+      
+      // Clear any localStorage wallet data (fallback)
+      localStorage.removeItem('use-wallet')
+      localStorage.removeItem('walletconnect')
+      
+      // Clear Pera wallet specific storage
+      sessionStorage.removeItem('PeraWallet.Wallet')
+      localStorage.removeItem('PeraWallet.Wallet')
+      
+      // Clear Defly wallet specific storage
+      sessionStorage.removeItem('DeflyWallet')
+      localStorage.removeItem('DeflyWallet')
+      
+      console.log('Wallet session cleared')
+    } catch (error) {
+      console.error('Error clearing wallet session:', error)
+    }
+  }
+
+  /**
+   * Setup session cleanup on tab/window close
+   */
+  public static setupSessionCleanup(): void {
+    const handleBeforeUnload = () => {
+      this.clearWalletSession()
+    }
+
+    // Clear session when tab/window is closed
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    
+    // Also clear on page hide (mobile browsers)
+    window.addEventListener('pagehide', handleBeforeUnload)
+    
+    // Return cleanup function
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('pagehide', handleBeforeUnload)
+    }
   }
 }
 

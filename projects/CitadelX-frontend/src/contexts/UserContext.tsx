@@ -8,6 +8,7 @@ interface UserContextType {
   loading: boolean
   refreshUser: () => Promise<void>
   updateUser: (updates: Partial<User>) => Promise<void>
+  logout: () => Promise<void>
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -157,6 +158,21 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }
 
+  const logout = async () => {
+    try {
+      // Clear user state
+      setUser(null)
+      setLoading(false)
+      
+      // Clear wallet session data
+      CitadelWalletManager.clearWalletSession()
+      
+      console.log('User logged out successfully')
+    } catch (error) {
+      console.error('Error during logout:', error)
+    }
+  }
+
   useEffect(() => {
     if (activeAddress) {
       fetchUser(activeAddress)
@@ -167,7 +183,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }, [activeAddress])
 
   return (
-    <UserContext.Provider value={{ user, loading, refreshUser, updateUser }}>
+    <UserContext.Provider value={{ user, loading, refreshUser, updateUser, logout }}>
       {children}
     </UserContext.Provider>
   )

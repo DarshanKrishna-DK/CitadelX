@@ -17,6 +17,7 @@ import { useWallet } from '@txnlab/use-wallet-react'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
 import { useUser } from '../contexts/UserContext'
+import { citadelWalletManager } from '../utils/walletManager'
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate()
@@ -34,15 +35,21 @@ const Navbar: React.FC = () => {
   }
 
   const handleLogout = async () => {
-    if (wallets) {
-      const activeWallet = wallets.find((w) => w.isActive)
-      if (activeWallet) {
-        await activeWallet.disconnect()
-      }
+    try {
+      // Use our enhanced wallet manager to disconnect all wallets and clear session
+      await citadelWalletManager.disconnectAll()
+      
+      // Clear user context
+      await logout()
+      
+      handleMenuClose()
+      navigate('/')
+    } catch (error) {
+      console.error('Error during logout:', error)
+      // Still navigate away even if logout fails
+      handleMenuClose()
+      navigate('/')
     }
-    await logout()
-    handleMenuClose()
-    navigate('/')
   }
 
   const truncateAddress = (address: string) => {

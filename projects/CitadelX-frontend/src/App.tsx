@@ -3,9 +3,10 @@ import { SnackbarProvider } from 'notistack'
 import { ThemeProvider } from '@mui/material/styles'
 import { CssBaseline } from '@mui/material'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
 import { theme } from './theme/theme'
 import { UserProvider } from './contexts/UserContext'
-import { citadelWalletManager } from './utils/walletManager'
+import { citadelWalletManager, CitadelWalletManager } from './utils/walletManager'
 import ProtectedRoute from './components/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
@@ -18,6 +19,14 @@ import Profile from './pages/Profile'
 
 export default function App() {
   const walletManager = citadelWalletManager.getManager()
+
+  // Setup session cleanup on component mount
+  useEffect(() => {
+    const cleanup = CitadelWalletManager.setupSessionCleanup()
+    
+    // Cleanup event listeners on component unmount
+    return cleanup
+  }, [])
 
   return (
     <ThemeProvider theme={theme}>
