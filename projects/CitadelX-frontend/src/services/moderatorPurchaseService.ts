@@ -1,456 +1,486 @@
-import algosdk from 'algosdk'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import { getTestnetConfig } from '../config/testnet.config'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
-import { supabase } from '../utils/supabase'
+import { supabase, AIModerator, ModeratorPurchase } from '../utils/supabase'
+import { ModeratorPurchaseContractClient } from '../contracts/ModeratorPurchaseContract'
 
-export enum PurchaseType {
-  HOURLY = 1,
-  MONTHLY = 2,
-  BUYOUT = 3
-}
-
-export interface ModeratorPricing {
-  hourlyPriceAlgo: number
-  monthlyPriceAlgo: number
-  buyoutPriceAlgo: number
-  currentOwner: string
-  creator: string
-}
+export type PurchaseType = 'hourly' | 'monthly' | 'buyout'
 
 export interface PurchaseData {
   moderatorId: string
-  moderatorName: string
   purchaseType: PurchaseType
-  amount: number // hours for hourly, months for monthly, 1 for buyout
-  priceAlgo: number
+  amount: number
+  duration?: number // hours for hourly, months for monthly
+  buyerAddress: string
 }
 
 export interface PurchaseResult {
   success: boolean
   transactionId?: string
-  assetId?: number
+  purchaseId?: string
   error?: string
-  accessDetails?: {
-    accessType: number
-    hoursRemaining?: number
-    expiryTimestamp?: number
-    accessTypeName: string
-  }
 }
 
-export interface UserAccessData {
-  accessType: number // 0=none, 1=hourly, 2=monthly, 3=buyout
-  hoursRemaining: number
-  expiryTimestamp: number
-  hasValidAccess: boolean
-  accessTypeName: string
+export interface ModeratorPricing {
+  hourlyPrice: number
+  monthlyPrice: number
+  buyoutPrice: number
+  currency: 'ALGO'
+}
+
+export interface PurchaseHistory {
+  id: string
+  moderator_id: string
+  moderator_name: string
+  purchase_type: PurchaseType
+  amount_paid: number
+  purchase_date: string
+  expires_at?: string
+  status: 'active' | 'expired' | 'cancelled'
 }
 
 class ModeratorPurchaseService {
-  private algodClient: algosdk.Algodv2
   private algorand: AlgorandClient
 
   constructor() {
     const algodConfig = getAlgodConfigFromViteEnvironment()
-    this.algodClient = new algosdk.Algodv2(
-      String(algodConfig.token),
-      algodConfig.server,
-      algodConfig.port
-    )
-    
-    this.algorand = AlgorandClient.fromClients({
-      algod: this.algodClient,
-      indexer: undefined
+    this.algorand = AlgorandClient.fromConfig({
+      algodConfig: {
+        server: algodConfig.server,
+        port: algodConfig.port,
+        token: String(algodConfig.token),
+      },
     })
   }
 
   /**
-   * Get moderator pricing information from database
+   * Get pricing information for a moderator
    */
   async getModeratorPricing(moderatorId: string): Promise<ModeratorPricing> {
     try {
-      // Get moderator pricing from database
       const { data: moderator, error } = await supabase
         .from('ai_moderators')
-        .select(`
-          creator_set_hourly_price,
-          creator_set_monthly_price,
-          creator_set_buyout_price,
-          nft_creator_address,
-          dao_id,
-          daos!inner(creator_id, users!inner(wallet_address))
-        `)
+        .select('creator_set_hourly_price, creator_set_monthly_price, creator_set_buyout_price')
         .eq('id', moderatorId)
         .single()
 
-      if (error || !moderator) {
+      if (error) {
+        throw new Error(`Failed to fetch moderator pricing: ${error.message}`)
+      }
+
+      return {
+        hourlyPrice: moderator.creator_set_hourly_price || 0.1,
+        monthlyPrice: moderator.creator_set_monthly_price || 1.0,
+        buyoutPrice: moderator.creator_set_buyout_price || 5.0,
+        currency: 'ALGO',
+      }
+    } catch (error) {
+      console.error('Error fetching moderator pricing:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Calculate total cost including platform fees
+   */
+  calculateTotalCost(basePrice: number, purchaseType: PurchaseType, duration: number = 1): number {
+    const platformFeePercentage = 0.05 // 5% platform fee
+    const baseCost = basePrice * duration
+    const platformFee = baseCost * platformFeePercentage
+    return baseCost + platformFee
+  }
+
+  /**
+   * Purchase hourly access to a moderator
+   */
+  async purchaseHourlyAccess(
+    moderatorId: string,
+    hours: number,
+    buyerAddress: string,
+    signTransactions: (txns: Uint8Array[]) => Promise<Uint8Array[]>
+  ): Promise<PurchaseResult> {
+    try {
+      // Get moderator details
+      const { data: moderator, error: moderatorError } = await supabase
+        .from('ai_moderators')
+        .select('*, daos(creator_id, users(wallet_address))')
+        .eq('id', moderatorId)
+        .single()
+
+      if (moderatorError || !moderator) {
         throw new Error('Moderator not found')
       }
 
-      // Get creator wallet address
-      const creatorAddress = moderator.daos?.users?.wallet_address || moderator.nft_creator_address
+      const hourlyPrice = moderator.creator_set_hourly_price || 0.1
+      const totalCost = this.calculateTotalCost(hourlyPrice, 'hourly', hours)
+      const totalCostMicroAlgos = Math.round(totalCost * 1_000_000)
 
-      return {
-        hourlyPriceAlgo: moderator.creator_set_hourly_price || 0.1,
-        monthlyPriceAlgo: moderator.creator_set_monthly_price || 1.0,
-        buyoutPriceAlgo: moderator.creator_set_buyout_price || 5.0,
-        currentOwner: creatorAddress || 'Unknown',
-        creator: creatorAddress || 'Unknown'
+      // Create purchase contract client
+      const purchaseContract = new ModeratorPurchaseContractClient(
+        {
+          resolveBy: 'id',
+          id: 0, // This should be the actual contract app ID
+        },
+        this.algorand
+      )
+
+      // Create purchase transaction
+      const purchaseResult = await purchaseContract.purchaseAccess(
+        {
+          moderatorAssetId: BigInt(moderator.nft_asset_id),
+          purchaseType: 'hourly',
+          duration: BigInt(hours),
+        },
+        {
+          sender: buyerAddress,
+          sendParams: {
+            fee: (1000).toString(),
+          },
+        }
+      )
+
+      // Sign and send transaction
+      const signedTxns = await signTransactions([purchaseResult.transaction.txn()])
+      const txnResult = await this.algorand.client.algod.sendRawTransaction(signedTxns[0]).do()
+
+      // Record purchase in database
+      const expiresAt = new Date()
+      expiresAt.setHours(expiresAt.getHours() + hours)
+
+      const { data: purchase, error: purchaseError } = await supabase
+        .from('moderator_purchases')
+        .insert({
+          moderator_id: moderatorId,
+          buyer_wallet_address: buyerAddress,
+          purchase_type: 'hourly',
+          amount_paid: totalCost,
+          duration_hours: hours,
+          expires_at: expiresAt.toISOString(),
+          transaction_id: txnResult.txId,
+          status: 'active',
+        })
+        .select()
+        .single()
+
+      if (purchaseError) {
+        console.error('Failed to record purchase:', purchaseError)
+        // Transaction succeeded but database record failed
+        // This should be handled with proper error recovery
       }
-    } catch (error) {
-      console.error('Failed to get moderator pricing:', error)
-      throw new Error('Failed to fetch moderator pricing')
-    }
-  }
-
-  /**
-   * Calculate total cost for purchase
-   */
-  calculateTotalCost(
-    purchaseType: PurchaseType,
-    amount: number,
-    pricing: ModeratorPricing
-  ): number {
-    switch (purchaseType) {
-      case PurchaseType.HOURLY:
-        return pricing.hourlyPriceAlgo * amount
-      case PurchaseType.MONTHLY:
-        return pricing.monthlyPriceAlgo * amount
-      case PurchaseType.BUYOUT:
-        return pricing.buyoutPriceAlgo
-      default:
-        throw new Error('Invalid purchase type')
-    }
-  }
-
-  /**
-   * Purchase hourly access to moderator
-   */
-  async purchaseHourlyAccess(
-    purchaseData: PurchaseData,
-    walletAddress: string,
-    signTransactions: (txns: Uint8Array[]) => Promise<Uint8Array[]>
-  ): Promise<PurchaseResult> {
-    try {
-      console.log(`🕐 Purchasing ${purchaseData.amount} hours of access for ${purchaseData.priceAlgo} ALGO`)
-
-      const config = getTestnetConfig()
-      const suggestedParams = await this.algodClient.getTransactionParams().do()
-
-      // Convert ALGO to microAlgos
-      const amountMicroAlgos = Math.floor(purchaseData.priceAlgo * 1_000_000)
-
-      // The deployed ModeratorPurchaseContract App ID (from your deployment)
-      const contractAppId = 748511263
-      const contractAddress = algosdk.getApplicationAddress(contractAppId)
-
-      // Create payment transaction to the smart contract
-      const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: walletAddress,
-        to: contractAddress, // Payment goes to the smart contract
-        amount: amountMicroAlgos,
-        suggestedParams: suggestedParams,
-        note: new Uint8Array(Buffer.from(`Hourly:${purchaseData.moderatorId}:${purchaseData.amount}h`)),
-      })
-
-      // Create application call transaction to purchase_hourly_access method
-      const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-        from: walletAddress,
-        appIndex: contractAppId,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          new Uint8Array(Buffer.from('purchase_hourly_access')), // Method name
-          algosdk.encodeUint64(purchaseData.amount), // Hours parameter
-        ],
-        suggestedParams: suggestedParams,
-      })
-
-      // Group the transactions
-      const txnGroup = [paymentTxn, appCallTxn]
-      algosdk.assignGroupID(txnGroup)
-
-      // Sign and send transactions
-      const signedTxns = await signTransactions(txnGroup.map(txn => txn.toByte()))
-      const { txId } = await this.algodClient.sendRawTransaction(signedTxns).do()
-      
-      // Wait for confirmation
-      await algosdk.waitForConfirmation(this.algodClient, txId, 4)
-
-      console.log(`✅ Hourly access purchased! Transaction: ${txId}`)
 
       return {
         success: true,
-        transactionId: txId,
-        accessDetails: {
-          accessType: PurchaseType.HOURLY,
-          hoursRemaining: purchaseData.amount,
-          accessTypeName: 'Hourly Access'
-        }
+        transactionId: txnResult.txId,
+        purchaseId: purchase?.id,
       }
     } catch (error) {
-      console.error('Failed to purchase hourly access:', error)
+      console.error('Error purchasing hourly access:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       }
     }
   }
 
   /**
-   * Purchase monthly license for moderator
+   * Purchase monthly license for a moderator
    */
   async purchaseMonthlyLicense(
-    purchaseData: PurchaseData,
-    walletAddress: string,
+    moderatorId: string,
+    months: number,
+    buyerAddress: string,
     signTransactions: (txns: Uint8Array[]) => Promise<Uint8Array[]>
   ): Promise<PurchaseResult> {
     try {
-      console.log(`📅 Purchasing ${purchaseData.amount} month(s) license for ${purchaseData.priceAlgo} ALGO`)
+      // Get moderator details
+      const { data: moderator, error: moderatorError } = await supabase
+        .from('ai_moderators')
+        .select('*, daos(creator_id, users(wallet_address))')
+        .eq('id', moderatorId)
+        .single()
 
-      const config = getTestnetConfig()
-      const suggestedParams = await this.algodClient.getTransactionParams().do()
+      if (moderatorError || !moderator) {
+        throw new Error('Moderator not found')
+      }
 
-      // Convert ALGO to microAlgos
-      const amountMicroAlgos = Math.floor(purchaseData.priceAlgo * 1_000_000)
+      const monthlyPrice = moderator.creator_set_monthly_price || 1.0
+      const totalCost = this.calculateTotalCost(monthlyPrice, 'monthly', months)
+      const totalCostMicroAlgos = Math.round(totalCost * 1_000_000)
 
-      // Calculate expiry timestamp (current time + months)
-      const now = Date.now()
-      const monthsInMs = purchaseData.amount * 30 * 24 * 60 * 60 * 1000 // Approximate
-      const expiryTimestamp = now + monthsInMs
+      // Create purchase contract client
+      const purchaseContract = new ModeratorPurchaseContractClient(
+        {
+          resolveBy: 'id',
+          id: 0, // This should be the actual contract app ID
+        },
+        this.algorand
+      )
 
-      // The deployed ModeratorPurchaseContract App ID (from your deployment)
-      const contractAppId = 748511263
-      const contractAddress = algosdk.getApplicationAddress(contractAppId)
+      // Create purchase transaction
+      const purchaseResult = await purchaseContract.purchaseAccess(
+        {
+          moderatorAssetId: BigInt(moderator.nft_asset_id),
+          purchaseType: 'monthly',
+          duration: BigInt(months),
+        },
+        {
+          sender: buyerAddress,
+          sendParams: {
+            fee: (1000).toString(),
+          },
+        }
+      )
 
-      // Create payment transaction to the smart contract
-      const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: walletAddress,
-        to: contractAddress, // Payment goes to the smart contract
-        amount: amountMicroAlgos,
-        suggestedParams: suggestedParams,
-        note: new Uint8Array(Buffer.from(`Monthly:${purchaseData.moderatorId}:${purchaseData.amount}m`)),
-      })
+      // Sign and send transaction
+      const signedTxns = await signTransactions([purchaseResult.transaction.txn()])
+      const txnResult = await this.algorand.client.algod.sendRawTransaction(signedTxns[0]).do()
 
-      // Create application call transaction to purchase_monthly_access method
-      const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-        from: walletAddress,
-        appIndex: contractAppId,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          new Uint8Array(Buffer.from('purchase_monthly_access')), // Method name
-          algosdk.encodeUint64(purchaseData.amount), // Months parameter
-        ],
-        suggestedParams: suggestedParams,
-      })
+      // Record purchase in database
+      const expiresAt = new Date()
+      expiresAt.setMonth(expiresAt.getMonth() + months)
 
-      // Group the transactions
-      const txnGroup = [paymentTxn, appCallTxn]
-      algosdk.assignGroupID(txnGroup)
+      const { data: purchase, error: purchaseError } = await supabase
+        .from('moderator_purchases')
+        .insert({
+          moderator_id: moderatorId,
+          buyer_wallet_address: buyerAddress,
+          purchase_type: 'monthly',
+          amount_paid: totalCost,
+          duration_months: months,
+          expires_at: expiresAt.toISOString(),
+          transaction_id: txnResult.txId,
+          status: 'active',
+        })
+        .select()
+        .single()
 
-      // Sign and send transactions
-      const signedTxns = await signTransactions(txnGroup.map(txn => txn.toByte()))
-      const { txId } = await this.algodClient.sendRawTransaction(signedTxns).do()
-      
-      // Wait for confirmation
-      await algosdk.waitForConfirmation(this.algodClient, txId, 4)
-
-      console.log(`✅ Monthly license purchased! Transaction: ${txId}`)
+      if (purchaseError) {
+        console.error('Failed to record purchase:', purchaseError)
+      }
 
       return {
         success: true,
-        transactionId: txId,
-        accessDetails: {
-          accessType: PurchaseType.MONTHLY,
-          expiryTimestamp: expiryTimestamp,
-          accessTypeName: 'Monthly License'
-        }
+        transactionId: txnResult.txId,
+        purchaseId: purchase?.id,
       }
     } catch (error) {
-      console.error('Failed to purchase monthly license:', error)
+      console.error('Error purchasing monthly license:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       }
     }
   }
 
   /**
-   * Buyout moderator for permanent ownership
+   * Buyout a moderator (permanent ownership)
    */
   async buyoutModerator(
-    purchaseData: PurchaseData,
-    walletAddress: string,
+    moderatorId: string,
+    buyerAddress: string,
     signTransactions: (txns: Uint8Array[]) => Promise<Uint8Array[]>
   ): Promise<PurchaseResult> {
     try {
-      console.log(`👑 Buying out moderator for ${purchaseData.priceAlgo} ALGO (permanent ownership)`)
+      // Get moderator details
+      const { data: moderator, error: moderatorError } = await supabase
+        .from('ai_moderators')
+        .select('*, daos(creator_id, users(wallet_address))')
+        .eq('id', moderatorId)
+        .single()
 
-      const config = getTestnetConfig()
-      const suggestedParams = await this.algodClient.getTransactionParams().do()
+      if (moderatorError || !moderator) {
+        throw new Error('Moderator not found')
+      }
 
-      // Convert ALGO to microAlgos
-      const amountMicroAlgos = Math.floor(purchaseData.priceAlgo * 1_000_000)
+      const buyoutPrice = moderator.creator_set_buyout_price || 5.0
+      const totalCost = this.calculateTotalCost(buyoutPrice, 'buyout')
+      const totalCostMicroAlgos = Math.round(totalCost * 1_000_000)
 
-      // 90/10 split as per citadel-algo library
-      const ownerShare = Math.floor(amountMicroAlgos * 0.9)
-      const contractFee = amountMicroAlgos - ownerShare
+      // Create purchase contract client
+      const purchaseContract = new ModeratorPurchaseContractClient(
+        {
+          resolveBy: 'id',
+          id: 0, // This should be the actual contract app ID
+        },
+        this.algorand
+      )
 
-      console.log(`💰 Payment breakdown:`)
-      console.log(`  - Total: ${purchaseData.priceAlgo} ALGO`)
-      console.log(`  - To owner (90%): ${ownerShare / 1_000_000} ALGO`)
-      console.log(`  - Contract fee (10%): ${contractFee / 1_000_000} ALGO`)
+      // Create buyout transaction
+      const purchaseResult = await purchaseContract.purchaseAccess(
+        {
+          moderatorAssetId: BigInt(moderator.nft_asset_id),
+          purchaseType: 'buyout',
+          duration: BigInt(0), // Permanent
+        },
+        {
+          sender: buyerAddress,
+          sendParams: {
+            fee: (1000).toString(),
+          },
+        }
+      )
 
-      // The deployed ModeratorPurchaseContract App ID (from your deployment)
-      const contractAppId = 748511263
-      const contractAddress = algosdk.getApplicationAddress(contractAppId)
+      // Sign and send transaction
+      const signedTxns = await signTransactions([purchaseResult.transaction.txn()])
+      const txnResult = await this.algorand.client.algod.sendRawTransaction(signedTxns[0]).do()
 
-      // Create payment transaction to the smart contract
-      const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-        from: walletAddress,
-        to: contractAddress, // Payment goes to the smart contract
-        amount: amountMicroAlgos,
-        suggestedParams: suggestedParams,
-        note: new Uint8Array(Buffer.from(`Buyout:${purchaseData.moderatorId}:permanent`)),
-      })
+      // Record purchase in database
+      const { data: purchase, error: purchaseError } = await supabase
+        .from('moderator_purchases')
+        .insert({
+          moderator_id: moderatorId,
+          buyer_wallet_address: buyerAddress,
+          purchase_type: 'buyout',
+          amount_paid: totalCost,
+          transaction_id: txnResult.txId,
+          status: 'active',
+          is_permanent: true,
+        })
+        .select()
+        .single()
 
-      // Create application call transaction to buyout_moderator method
-      const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-        from: walletAddress,
-        appIndex: contractAppId,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [
-          new Uint8Array(Buffer.from('buyout_moderator')), // Method name
-        ],
-        suggestedParams: suggestedParams,
-      })
+      if (purchaseError) {
+        console.error('Failed to record purchase:', purchaseError)
+      }
 
-      // Group the transactions
-      const txnGroup = [paymentTxn, appCallTxn]
-      algosdk.assignGroupID(txnGroup)
-
-      // Sign and send transactions
-      const signedTxns = await signTransactions(txnGroup.map(txn => txn.toByte()))
-      const { txId } = await this.algodClient.sendRawTransaction(signedTxns).do()
-      
-      // Wait for confirmation
-      await algosdk.waitForConfirmation(this.algodClient, txId, 4)
-
-      console.log(`🎉 Moderator buyout successful! You now own this moderator permanently.`)
-      console.log(`Transaction: ${txId}`)
+      // Update moderator ownership
+      await supabase
+        .from('ai_moderators')
+        .update({
+          nft_creator_address: buyerAddress,
+        })
+        .eq('id', moderatorId)
 
       return {
         success: true,
-        transactionId: txId,
-        accessDetails: {
-          accessType: PurchaseType.BUYOUT,
-          accessTypeName: 'Permanent Owner'
+        transactionId: txnResult.txId,
+        purchaseId: purchase?.id,
+      }
+    } catch (error) {
+      console.error('Error buying out moderator:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      }
+    }
+  }
+
+  /**
+   * Get user's purchase history
+   */
+  async getPurchaseHistory(walletAddress: string): Promise<PurchaseHistory[]> {
+    try {
+      const { data: purchases, error } = await supabase
+        .from('moderator_purchases')
+        .select(`
+          id,
+          moderator_id,
+          purchase_type,
+          amount_paid,
+          created_at,
+          expires_at,
+          status,
+          ai_moderators(name)
+        `)
+        .eq('buyer_wallet_address', walletAddress)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        throw new Error(`Failed to fetch purchase history: ${error.message}`)
+      }
+
+      return purchases.map((purchase: any) => ({
+        id: purchase.id,
+        moderator_id: purchase.moderator_id,
+        moderator_name: purchase.ai_moderators?.name || 'Unknown Moderator',
+        purchase_type: purchase.purchase_type,
+        amount_paid: purchase.amount_paid,
+        purchase_date: purchase.created_at,
+        expires_at: purchase.expires_at,
+        status: purchase.status,
+      }))
+    } catch (error) {
+      console.error('Error fetching purchase history:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Check if user has active access to a moderator
+   */
+  async hasActiveAccess(moderatorId: string, walletAddress: string): Promise<boolean> {
+    try {
+      const { data: purchases, error } = await supabase
+        .from('moderator_purchases')
+        .select('expires_at, is_permanent, status')
+        .eq('moderator_id', moderatorId)
+        .eq('buyer_wallet_address', walletAddress)
+        .eq('status', 'active')
+
+      if (error) {
+        throw new Error(`Failed to check access: ${error.message}`)
+      }
+
+      if (!purchases || purchases.length === 0) {
+        return false
+      }
+
+      // Check for permanent access (buyout)
+      const permanentAccess = purchases.some(p => p.is_permanent)
+      if (permanentAccess) {
+        return true
+      }
+
+      // Check for non-expired access
+      const now = new Date()
+      const activeAccess = purchases.some(p => {
+        if (!p.expires_at) return false
+        return new Date(p.expires_at) > now
+      })
+
+      return activeAccess
+    } catch (error) {
+      console.error('Error checking active access:', error)
+      return false
+    }
+  }
+
+  /**
+   * Get active moderators for a user
+   */
+  async getActiveModerators(walletAddress: string): Promise<AIModerator[]> {
+    try {
+      const { data: purchases, error } = await supabase
+        .from('moderator_purchases')
+        .select(`
+          moderator_id,
+          expires_at,
+          is_permanent,
+          ai_moderators(*)
+        `)
+        .eq('buyer_wallet_address', walletAddress)
+        .eq('status', 'active')
+
+      if (error) {
+        throw new Error(`Failed to fetch active moderators: ${error.message}`)
+      }
+
+      const now = new Date()
+      const activeModerators: AIModerator[] = []
+
+      for (const purchase of purchases) {
+        // Check if access is still valid
+        const isValid = purchase.is_permanent || 
+          (purchase.expires_at && new Date(purchase.expires_at) > now)
+
+        if (isValid && purchase.ai_moderators) {
+          activeModerators.push(purchase.ai_moderators)
         }
       }
+
+      return activeModerators
     } catch (error) {
-      console.error('Failed to buyout moderator:', error)
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
-    }
-  }
-
-  /**
-   * Get user's access status for a moderator
-   */
-  async getUserAccess(walletAddress: string, appId?: number): Promise<UserAccessData> {
-    try {
-      // In a real implementation, this would query the smart contract's local state
-      // For now, return mock data
-      
-      return {
-        accessType: 0, // No access
-        hoursRemaining: 0,
-        expiryTimestamp: 0,
-        hasValidAccess: false,
-        accessTypeName: 'No Access'
-      }
-    } catch (error) {
-      console.error('Failed to get user access:', error)
-      return {
-        accessType: 0,
-        hoursRemaining: 0,
-        expiryTimestamp: 0,
-        hasValidAccess: false,
-        accessTypeName: 'No Access'
-      }
-    }
-  }
-
-  /**
-   * Check if user has valid access
-   */
-  hasValidAccess(accessData: UserAccessData): boolean {
-    const now = Date.now()
-    
-    switch (accessData.accessType) {
-      case PurchaseType.HOURLY:
-        return accessData.hoursRemaining > 0
-      case PurchaseType.MONTHLY:
-        return accessData.expiryTimestamp > now
-      case PurchaseType.BUYOUT:
-        return true // Permanent ownership
-      default:
-        return false
-    }
-  }
-
-  /**
-   * Format access type to human readable string
-   */
-  formatAccessType(accessType: number): string {
-    switch (accessType) {
-      case PurchaseType.HOURLY:
-        return 'Hourly Access'
-      case PurchaseType.MONTHLY:
-        return 'Monthly License'
-      case PurchaseType.BUYOUT:
-        return 'Permanent Owner'
-      default:
-        return 'No Access'
-    }
-  }
-
-  /**
-   * Update moderator pricing (owner only)
-   */
-  async updateModeratorPricing(
-    appId: number,
-    newHourlyPrice: number,
-    newMonthlyPrice: number,
-    newBuyoutPrice: number,
-    walletAddress: string,
-    signTransactions: (txns: Uint8Array[]) => Promise<Uint8Array[]>
-  ): Promise<{ success: boolean; transactionId?: string; error?: string }> {
-    try {
-      console.log('🔧 Updating moderator pricing...')
-      console.log(`  - Hourly: ${newHourlyPrice} ALGO`)
-      console.log(`  - Monthly: ${newMonthlyPrice} ALGO`)
-      console.log(`  - Buyout: ${newBuyoutPrice} ALGO`)
-
-      // In a real implementation, this would call the smart contract's update_pricing method
-      // For now, we'll simulate success
-      
-      const mockTxId = 'MOCK_UPDATE_PRICING_TXN_' + Date.now()
-      
-      console.log(`✅ Pricing updated successfully! Transaction: ${mockTxId}`)
-
-      return {
-        success: true,
-        transactionId: mockTxId
-      }
-    } catch (error) {
-      console.error('Failed to update pricing:', error)
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+      console.error('Error fetching active moderators:', error)
+      throw error
     }
   }
 }

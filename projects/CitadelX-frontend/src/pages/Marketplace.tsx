@@ -18,7 +18,7 @@ import { Search } from '@mui/icons-material'
 import Navbar from '../components/Navbar'
 import ModeratorCard from '../components/ModeratorCard'
 import { supabase, AIModerator, DAO } from '../utils/supabase'
-import { moderatorPurchaseService, PurchaseType, PurchaseData } from '../services/moderatorPurchaseService'
+import { moderatorPurchaseService, PurchaseType } from '../services/moderatorPurchaseService'
 import { useWallet } from '@txnlab/use-wallet-react'
 
 const Marketplace: React.FC = () => {
@@ -83,46 +83,27 @@ const Marketplace: React.FC = () => {
     try {
       setPurchasing(moderator.id)
 
-      // Get current pricing from database (set by DAO creator)
-      const pricing = await moderatorPurchaseService.getModeratorPricing(
-        moderator.id
-      )
-
-      // Calculate total cost
-      const totalCost = moderatorPurchaseService.calculateTotalCost(
-        purchaseType,
-        amount,
-        pricing
-      )
-
-      // Create purchase data
-      const purchaseData: PurchaseData = {
-        moderatorId: moderator.id,
-        moderatorName: moderator.name,
-        purchaseType,
-        amount,
-        priceAlgo: totalCost
-      }
-
       let result
       switch (purchaseType) {
-        case PurchaseType.HOURLY:
+        case 'hourly':
           result = await moderatorPurchaseService.purchaseHourlyAccess(
-            purchaseData,
+            moderator.id,
+            amount,
             activeAddress,
             signTransactions
           )
           break
-        case PurchaseType.MONTHLY:
+        case 'monthly':
           result = await moderatorPurchaseService.purchaseMonthlyLicense(
-            purchaseData,
+            moderator.id,
+            amount,
             activeAddress,
             signTransactions
           )
           break
-        case PurchaseType.BUYOUT:
+        case 'buyout':
           result = await moderatorPurchaseService.buyoutModerator(
-            purchaseData,
+            moderator.id,
             activeAddress,
             signTransactions
           )
@@ -133,9 +114,8 @@ const Marketplace: React.FC = () => {
 
       if (result.success) {
         alert(`🎉 Purchase successful! Transaction: ${result.transactionId}`)
-        
-        // Record purchase in database
-        await recordPurchase(moderator, purchaseType, amount, result.transactionId!)
+        // Refresh moderators to update status
+        await fetchModerators()
       } else {
         alert(`❌ Purchase failed: ${result.error}`)
       }
@@ -147,56 +127,6 @@ const Marketplace: React.FC = () => {
     }
   }
 
-  const recordPurchase = async (
-    moderator: AIModerator,
-    purchaseType: PurchaseType,
-    amount: number,
-    transactionHash: string
-  ) => {
-    try {
-      // Get user ID
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('wallet_address', activeAddress)
-        .single()
-
-      if (!userData) {
-        console.error('User not found in database')
-        return
-      }
-
-      // Calculate amount paid based on purchase type and current pricing
-      const pricing = await moderatorPurchaseService.getModeratorPricing(
-        moderator.id
-      )
-      const amountPaid = moderatorPurchaseService.calculateTotalCost(
-        purchaseType,
-        amount,
-        pricing
-      )
-
-      // Record the purchase
-      const { error } = await supabase
-        .from('moderator_purchases')
-        .insert([{
-          moderator_id: moderator.id,
-          user_id: userData.id,
-          purchase_type: purchaseType === PurchaseType.HOURLY ? 'hourly' : 
-                        purchaseType === PurchaseType.MONTHLY ? 'monthly' : 'outright',
-          amount_paid: amountPaid,
-          transaction_hash: transactionHash
-        }])
-
-      if (error) {
-        console.error('Failed to record purchase:', error)
-      } else {
-        console.log('✅ Purchase recorded in database')
-      }
-    } catch (error) {
-      console.error('Error recording purchase:', error)
-    }
-  }
 
   const filteredModerators = moderators.filter((mod) => {
     // Search filter
