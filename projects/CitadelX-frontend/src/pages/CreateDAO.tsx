@@ -30,7 +30,7 @@ import { getTestnetConfig } from '../config/testnet.config'
 import algosdk from 'algosdk'
 import Navbar from '../components/Navbar'
 import { supabase, MODERATOR_CATEGORIES, ModeratorCategoryId } from '../utils/supabase'
-import { uploadContextDocuments } from '../utils/ipfs'
+import { uploadContextDocuments, uploadFile } from '../utils/ipfs'
 import { checkDAOActivationCriteria, activateDAO } from '../utils/daoActivation'
 
 interface DAOFormData {
@@ -99,9 +99,11 @@ const CreateDAO: React.FC = () => {
 
     try {
       setLoading(true)
+      console.log(`Uploading ${contextDocuments.length} context documents...`)
       const result = await uploadContextDocuments(contextDocuments)
-      setContextIpfsHash(result.ipfsHash)
-      return result.ipfsHash
+      setContextIpfsHash(result.hash)
+      console.log('Context documents uploaded successfully:', result.hash)
+      return result.hash
     } catch (error) {
       console.error('Failed to upload documents:', error)
       setError('Failed to upload context documents. Please try again.')
@@ -116,9 +118,11 @@ const CreateDAO: React.FC = () => {
 
     try {
       setLoading(true)
-      const result = await uploadContextDocuments([daoImage]) // Reuse same upload function
-      setImageIpfsHash(result.ipfsHash)
-      return result.ipfsHash
+      console.log('Uploading DAO image...')
+      const result = await uploadFile(daoImage) // Use proper file upload function
+      setImageIpfsHash(result.hash)
+      console.log('DAO image uploaded successfully:', result.hash)
+      return result.hash
     } catch (error) {
       console.error('Failed to upload DAO image:', error)
       setError('Failed to upload DAO image. Please try again.')
@@ -211,10 +215,27 @@ const CreateDAO: React.FC = () => {
   const handleNext = async () => {
     if (!validateStep(activeStep)) return
 
-    if (activeStep === 0 && contextDocuments.length > 0) {
-      // Upload documents when moving from step 0 to 1
-      const hash = await uploadDocuments()
-      if (!hash && contextDocuments.length > 0) return
+    // Upload files when moving from step 0 to 1 (only if files are provided)
+    if (activeStep === 0) {
+      let documentsUploaded = true
+      let imageUploaded = true
+
+      // Upload context documents if provided
+      if (contextDocuments.length > 0 && !contextIpfsHash) {
+        const hash = await uploadDocuments()
+        documentsUploaded = !!hash
+      }
+
+      // Upload DAO image if provided
+      if (daoImage && !imageIpfsHash) {
+        const hash = await uploadImage()
+        imageUploaded = !!hash
+      }
+
+      // Only proceed if uploads succeeded (or no files to upload)
+      if (!documentsUploaded || !imageUploaded) {
+        return
+      }
     }
 
     setActiveStep(prev => prev + 1)
@@ -244,26 +265,36 @@ const CreateDAO: React.FC = () => {
       // Get configuration
       const config = getTestnetConfig()
 
-      // Upload both image and context documents to IPFS first
-      console.log('📤 Uploading DAO image and context documents...')
+      // Ensure files are uploaded to IPFS (may already be uploaded from previous steps)
+      console.log('📤 Ensuring DAO image and context documents are uploaded...')
       
-      const [imageHash, contextHash] = await Promise.all([
-        uploadImage(),
-        uploadDocuments()
-      ])
-      
-      if (!imageHash) {
-        setError('Failed to upload DAO image')
-        return
-      }
-      
-      if (!contextHash) {
-        setError('Failed to upload context documents')
-        return
+      let finalImageHash = imageIpfsHash
+      let finalContextHash = contextIpfsHash
+
+      // Upload image if not already uploaded
+      if (daoImage && !finalImageHash) {
+        finalImageHash = await uploadImage()
+        if (!finalImageHash) {
+          setError('Failed to upload DAO image')
+          return
+        }
       }
 
-      console.log('✅ DAO image uploaded to IPFS:', imageHash)
-      console.log('✅ Context documents uploaded to IPFS:', contextHash)
+      // Upload context documents if not already uploaded
+      if (contextDocuments.length > 0 && !finalContextHash) {
+        finalContextHash = await uploadDocuments()
+        if (!finalContextHash) {
+          setError('Failed to upload context documents')
+          return
+        }
+      }
+
+      // Set default values if no files provided
+      if (!finalImageHash) finalImageHash = ''
+      if (!finalContextHash) finalContextHash = ''
+
+      console.log('✅ DAO image IPFS hash:', finalImageHash)
+      console.log('✅ Context documents IPFS hash:', finalContextHash)
 
       // Get user ID from database
       const { data: userData } = await supabase
@@ -291,8 +322,8 @@ const CreateDAO: React.FC = () => {
             min_stake: formData.minStake,
             voting_period: formData.votingPeriod,
             activation_threshold: formData.activationThreshold,
-            context_ipfs_hash: contextHash,
-            dao_image_ipfs_hash: imageHash,
+            context_ipfs_hash: finalContextHash,
+            dao_image_ipfs_hash: finalImageHash,
             activation_criteria: 'automatic',
             auto_activation_enabled: true,
             activation_threshold_met: false,

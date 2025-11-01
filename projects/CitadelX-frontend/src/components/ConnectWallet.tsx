@@ -48,15 +48,12 @@ const ConnectWallet = ({ openModal, closeModal }: ConnectWalletInterface) => {
                     if (!wallet.isActive) {
                       await wallet.connect()
                       
-                      // Validate connection after successful connect
+                      // Close modal after successful connect
                       setTimeout(() => {
-                        const connectionState = CitadelWalletManager.getConnectionState(activeAddress, isReady)
-                        if (!connectionState.isConnected) {
-                          setConnectionError('Wallet connected but address validation failed')
-                        } else {
+                        if (activeAddress) {
                           closeModal()
                         }
-                      }, 1000)
+                      }, 500)
                     }
                   } catch (err: any) {
                     const errorMessage = CitadelWalletManager.handleConnectionError(err)

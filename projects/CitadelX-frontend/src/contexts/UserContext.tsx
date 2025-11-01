@@ -34,12 +34,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     try {
       setLoading(true)
       
-      // Validate wallet address format first
-      if (!CitadelWalletManager.validateAddress(walletAddress)) {
-        console.error('Invalid wallet address format:', walletAddress)
-        setUser(null)
-        return
-      }
+      // Skip validation - let the wallet handle address format
+      console.log('Fetching user for wallet address:', walletAddress)
       
       // First, try to find existing user
       const { data, error } = await supabase
@@ -113,17 +109,23 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       }
     } catch (error) {
       console.error('Error in fetchUser:', error)
-      // Always provide a user object for valid wallet addresses
-      if (CitadelWalletManager.validateAddress(walletAddress)) {
-        console.warn('Using fallback local user object')
-        setUser({
-          id: walletAddress, // Use wallet address as temporary ID
-          wallet_address: walletAddress,
-          created_at: new Date().toISOString(),
-        } as User)
-      } else {
-        setUser(null)
+      
+      // Check if it's a network connectivity issue
+      if (error instanceof Error && (
+        error.message.includes('ERR_TUNNEL_CONNECTION_FAILED') ||
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('NetworkError')
+      )) {
+        console.warn('Network connectivity issue detected. Using offline mode.')
       }
+      
+      // Always provide a user object for wallet addresses (offline mode)
+      console.warn('Using fallback local user object')
+      setUser({
+        id: walletAddress, // Use wallet address as temporary ID
+        wallet_address: walletAddress,
+        created_at: new Date().toISOString(),
+      } as User)
     } finally {
       setLoading(false)
     }
