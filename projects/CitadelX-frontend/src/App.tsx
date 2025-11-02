@@ -11,9 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import LandingPage from './pages/LandingPage'
 import Dashboard from './pages/Dashboard'
 import Marketplace from './pages/Marketplace'
-import ActiveDAOs from './pages/ActiveDAOs'
-import CreateDAO from './pages/CreateDAO'
-import DAODetail from './pages/DAODetail'
+import CreateModerator from './pages/CreateModerator'
 import ModeratorDetail from './pages/ModeratorDetail'
 import Profile from './pages/Profile'
 
@@ -54,26 +52,10 @@ export default function App() {
                   }
                 />
                 <Route
-                  path="/active-daos"
+                  path="/create-moderator"
                   element={
                     <ProtectedRoute>
-                      <ActiveDAOs />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dao/create"
-                  element={
-                    <ProtectedRoute>
-                      <CreateDAO />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dao/:id"
-                  element={
-                    <ProtectedRoute>
-                      <DAODetail />
+                      <CreateModerator />
                     </ProtectedRoute>
                   }
                 />

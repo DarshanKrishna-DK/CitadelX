@@ -53,9 +53,9 @@ const LandingPage: React.FC = () => {
 
   const features = [
     {
-      icon: <Group sx={{ fontSize: 56 }} />,
-      title: 'DAO Governance',
-      description: 'Form DAOs with fellow creators to collectively build and govern AI moderators with transparent on-chain voting.',
+      icon: <Security sx={{ fontSize: 56 }} />,
+      title: 'AI Moderator Creation',
+      description: 'Create custom AI moderators tailored to your community needs with advanced training capabilities.',
     },
     {
       icon: <Store sx={{ fontSize: 56 }} />,
@@ -64,8 +64,8 @@ const LandingPage: React.FC = () => {
     },
     {
       icon: <TrendingUp sx={{ fontSize: 56 }} />,
-      title: 'Revenue Sharing',
-      description: 'Monetize through subscriptions, pay-per-use, or outright sales with automatic DAO distribution.',
+      title: 'Revenue Generation',
+      description: 'Monetize your AI moderators through subscriptions, pay-per-use, or outright sales.',
     },
     {
       icon: <YouTube sx={{ fontSize: 56 }} />,

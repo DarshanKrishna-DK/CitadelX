@@ -4,45 +4,40 @@ import {
   Container,
   Typography,
   Grid,
-  Button,
   Card,
   CardContent,
-  List,
-  ListItem,
-  ListItemText,
-  Chip,
+  Button,
   CircularProgress,
+  Avatar,
+  Chip,
+  Stack,
+  Paper,
+  Divider,
 } from '@mui/material'
 import {
-  Group,
   SmartToy,
-  AccountBalance,
-  HowToVote,
   Add,
+  TrendingUp,
+  AttachMoney,
+  Speed,
+  Psychology,
+  Security,
+  Storefront,
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { useWallet } from '@txnlab/use-wallet-react'
-import { useUser } from '../contexts/UserContext'
 import Navbar from '../components/Navbar'
-import StatsCard from '../components/StatsCard'
-import DAOCard from '../components/DAOCard'
 import ModeratorCard from '../components/ModeratorCard'
-import { supabase, DAO, AIModerator, Proposal } from '../utils/supabase'
+import { supabase, AIModerator } from '../utils/supabase'
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate()
   const { activeAddress } = useWallet()
-  const { user } = useUser()
   const [loading, setLoading] = useState(true)
-  const [myDAOs, setMyDAOs] = useState<DAO[]>([])
   const [myModerators, setMyModerators] = useState<AIModerator[]>([])
-  const [pendingProposals, setPendingProposals] = useState<Proposal[]>([])
-  const [stats, setStats] = useState({
-    totalDAOs: 0,
-    activeModerators: 0,
-    totalEarnings: 0,
-    pendingProposals: 0,
-  })
+  const [purchasedModerators, setPurchasedModerators] = useState<AIModerator[]>([])
+  const [earnings, setEarnings] = useState(0)
+  const [totalSales, setTotalSales] = useState(0)
 
   useEffect(() => {
     if (activeAddress) {
@@ -68,79 +63,41 @@ const Dashboard: React.FC = () => {
         return
       }
 
-      // Fetch user's DAOs
-      const { data: daoMemberships } = await supabase
-        .from('dao_members')
-        .select('dao_id')
-        .eq('user_id', userData.id)
+      // Fetch user's created moderators
+      const { data: createdModerators } = await supabase
+        .from('ai_moderators')
+        .select('*')
+        .eq('creator_id', userData.id)
+        .order('created_at', { ascending: false })
 
-      if (daoMemberships && daoMemberships.length > 0) {
-        const daoIds = daoMemberships.map((m) => m.dao_id)
-        const { data: daos } = await supabase
-          .from('daos')
-          .select('*')
-          .in('id', daoIds)
-          .order('created_at', { ascending: false })
+      setMyModerators(createdModerators || [])
 
-        setMyDAOs(daos || [])
-      }
-
-      // Fetch user's moderators (owned through purchases)
+      // Fetch user's purchased moderators
       const { data: purchases } = await supabase
         .from('moderator_purchases')
-        .select('moderator_id')
-        .eq('user_id', userData.id)
+        .select('moderator_id, ai_moderators(*)')
+        .eq('buyer_wallet_address', activeAddress)
 
       if (purchases && purchases.length > 0) {
-        const moderatorIds = purchases.map((p) => p.moderator_id)
-        const { data: moderators } = await supabase
-          .from('ai_moderators')
-          .select('*')
-          .in('id', moderatorIds)
-
-        setMyModerators(moderators || [])
+        const purchasedMods = purchases.map((p: any) => p.ai_moderators).filter(Boolean)
+        setPurchasedModerators(purchasedMods || [])
       }
 
-      // Fetch pending proposals from user's DAOs
-      if (daoMemberships && daoMemberships.length > 0) {
-        const daoIds = daoMemberships.map((m) => m.dao_id)
-        const { data: proposals } = await supabase
-          .from('proposals')
-          .select('*')
-          .in('dao_id', daoIds)
-          .eq('status', 'active')
-          .order('created_at', { ascending: false })
-          .limit(5)
+      // Calculate earnings from moderator sales
+      const { data: sales } = await supabase
+        .from('moderator_purchases')
+        .select('amount_paid, ai_moderators!inner(creator_id)')
+        .eq('ai_moderators.creator_id', userData.id)
 
-        setPendingProposals(proposals || [])
-      }
-
-      // Calculate earnings (simplified - sum of revenue from DAOs user is part of)
       let totalEarnings = 0
-      if (daoMemberships && daoMemberships.length > 0) {
-        const daoIds = daoMemberships.map((m) => m.dao_id)
-        const { data: revenues } = await supabase
-          .from('dao_revenue')
-          .select('total_revenue, dao_id')
-          .in('dao_id', daoIds)
-
-        if (revenues) {
-          // Simplified: divide revenue equally among members
-          for (const rev of revenues) {
-            const dao = myDAOs.find((d) => d.id === rev.dao_id)
-            if (dao && dao.member_count > 0) {
-              totalEarnings += rev.total_revenue / dao.member_count
-            }
-          }
-        }
+      let salesCount = 0
+      if (sales && sales.length > 0) {
+        totalEarnings = sales.reduce((sum, sale) => sum + (sale.amount_paid || 0), 0)
+        salesCount = sales.length
       }
+      setEarnings(totalEarnings)
+      setTotalSales(salesCount)
 
-      setStats({
-        totalDAOs: myDAOs.length,
-        activeModerators: myModerators.filter((m) => m.status === 'active').length,
-        totalEarnings: totalEarnings,
-        pendingProposals: pendingProposals.length,
-      })
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
     } finally {
@@ -152,16 +109,11 @@ const Dashboard: React.FC = () => {
     return (
       <>
         <Navbar />
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: 'calc(100vh - 64px)',
-          }}
-        >
-          <CircularProgress sx={{ color: 'primary.main' }} />
-        </Box>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+            <CircularProgress size={60} />
+          </Box>
+        </Container>
       </>
     )
   }
@@ -169,168 +121,301 @@ const Dashboard: React.FC = () => {
   return (
     <>
       <Navbar />
-      <Box sx={{ backgroundColor: 'background.default', minHeight: 'calc(100vh - 64px)', py: 4 }}>
-        <Container maxWidth="xl">
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              Dashboard
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Welcome back{user?.name ? `, ${user.name}` : ''}! Here's your CitadelX overview.
-            </Typography>
-          </Box>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        {/* Header */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 2 }}>
+            Dashboard
+          </Typography>
+          <Typography variant="h6" color="text.secondary">
+            Manage your AI moderators and track your earnings
+          </Typography>
+        </Box>
 
-          {/* Stats Overview */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} sm={6} md={3}>
-              <StatsCard
-                title="My DAOs"
-                value={stats.totalDAOs}
-                icon={<Group />}
-                subtitle="Active memberships"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <StatsCard
-                title="Active Moderators"
-                value={stats.activeModerators}
-                icon={<SmartToy />}
-                subtitle="Currently deployed"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <StatsCard
-                title="Total Earnings"
-                value={`${stats.totalEarnings.toFixed(2)} ALGO`}
-                icon={<AccountBalance />}
-                subtitle="From DAO revenue"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <StatsCard
-                title="Pending Proposals"
-                value={stats.pendingProposals}
-                icon={<HowToVote />}
-                subtitle="Awaiting your vote"
-              />
-            </Grid>
-          </Grid>
-
-          {/* My DAOs */}
-          <Box sx={{ mb: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                My DAOs
-              </Typography>
-              <Button
-                variant="contained"
-                startIcon={<Add />}
-                onClick={() => navigate('/dao/create')}
-              >
-                Create AI Moderator
-              </Button>
-            </Box>
-            {myDAOs.length > 0 ? (
-              <Grid container spacing={3}>
-                {myDAOs.map((dao) => (
-                  <Grid item xs={12} sm={6} md={4} key={dao.id}>
-                    <DAOCard dao={dao} />
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-              <Card>
-                <CardContent sx={{ textAlign: 'center', py: 6 }}>
-                  <Group sx={{ fontSize: 64, color: 'text.secondary', mb: 2, opacity: 0.3 }} />
-                  <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                    You haven't joined any DAOs yet
-                  </Typography>
-                  <Button variant="contained" onClick={() => navigate('/dao/create')}>
-                    Create Your First AI Moderator
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </Box>
-
-          {/* Recent Activity */}
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                    Pending Proposals
-                  </Typography>
-                  {pendingProposals.length > 0 ? (
-                    <List>
-                      {pendingProposals.map((proposal) => (
-                        <ListItem
-                          key={proposal.id}
-                          sx={{
-                            border: '1px solid rgba(255, 107, 0, 0.2)',
-                            borderRadius: 2,
-                            mb: 1,
-                            cursor: 'pointer',
-                            '&:hover': {
-                              backgroundColor: 'rgba(255, 107, 0, 0.05)',
-                            },
-                          }}
-                          onClick={() => {
-                            const dao = myDAOs.find((d) => d.id === proposal.dao_id)
-                            if (dao) navigate(`/dao/${dao.id}`)
-                          }}
-                        >
-                          <ListItemText
-                            primary={proposal.title}
-                            secondary={`${proposal.current_votes}/${proposal.required_votes} votes`}
-                          />
-                          <Chip label="Vote Now" color="primary" size="small" />
-                        </ListItem>
-                      ))}
-                    </List>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 3 }}>
-                      No pending proposals
+        {/* Stats Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar sx={{ bgcolor: 'primary.main' }}>
+                    <SmartToy />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                      {myModerators.length}
                     </Typography>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                    Active Moderators
-                  </Typography>
-                  {myModerators.length > 0 ? (
-                    <Grid container spacing={2}>
-                      {myModerators.slice(0, 2).map((moderator) => (
-                        <Grid item xs={12} key={moderator.id}>
-                          <ModeratorCard moderator={moderator} />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  ) : (
-                    <Box sx={{ textAlign: 'center', py: 3 }}>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        No active moderators yet
-                      </Typography>
-                      <Button variant="outlined" onClick={() => navigate('/marketplace')}>
-                        Browse Marketplace
-                      </Button>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
+                    <Typography variant="body2" color="text.secondary">
+                      Created Moderators
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
           </Grid>
-        </Container>
-      </Box>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar sx={{ bgcolor: 'success.main' }}>
+                    <AttachMoney />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                      {earnings.toFixed(2)}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Total Earnings (ALGO)
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar sx={{ bgcolor: 'info.main' }}>
+                    <TrendingUp />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                      {totalSales}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Total Sales
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar sx={{ bgcolor: 'warning.main' }}>
+                    <Psychology />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                      {purchasedModerators.length}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Purchased Moderators
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={4}>
+          {/* My Created Moderators */}
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    My AI Moderators
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<Add />}
+                    onClick={() => navigate('/create-moderator')}
+                  >
+                    Create New
+                  </Button>
+                </Box>
+                {myModerators.length > 0 ? (
+                  <Stack spacing={2}>
+                    {myModerators.slice(0, 3).map((moderator) => (
+                      <Paper key={moderator.id} sx={{ p: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <Avatar sx={{ bgcolor: 'primary.main' }}>
+                            <SmartToy />
+                          </Avatar>
+                          <Box sx={{ flexGrow: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                              {moderator.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {moderator.category}
+                            </Typography>
+                          </Box>
+                          <Chip
+                            label={moderator.status}
+                            size="small"
+                            color={
+                              moderator.status === 'active' ? 'success' :
+                              moderator.status === 'training' ? 'warning' : 'default'
+                            }
+                          />
+                        </Box>
+                      </Paper>
+                    ))}
+                    {myModerators.length > 3 && (
+                      <Button
+                        variant="text"
+                        onClick={() => navigate('/profile')}
+                        sx={{ alignSelf: 'center' }}
+                      >
+                        View All ({myModerators.length})
+                      </Button>
+                    )}
+                  </Stack>
+                ) : (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <SmartToy sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                      You haven't created any AI moderators yet
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Add />}
+                      onClick={() => navigate('/create-moderator')}
+                    >
+                      Create Your First Moderator
+                    </Button>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Purchased Moderators */}
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    Purchased Moderators
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    startIcon={<Storefront />}
+                    onClick={() => navigate('/marketplace')}
+                  >
+                    Browse Marketplace
+                  </Button>
+                </Box>
+                {purchasedModerators.length > 0 ? (
+                  <Stack spacing={2}>
+                    {purchasedModerators.slice(0, 3).map((moderator) => (
+                      <Paper key={moderator.id} sx={{ p: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                            <Security />
+                          </Avatar>
+                          <Box sx={{ flexGrow: 1 }}>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                              {moderator.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {moderator.category}
+                            </Typography>
+                          </Box>
+                          <Button
+                            size="small"
+                            onClick={() => navigate(`/moderator/${moderator.id}`)}
+                          >
+                            View
+                          </Button>
+                        </Box>
+                      </Paper>
+                    ))}
+                    {purchasedModerators.length > 3 && (
+                      <Button
+                        variant="text"
+                        onClick={() => navigate('/profile')}
+                        sx={{ alignSelf: 'center' }}
+                      >
+                        View All ({purchasedModerators.length})
+                      </Button>
+                    )}
+                  </Stack>
+                ) : (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Storefront sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                      You haven't purchased any moderators yet
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      startIcon={<Storefront />}
+                      onClick={() => navigate('/marketplace')}
+                    >
+                      Browse Marketplace
+                    </Button>
+                  </Box>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Quick Actions */}
+        <Card sx={{ mt: 4 }}>
+          <CardContent>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
+              Quick Actions
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Add />}
+                  onClick={() => navigate('/create-moderator')}
+                  sx={{ py: 2 }}
+                >
+                  Create Moderator
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Storefront />}
+                  onClick={() => navigate('/marketplace')}
+                  sx={{ py: 2 }}
+                >
+                  Browse Marketplace
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Psychology />}
+                  onClick={() => navigate('/profile')}
+                  sx={{ py: 2 }}
+                >
+                  View Profile
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<TrendingUp />}
+                  onClick={() => navigate('/profile')}
+                  sx={{ py: 2 }}
+                >
+                  View Analytics
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </Container>
     </>
   )
 }
 
 export default Dashboard
-
-

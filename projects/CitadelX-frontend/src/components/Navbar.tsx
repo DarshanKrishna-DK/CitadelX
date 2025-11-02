@@ -123,10 +123,10 @@ const Navbar: React.FC = () => {
             </Button>
             <Button
               color="inherit"
-              onClick={() => navigate('/active-daos')}
+              onClick={() => navigate('/create-moderator')}
               sx={{ '&:hover': { color: 'primary.main' } }}
             >
-              Active DAOs
+              Create Moderator
             </Button>
           </Box>
         </Box>
