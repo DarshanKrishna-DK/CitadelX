@@ -257,6 +257,9 @@ const CreateDAO: React.FC = () => {
     console.log('✅ Wallet validation passed - proceeding with DAO creation')
     console.log('Active address:', activeAddress)
     console.log('Address length:', activeAddress.length)
+    console.log('Form data:', formData)
+    console.log('Context documents:', contextDocuments.length)
+    console.log('DAO image:', daoImage?.name || 'None')
 
     try {
       setLoading(true)
@@ -296,18 +299,49 @@ const CreateDAO: React.FC = () => {
       console.log('✅ DAO image IPFS hash:', finalImageHash)
       console.log('✅ Context documents IPFS hash:', finalContextHash)
 
-      // Get user ID from database
-      const { data: userData } = await supabase
-        .from('users')
-        .select('id')
-        .eq('wallet_address', activeAddress)
-        .single()
+      // Get or create user in database
+      let userData
+      try {
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('wallet_address', activeAddress)
+          .single()
+
+        if (existingUser) {
+          userData = existingUser
+        } else {
+          // User doesn't exist, create them
+          console.log('User not found, creating new user for wallet:', activeAddress)
+          const { data: newUser, error: createError } = await supabase
+            .from('users')
+            .insert([{
+              wallet_address: activeAddress,
+              created_at: new Date().toISOString(),
+            }])
+            .select('id')
+            .single()
+
+          if (createError) {
+            console.error('Error creating user:', createError)
+            // Fallback: use wallet address as user ID
+            userData = { id: activeAddress }
+          } else {
+            userData = newUser
+          }
+        }
+      } catch (error) {
+        console.error('Database error, using fallback user ID:', error)
+        // Fallback: use wallet address as user ID for offline mode
+        userData = { id: activeAddress }
+      }
 
       if (!userData) {
-        throw new Error('User not found. Please ensure your wallet is connected.')
+        throw new Error('Failed to get or create user. Please try again.')
       }
 
       // Create DAO record in database first
+      console.log('📝 Creating DAO record in database...')
       const { data: daoData, error: dbError } = await supabase
         .from('daos')
         .insert([
@@ -333,7 +367,16 @@ const CreateDAO: React.FC = () => {
         .select()
         .single()
 
-      if (dbError) throw dbError
+      if (dbError) {
+        console.error('Database error creating DAO:', dbError)
+        throw new Error(`Failed to create DAO in database: ${dbError.message}`)
+      }
+
+      if (!daoData) {
+        throw new Error('DAO creation failed - no data returned from database')
+      }
+
+      console.log('✅ DAO record created successfully:', daoData.id)
 
       // Create blockchain transaction
       const algodConfig = getAlgodConfigFromViteEnvironment()
