@@ -1,4 +1,11 @@
-# CitadelX
+<h1 align="center">CitadelX</h1>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Algorand-2563EB?style=for-the-badge" alt="Algorand" />
+  <img src="https://img.shields.io/badge/Python-7C3AED?style=for-the-badge" alt="Python" />
+  <img src="https://img.shields.io/badge/React-0891B2?style=for-the-badge" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-475569?style=for-the-badge" alt="TypeScript" />
+</p>
 
 **Decentralized AI Moderation for the Creator Economy**
 
